@@ -3,6 +3,9 @@ import requests
 import pgeocode
 import pandas as pd
 import asyncio
+import json
+import math
+from pathlib import Path
 
 app = FastAPI()
 
@@ -56,3 +59,33 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     }
 
 asyncio.run(scout())
+
+
+def get_closest_shelters(lat: float, lng: float, k: int = 5):
+    """
+    Returns the k closest shelters from shelters_geocoded.json.
+    Skips shelters with null lat/lng.
+    """
+    data_path = Path(__file__).parent / "shelters_geocoded.json"
+    shelters = json.loads(data_path.read_text(encoding="utf-8"))
+
+    def haversine(lat1, lon1, lat2, lon2):
+        r = 6371.0  # km
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
+        a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+        return 2 * r * math.asin(math.sqrt(a))
+
+    candidates = []
+    for s in shelters:
+        s_lat = s.get("lat")
+        s_lng = s.get("lng")
+        if s_lat is None or s_lng is None:
+            continue
+        dist_km = haversine(lat, lng, s_lat, s_lng)
+        candidates.append({**s, "distance_km": dist_km})
+
+    candidates.sort(key=lambda x: x["distance_km"])
+    return candidates[:k]
