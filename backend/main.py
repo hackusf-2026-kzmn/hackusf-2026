@@ -89,3 +89,6 @@ def get_closest_shelters(lat: float, lng: float, k: int = 5):
 
     candidates.sort(key=lambda x: x["distance_km"])
     return candidates[:k]
+
+@app.get("/resourceMatcher")
+def resourceMatcher
