@@ -18,8 +18,7 @@ def get_nomi_info(zip_code: str) -> dict:
     nomi_info = {
         "state_code": str(nomi_result.state_code),
         "county_name": str(nomi_result.county_name),
-        "latitude": str(nomi_result.latitude),
-        "longitude": str(nomi_result.longitude)
+        "coords": (str(nomi_result.latitude), str(nomi_result.longitude))
     }
 
     return nomi_info
@@ -27,7 +26,6 @@ def get_nomi_info(zip_code: str) -> dict:
 @app.get("/scout")
 async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     nomi = get_nomi_info(zip_code)
-
 
     county_short = nomi["county_name"].replace(" County", "").strip()
 
@@ -66,11 +64,13 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     }
 
 
-def get_closest_shelters(lat: float, lng: float, k: int = 5):
+def get_closest_shelters(zip_code: str, num_of_shelter: int = 5):
     """
     Returns the k closest shelters from shelters_geocoded.json.
     Skips shelters with null lat/lng.
     """
+
+    lat, lng = get_nomi_info(zip_code)["coords"]
     data_path = Path(__file__).parent / "shelters_geocoded.json"
     shelters = json.loads(data_path.read_text(encoding="utf-8"))
 
@@ -93,4 +93,4 @@ def get_closest_shelters(lat: float, lng: float, k: int = 5):
         candidates.append({**s, "distance_km": dist_km})
 
     candidates.sort(key=lambda x: x["distance_km"])
-    return candidates[:k]
+    return candidates[:num_of_shelter]
