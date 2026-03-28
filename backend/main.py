@@ -63,8 +63,8 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
         "alerts": matching,  # fix: return filtered list
     }
 
-
-def get_closest_shelters(zip_code: str, num_of_shelter: int = 5):
+@app.get("/resourceMatcher")
+async def get_closest_shelters(zip_code: str, num_of_shelter: int = 5) -> list:
     """
     Returns the k closest shelters from shelters_geocoded.json.
     Skips shelters with null lat/lng.
@@ -94,7 +94,3 @@ def get_closest_shelters(zip_code: str, num_of_shelter: int = 5):
 
     candidates.sort(key=lambda x: x["distance_km"])
     return candidates[:num_of_shelter]
-
-@app.get("/resourceMatcher")
-def resourceMatcher(get_closest_shelters()) -> list:
-    pass
