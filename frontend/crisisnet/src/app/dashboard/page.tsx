@@ -23,17 +23,17 @@ export default function DashboardPage() {
   const [submitting, setSubmitting] = useState(false);
   const toastIdRef = useRef(0);
 
-  // Simulate a new incident appearing after 18s
+  // Simulate Scout Agent flagging a new event after 18s
   useEffect(() => {
     const t = setTimeout(() => {
       setIncidents((prev) => [
         {
-          id: "INC-007",
+          id: "EVT-007",
           description:
-            "Gas leak detected near Ybor City — 2 block evacuation radius",
-          location: "Ybor City",
-          lat: 27.9612,
-          lng: -82.4375,
+            "Waterspout developing offshore — NWS warning issued for Hillsborough Bay",
+          location: "Hillsborough Bay, FL — zip 33606",
+          lat: 27.9012,
+          lng: -82.4675,
           priority: "P2",
           status: "active",
           timestamp: "10:18",
@@ -65,15 +65,15 @@ export default function DashboardPage() {
       reporter?: string;
     }) => {
       setSubmitting(true);
-      addToast("Triage Agent processing...", "processing");
+      addToast("Scout → Triage Agent processing...", "processing");
 
       setTimeout(() => {
-        addToast("Classified as P2 — HIGH", "success");
+        addToast("Severity scored: P2 — HIGH · Programs matched", "success");
         setIncidents((prev) => [
           {
-            id: `INC-${String(prev.length + 1).padStart(3, "0")}`,
+            id: `EVT-${String(prev.length + 1).padStart(3, "0")}`,
             description: report.description,
-            location: `${report.lat.toFixed(4)}, ${report.lng.toFixed(4)}`,
+            location: `zip ${report.reporter ?? "unknown"} · ${report.lat.toFixed(4)}, ${report.lng.toFixed(4)}`,
             lat: report.lat,
             lng: report.lng,
             priority: "P2",

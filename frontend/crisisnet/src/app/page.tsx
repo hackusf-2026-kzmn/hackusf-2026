@@ -177,13 +177,13 @@ export default function HomePage() {
               003 ————
             </div>
             <div className="font-display text-4xl font-bold tracking-[-1px] uppercase">
-              The Agent Network
+              The Agent Pipeline
             </div>
           </div>
           <div className="font-mono text-[11px] text-[#555] text-right leading-[1.8] tracking-wider">
             5 SPECIALIZED AGENTS
             <br />
-            COORDINATING VIA A2A
+            ORCHESTRATED VIA GOOGLE ADK
           </div>
         </div>
 
@@ -216,9 +216,9 @@ export default function HomePage() {
         {[
           ["Framework", "Next.js + TypeScript"],
           ["AI", "Google ADK + Gemini"],
-          ["Protocol", "A2A (Agent-to-Agent)"],
-          ["Data", "Snowflake"],
-          ["Map", "Leaflet.js"],
+          ["Data APIs", "NWS · FEMA · Census · NOAA"],
+          ["Storage", "SQLite"],
+          ["Alerts", "Mailgun"],
         ].map(([label, value], i, arr) => (
           <div
             key={label}
@@ -249,11 +249,12 @@ export default function HomePage() {
             004 ————
           </div>
           <h2 className="font-display text-[clamp(32px,5vw,64px)] font-extrabold uppercase tracking-[-2px] mb-5">
-            See It Live.
+            Try It Live.
           </h2>
           <p className="text-base text-[#888] max-w-[480px] mx-auto mb-10 leading-relaxed font-light">
-            Watch five AI agents coordinate a disaster response in real time.
-            Tampa Bay. Hurricane aftermath. 90 seconds.
+            Enter a zip code and watch the pipeline run — Scout identifies active
+            threats, Triage scores severity, Resource Agent matches support
+            programs, and Comms drafts an alert. All in seconds.
           </p>
           <Link
             href="/dashboard"
