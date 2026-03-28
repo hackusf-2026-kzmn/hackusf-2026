@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { WorldMap } from "@/components/ui/world-map";
+import { GridHero } from "@/components/ui/grid-hero-animated";
 import { mockAgentStatus } from "@/mock/mockAgentStatus";
 
 // CrisisNet global response network connections
@@ -42,14 +43,11 @@ export default function HomePage() {
     <div className="min-h-screen pt-14">
       {/* ═══ HERO ═══ */}
       <section className="relative min-h-[calc(100vh-56px)] flex flex-col justify-center px-[60px] py-20 overflow-hidden">
-        {/* Grid bg */}
-        <div
-          className="absolute inset-0 opacity-[0.15]"
-          style={{
-            backgroundImage:
-              "linear-gradient(#7a9470 1px, transparent 1px), linear-gradient(90deg, #7a9470 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
+        {/* Animated grid bg */}
+        <GridHero
+          gridColor="#7a9470"
+          particleColor="#16a34a"
+          gridOpacity={0.22}
         />
         {/* HUD corners */}
         <div className="absolute top-5 left-5 w-5 h-5 border-t-2 border-l-2 border-[#16a34a] opacity-30" />
