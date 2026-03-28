@@ -3,26 +3,37 @@ import requests
 import pgeocode
 import pandas as pd
 import asyncio
+import json
+import math
+from pathlib import Path
 
 app = FastAPI()
 
 USF_ZIP_CODE="33071"
- 
-@app.get("/scout")
-async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
+
+def get_nomi_info(zip_code: str) -> dict:
     nomi = pgeocode.Nominatim('us')
     nomi_result = nomi.query_postal_code(zip_code)
 
-    state_code = str(nomi_result.state_code)
-    county_name = str(nomi_result.county_name)  # fix: no int() conversion
-    latitude = str(nomi_result.latitude)
-    longitude = str(nomi_result.longitude)
+    nomi_info = {
+        "state_code": str(nomi_result.state_code),
+        "county_name": str(nomi_result.county_name),
+        "latitude": str(nomi_result.latitude),
+        "longitude": str(nomi_result.longitude)
+    }
 
-    county_short = county_name.replace(" County", "").strip()
+    return nomi_info
+
+@app.get("/scout")
+async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
+    nomi = get_nomi_info(zip_code)
+
+
+    county_short = nomi["county_name"].replace(" County", "").strip()
 
     headers = {"User-Agent": "CrisisNet (contact: ni717713@ucf.edu)"}
     alerts_resp = requests.get(
-        f"https://api.weather.gov/alerts/active?area={state_code}",
+        f"https://api.weather.gov/alerts/active?area={nomi["state_code"]}",
         headers=headers,
         timeout=10,
     )
@@ -52,7 +63,37 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     return {
         "zip_code": zip_code,
         "alerts": matching,  # fix: return filtered list
-        "coords": (latitude, longitude)
     }
 
-asyncio.run(scout())
+
+def get_closest_shelters(lat: float, lng: float, k: int = 5):
+    """
+    Returns the k closest shelters from shelters_geocoded.json.
+    Skips shelters with null lat/lng.
+    """
+    data_path = Path(__file__).parent / "shelters_geocoded.json"
+    shelters = json.loads(data_path.read_text(encoding="utf-8"))
+
+    def haversine(lat1, lon1, lat2, lon2):
+        r = 6371.0  # km
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
+        a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+        return 2 * r * math.asin(math.sqrt(a))
+
+    candidates = []
+    for s in shelters:
+        s_lat = s.get("lat")
+        s_lng = s.get("lng")
+        if s_lat is None or s_lng is None:
+            continue
+        dist_km = haversine(lat, lng, s_lat, s_lng)
+        candidates.append({**s, "distance_km": dist_km})
+
+    candidates.sort(key=lambda x: x["distance_km"])
+    return candidates[:k]
+
+@app.get("/resourceMatcher")
+def resourceMatcher
