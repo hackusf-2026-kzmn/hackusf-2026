@@ -10,22 +10,30 @@ from pathlib import Path
 app = FastAPI()
 
 USF_ZIP_CODE="33071"
- 
-@app.get("/scout")
-async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
+
+def get_nomi_info(zip_code: str) -> dict:
     nomi = pgeocode.Nominatim('us')
     nomi_result = nomi.query_postal_code(zip_code)
 
-    state_code = str(nomi_result.state_code)
-    county_name = str(nomi_result.county_name)  # fix: no int() conversion
-    latitude = str(nomi_result.latitude)
-    longitude = str(nomi_result.longitude)
+    nomi_info = {
+        "state_code": str(nomi_result.state_code),
+        "county_name": str(nomi_result.county_name),
+        "latitude": str(nomi_result.latitude),
+        "longitude": str(nomi_result.longitude)
+    }
 
-    county_short = county_name.replace(" County", "").strip()
+    return nomi_info
+
+@app.get("/scout")
+async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
+    nomi = get_nomi_info(zip_code)
+
+
+    county_short = nomi["county_name"].replace(" County", "").strip()
 
     headers = {"User-Agent": "CrisisNet (contact: ni717713@ucf.edu)"}
     alerts_resp = requests.get(
-        f"https://api.weather.gov/alerts/active?area={state_code}",
+        f"https://api.weather.gov/alerts/active?area={nomi["state_code"]}",
         headers=headers,
         timeout=10,
     )
@@ -55,10 +63,7 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     return {
         "zip_code": zip_code,
         "alerts": matching,  # fix: return filtered list
-        "coords": (latitude, longitude)
     }
-
-asyncio.run(scout())
 
 
 def get_closest_shelters(lat: float, lng: float, k: int = 5):
