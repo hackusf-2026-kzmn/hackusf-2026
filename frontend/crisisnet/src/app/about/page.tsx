@@ -14,7 +14,6 @@ const TECH_STACK = [
   ["Frontend", "Next.js + TypeScript"],
   ["Styling", "Tailwind CSS"],
   ["AI Orchestration", "Google ADK + Gemini"],
-  ["Agents", "Scout · Triage · Resource · Comms · Coord"],
   ["Weather Data", "NWS + NOAA + FEMA APIs"],
   ["Population Data", "US Census API"],
   ["Alerts", "Mailgun"],
@@ -74,8 +73,7 @@ const STEPS = [
 const METRICS = [
   { num: "001", value: "~94", accent: "s", label: "Full Pipeline Cycle" },
   { num: "002", value: "5", accent: " Agents", label: "Specialized AI Workers" },
-  { num: "003", value: "3", accent: " Lang", label: "EN · ES · HT Alerts" },
-  { num: "004", value: "6", accent: "+", label: "Government Data Sources" },
+  { num: "003", value: "6", accent: "+", label: "Government Data Sources" },
 ];
 
 export default function AboutPage() {
@@ -115,7 +113,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen pt-14">
       {/* ═══ HERO ═══ */}
-      <section ref={heroRef} className="relative px-[60px] pt-[100px] pb-[80px] overflow-hidden border-b border-[#d4dbc8]">
+      <section ref={heroRef} className="relative px-[60px] pt-[100px] pb-[60px] overflow-hidden border-b border-[#d4dbc8]">
         <GridHero
           gridColor="#7a9470"
           particleColor="#16a34a"
@@ -129,55 +127,35 @@ export default function AboutPage() {
         <div className="absolute bottom-5 left-5 w-5 h-5 border-b-2 border-l-2 border-[#16a34a] opacity-30" />
         <div className="absolute bottom-5 right-5 w-5 h-5 border-b-2 border-r-2 border-[#16a34a] opacity-30" />
 
-        <div className="relative z-10 max-w-[800px]" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3' }}>
-          <div className="font-mono text-[11px] text-[#16a34a] tracking-[3px] uppercase mb-6 flex items-center gap-3">
-            <span className="w-10 h-px bg-[#16a34a]" />
-            About CrisisNet · HackUSF 2026
-          </div>
-
-          <h1 className="font-display font-extrabold text-[clamp(40px,6vw,80px)] leading-[0.92] tracking-[-2px] uppercase mb-8">
-            Built for Tampa.
-            <br />
-            Built for{" "}
-            <em className="font-serif italic font-normal text-[#16a34a]">
-              Crisis.
-            </em>
+        <div className="relative z-10 text-center" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3' }}>
+          <h1 className="font-display font-extrabold text-[clamp(40px,6vw,80px)] leading-[0.95] tracking-[-2px] uppercase mb-6">
+            What we&apos;re about.
           </h1>
 
-          <p className="text-base text-[#52665e] max-w-[600px] leading-[1.8] font-light mb-10" style={{ textShadow: 'none' }}>
-            CrisisNet is a multi-agent AI system built to assist the people who prevent
-            harm during environmental disasters. It continuously scans for anomalous weather,
-            scores severity, matches affected populations to local and federal support programs,
-            and publishes everything through a public dashboard and API — all from a zip code.
-          </p>
-
-          <div className="flex gap-3 items-center" style={{ textShadow: 'none' }}>
-            <Link
-              href="/dashboard"
-              className="font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase shadow-none hover:brightness-110 hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200"
-              onMouseEnter={handleButtonHover}
-              onMouseLeave={handleButtonLeave}
-            >
-              Launch Dashboard
-            </Link>
-            <Link
-              href="/"
-              className="font-mono text-xs border border-[#16a34a] text-[#16a34a] px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:bg-[#16a34a] hover:text-white hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200"
-              onMouseEnter={handleButtonHover}
-              onMouseLeave={handleButtonLeave}
-            >
-              Back to Home
-            </Link>
+          <div className="font-mono text-[12px] text-[#6b7869] tracking-[2px] uppercase leading-[2]" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+            AI-powered disaster response.
+            <br />
+            Built for Tampa.
           </div>
+
+          <Link
+            href="/dashboard"
+            className="inline-block mt-10 font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase shadow-none hover:brightness-110 hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200"
+            style={{ textShadow: 'none' }}
+            onMouseEnter={handleButtonHover}
+            onMouseLeave={handleButtonLeave}
+          >
+            Open Dashboard →
+          </Link>
         </div>
       </section>
 
       {/* ═══ METRICS BAR ═══ */}
-      <div className="grid grid-cols-4 border-b border-[#d4dbc8]">
+      <div className="grid grid-cols-3 border-b border-[#d4dbc8]">
         {METRICS.map((s, i) => (
           <div
             key={s.num}
-            className={`relative px-10 py-10 ${i < 3 ? "border-r border-[#d4dbc8]" : ""}`}
+            className={`relative px-10 py-10 ${i < 2 ? "border-r border-[#d4dbc8]" : ""}`}
           >
             <span className="absolute top-3 right-4 font-mono text-[9px] text-[#6b7869] tracking-wider">
               {s.num}
@@ -296,25 +274,25 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ═══ TECH STRIP ═══ */}
-      <div className="flex items-center border-b border-[#d4dbc8]">
-        {TECH_STACK.map(([label, value], i, arr) => (
-          <div
-            key={label}
-            className={`relative flex-1 px-6 py-5 font-mono text-xs text-[#6b7869] tracking-wider text-center ${
-              i < arr.length - 1 ? "border-r border-[#d4dbc8]" : ""
-            }`}
-          >
-            <span className="absolute -left-px -top-px block size-2 border-l-2 border-t-2 border-[#16a34a]" />
-            <span className="absolute -right-px -top-px block size-2 border-r-2 border-t-2 border-[#16a34a]" />
-            <span className="absolute -left-px -bottom-px block size-2 border-l-2 border-b-2 border-[#16a34a]" />
-            <span className="absolute -right-px -bottom-px block size-2 border-r-2 border-b-2 border-[#16a34a]" />
-            <strong className="block text-[#111d0f] font-medium mb-1">
-              {value}
-            </strong>
-            {label}
-          </div>
-        ))}
+      {/* ═══ TECH STRIP (infinite scroll) ═══ */}
+      <div className="overflow-hidden border-b border-[#d4dbc8]">
+        <div className="flex w-max animate-marquee">
+          {[...TECH_STACK, ...TECH_STACK].map(([label, value], i) => (
+            <div
+              key={`${label}-${i}`}
+              className="relative flex-shrink-0 w-[200px] px-6 py-5 font-mono text-xs text-[#6b7869] tracking-wider text-center border-r border-[#d4dbc8] hover:bg-white transition-colors"
+            >
+              <span className="absolute -left-px -top-px block size-2 border-l-2 border-t-2 border-[#16a34a]" />
+              <span className="absolute -right-px -top-px block size-2 border-r-2 border-t-2 border-[#16a34a]" />
+              <span className="absolute -left-px -bottom-px block size-2 border-l-2 border-b-2 border-[#16a34a]" />
+              <span className="absolute -right-px -bottom-px block size-2 border-r-2 border-b-2 border-[#16a34a]" />
+              <strong className="block text-[#111d0f] font-medium mb-1">
+                {value}
+              </strong>
+              {label}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* ═══ TEAM ═══ */}
@@ -384,10 +362,6 @@ export default function AboutPage() {
           <h2 className="font-display text-[clamp(32px,5vw,64px)] font-extrabold uppercase tracking-[-2px] mb-5">
             Ready to See It?
           </h2>
-          <p className="text-base text-[#52665e] max-w-[480px] mx-auto mb-10 leading-relaxed font-light" style={{ textShadow: 'none' }}>
-            Experience five AI agents responding to a simulated hurricane in
-            Tampa Bay.
-          </p>
           <Link
             href="/dashboard"
             className="inline-block font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:brightness-110 hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200"
