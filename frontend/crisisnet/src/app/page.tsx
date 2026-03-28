@@ -11,6 +11,7 @@ import {
   CardItem,
 } from "@/components/ui/3d-card-effect";
 import { mockAgentStatus } from "@/mock/mockAgentStatus";
+import { CobeGlobe } from "@/components/ui/cobe-globe";
 
 // CrisisNet global response network connections
 const CRISIS_CONNECTIONS = [
@@ -65,7 +66,8 @@ export default function HomePage() {
         <div className="absolute bottom-5 left-5 w-5 h-5 border-b-2 border-l-2 border-[#16a34a] opacity-30" />
         <div className="absolute bottom-5 right-5 w-5 h-5 border-b-2 border-r-2 border-[#16a34a] opacity-30" />
 
-        <div className="relative z-10" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
+        <div className="relative z-10 flex items-center">
+          <div className="flex-1 min-w-0 max-w-[55%]" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
           <div className="font-mono text-[11px] text-[#16a34a] tracking-[3px] uppercase mb-6 flex items-center gap-3">
             <span className="w-10 h-px bg-[#16a34a]" />
             Multi-Agent Disaster Response · Google ADK
@@ -107,17 +109,12 @@ export default function HomePage() {
               Learn More
             </Link>
           </div>
+          </div>
         </div>
 
-        {/* Meta corner */}
-        <div className="absolute bottom-10 right-[60px] font-mono text-[10px] text-[#6b7869] text-right leading-[1.8] tracking-wider" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
-          HACKUSF 2026
-          <br />
-          TAMPA, FL
-          <br />
-          BUILD WITH AI
-          <br />
-          <span className="text-[#16a34a]">V1.0.0</span>
+        {/* Globe — anchored to section bottom-right, clipped by overflow-hidden */}
+        <div className="absolute right-[-350px] bottom-[-400px] w-[1300px] h-[1300px] z-[5] pointer-events-auto">
+          <CobeGlobe speed={0.002} />
         </div>
       </section>
 
