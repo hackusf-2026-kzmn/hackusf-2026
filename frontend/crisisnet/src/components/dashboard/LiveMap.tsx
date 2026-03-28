@@ -49,13 +49,13 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
   return (
     <div>
       <div className="px-4 pt-3">
-        <div className="font-mono text-[10px] text-[#555] tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
-          <span className="w-1 h-1 bg-[#c8ff00]" />
+        <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
+          <span className="w-1 h-1 bg-[#16a34a]" />
           Operations Map — Tampa Bay AO
         </div>
       </div>
 
-      <div className="mx-4 border border-[#262626] overflow-hidden" style={{ height: 380 }}>
+      <div className="mx-4 border border-[#d4dbc8] overflow-hidden" style={{ height: 380 }}>
         <Map
           center={[-82.46, 27.94]}
           zoom={11.5}
@@ -70,7 +70,7 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
             <MapRoute
               key={route.id}
               coordinates={route.coords}
-              color="#c8ff00"
+              color="#16a34a"
               width={2}
               opacity={0.4}
               dashArray={[4, 3]}
@@ -88,7 +88,7 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
                 latitude={inc.lat + 0.003}
               >
                 <MarkerContent className="flex items-center justify-center">
-                  <div className="w-4 h-4 border border-[#c8ff00]/50 bg-[#c8ff00]/10 flex items-center justify-center text-[8px]">
+                  <div className="w-4 h-4 border border-[#16a34a]/50 bg-[#16a34a]/10 flex items-center justify-center text-[8px]">
                     {r.icon}
                   </div>
                 </MarkerContent>
@@ -145,13 +145,13 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
                 {selectedIncident?.id === inc.id && (
                   <MarkerPopup closeButton>
                     <div className="min-w-[200px]">
-                      <div className="font-mono text-[10px] text-[#555]">
+                      <div className="font-mono text-[10px] text-[#6b7869]">
                         {inc.id}
                       </div>
                       <div className="font-semibold text-xs mt-1">
                         {inc.description}
                       </div>
-                      <div className="text-[#555] text-[10px] mt-1">
+                      <div className="text-[#6b7869] text-[10px] mt-1">
                         📍 {inc.location}
                       </div>
                       <span

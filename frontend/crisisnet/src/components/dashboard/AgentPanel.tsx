@@ -45,32 +45,32 @@ export function AgentPanel() {
 
   return (
     <div className="p-4 overflow-y-auto max-h-[calc(100vh-100px)]">
-      <div className="font-mono text-[10px] text-[#555] tracking-[1.5px] uppercase mb-3.5 flex items-center gap-2">
-        <span className="w-1 h-1 bg-[#c8ff00]" />
+      <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3.5 flex items-center gap-2">
+        <span className="w-1 h-1 bg-[#16a34a]" />
         Agent Activity
       </div>
 
       {agents.map((a) => (
         <div
           key={a.id}
-          className={`bg-[#1a1a1a] border p-3 mb-1.5 transition-all duration-250 relative ${
+          className={`bg-white border p-3 mb-1.5 transition-all duration-250 relative ${
             a.flash
-              ? "border-[#c8ff00] shadow-[0_0_10px_rgba(200,255,0,0.08)]"
-              : "border-[#262626] hover:bg-[#141414] hover:border-[#3a3a3a]"
+              ? "border-[#16a34a] shadow-[0_0_10px_rgba(22,163,74,0.1)]"
+              : "border-[#d4dbc8] hover:bg-[#edf1e8] hover:border-[#b8c4aa]"
           }`}
         >
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold">
               <span>{a.icon}</span> {a.shortName}
             </div>
-            <span className="font-mono text-[9px] px-2 py-0.5 tracking-wider text-[#c8ff00] bg-[rgba(200,255,0,0.08)] border border-[rgba(200,255,0,0.2)]">
+            <span className="font-mono text-[9px] px-2 py-0.5 tracking-wider text-[#16a34a] bg-[rgba(22,163,74,0.08)] border border-[rgba(22,163,74,0.2)]">
               ● ACTIVE
             </span>
           </div>
-          <div className="font-mono text-[10px] text-[#888] leading-relaxed min-h-[32px]">
+          <div className="font-mono text-[10px] text-[#52665e] leading-relaxed min-h-[32px]">
             {a.currentAction}
           </div>
-          <div className="font-mono text-[9px] text-[#555] mt-1">just now</div>
+          <div className="font-mono text-[9px] text-[#6b7869] mt-1">just now</div>
         </div>
       ))}
     </div>

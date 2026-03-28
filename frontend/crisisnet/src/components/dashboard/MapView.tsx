@@ -40,13 +40,13 @@ export function MapView({ incidents, resources }: MapViewProps) {
   return (
     <div>
       <div className="px-4 pt-3">
-        <div className="font-mono text-[10px] text-[#555] tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
-          <span className="w-1 h-1 bg-[#c8ff00]" />
+        <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
+          <span className="w-1 h-1 bg-[#16a34a]" />
           Operations Map — Tampa Bay AO
         </div>
       </div>
 
-      <div className="relative mx-4 bg-[#0e0e0e] border border-[#262626] overflow-hidden"
+      <div className="relative mx-4 bg-[#eef2ea] border border-[#d4dbc8] overflow-hidden"
         style={{ minHeight: 360 }}
       >
         <svg
@@ -59,11 +59,11 @@ export function MapView({ incidents, resources }: MapViewProps) {
             <g key={i}>
               <line
                 x1={0} y1={(H / 10) * i} x2={W} y2={(H / 10) * i}
-                stroke="#262626" strokeWidth="0.5" opacity="0.3"
+                stroke="#d4dbc8" strokeWidth="0.5" opacity="0.5"
               />
               <line
                 x1={(W / 10) * i} y1={0} x2={(W / 10) * i} y2={H}
-                stroke="#262626" strokeWidth="0.5" opacity="0.3"
+                stroke="#d4dbc8" strokeWidth="0.5" opacity="0.5"
               />
             </g>
           ))}
@@ -71,14 +71,14 @@ export function MapView({ incidents, resources }: MapViewProps) {
           {/* Water body */}
           <path
             d={`M ${W * 0.3} ${H * 0.6} Q ${W * 0.35} ${H * 0.3}, ${W * 0.5} ${H * 0.25} Q ${W * 0.6} ${H * 0.35}, ${W * 0.55} ${H * 0.55} Q ${W * 0.45} ${H * 0.7}, ${W * 0.3} ${H * 0.6} Z`}
-            fill="rgba(200,255,0,0.02)"
-            stroke="rgba(200,255,0,0.08)"
+            fill="rgba(22,163,74,0.04)"
+            stroke="rgba(22,163,74,0.12)"
             strokeWidth="1"
           />
           <text
             x={W * 0.4} y={H * 0.45}
             fontFamily="monospace" fontSize="10"
-            fill="rgba(200,255,0,0.12)"
+            fill="rgba(22,163,74,0.15)"
           >
             Tampa Bay
           </text>
@@ -93,12 +93,12 @@ export function MapView({ incidents, resources }: MapViewProps) {
               <g key={r.id}>
                 <line
                   x1={rp.x} y1={rp.y} x2={ip.x} y2={ip.y}
-                  stroke="rgba(200,255,0,0.15)" strokeWidth="1"
+                  stroke="rgba(22,163,74,0.2)" strokeWidth="1"
                   strokeDasharray="3 2"
                 />
                 <circle
                   cx={rp.x} cy={rp.y} r="4"
-                  fill="rgba(200,255,0,0.1)" stroke="#c8ff00"
+                  fill="rgba(22,163,74,0.1)" stroke="#16a34a"
                   strokeWidth="1"
                 />
               </g>
@@ -143,12 +143,12 @@ export function MapView({ incidents, resources }: MapViewProps) {
 
         {/* Tooltip */}
         {tooltip && (
-          <div className="absolute left-4 bottom-4 bg-[#1a1a1a] border border-[#3a3a3a] p-3 max-w-[260px] text-xs shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
-            <div className="font-mono text-[10px] text-[#555]">
+          <div className="absolute left-4 bottom-4 bg-white border border-[#b8c4aa] p-3 max-w-[260px] text-xs shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+            <div className="font-mono text-[10px] text-[#6b7869]">
               {tooltip.id}
             </div>
-            <div className="font-semibold mt-1">{tooltip.description}</div>
-            <div className="text-[#555] text-[10px] mt-1">
+            <div className="font-semibold mt-1 text-[#111d0f]">{tooltip.description}</div>
+            <div className="text-[#6b7869] text-[10px] mt-1">
               📍 {tooltip.location}
             </div>
             <span

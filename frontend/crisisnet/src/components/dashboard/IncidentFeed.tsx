@@ -15,10 +15,10 @@ export function IncidentFeed({ incidents }: IncidentFeedProps) {
 
   return (
     <div className="p-4 flex-1 overflow-y-auto">
-      <div className="font-mono text-[10px] text-[#555] tracking-[1.5px] uppercase mb-3.5 flex items-center gap-2">
-        <span className="w-1 h-1 bg-[#c8ff00]" />
+      <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3.5 flex items-center gap-2">
+        <span className="w-1 h-1 bg-[#16a34a]" />
         Incident Feed
-        <span className="ml-auto font-mono text-[9px] text-[#555]">
+        <span className="ml-auto font-mono text-[9px] text-[#6b7869]">
           {sorted.length} active
         </span>
       </div>
@@ -28,14 +28,14 @@ export function IncidentFeed({ incidents }: IncidentFeedProps) {
         return (
           <div
             key={inc.id}
-            className={`bg-[#1a1a1a] border p-2.5 mb-1.5 transition-all cursor-default ${
+            className={`bg-white border p-2.5 mb-1.5 transition-all cursor-default ${
               inc.isNew
-                ? "border-[#c8ff00] shadow-[0_0_10px_rgba(200,255,0,0.08)] animate-slide-in"
-                : "border-[#262626] hover:bg-[#141414] hover:border-[#3a3a3a]"
+                ? "border-[#16a34a] shadow-[0_0_10px_rgba(22,163,74,0.1)] animate-slide-in"
+                : "border-[#d4dbc8] hover:bg-[#edf1e8] hover:border-[#b8c4aa]"
             }`}
           >
             <div className="flex items-center justify-between mb-1.5">
-              <span className="font-mono text-[10px] text-[#555]">
+              <span className="font-mono text-[10px] text-[#6b7869]">
                 {inc.id}
               </span>
               <span
@@ -48,7 +48,7 @@ export function IncidentFeed({ incidents }: IncidentFeedProps) {
             <div className="text-[11px] leading-snug mb-1.5">
               {inc.description}
             </div>
-            <div className="flex gap-2.5 font-mono text-[9px] text-[#555]">
+            <div className="flex gap-2.5 font-mono text-[9px] text-[#6b7869]">
               <span>📍 {inc.location}</span>
               <span>{inc.timestamp}</span>
             </div>

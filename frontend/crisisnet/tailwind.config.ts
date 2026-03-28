@@ -41,7 +41,7 @@ const config: Config = {
         ring: "hsl(var(--ring))",
         // CrisisNet custom
         crisis: {
-          lime: "#c8ff00",
+          green: "#16a34a",
           red: "#ff3b3b",
           orange: "#ff9f1a",
           yellow: "#ffd43b",

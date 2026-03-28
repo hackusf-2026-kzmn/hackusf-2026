@@ -50,19 +50,19 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
   };
 
   return (
-    <div className="bg-[#1a1a1a] p-4">
-      <div className="font-mono text-[10px] text-[#555] tracking-[1.5px] uppercase mb-3.5 flex items-center gap-2">
-        <span className="w-1 h-1 bg-[#c8ff00]" />
+    <div className="bg-white p-4">
+      <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3.5 flex items-center gap-2">
+        <span className="w-1 h-1 bg-[#16a34a]" />
         Check Your Area
       </div>
 
       <div className="mb-2">
-        <label className="block font-mono text-[10px] text-[#555] tracking-wider mb-1">
+        <label className="block font-mono text-[10px] text-[#6b7869] tracking-wider mb-1">
           Zip Code *
         </label>
         <input
-          className={`w-full bg-[#0b0b0b] border px-2.5 py-2 text-white font-body text-xs outline-none focus:border-[#c8ff00] transition-colors ${
-            zipError ? "border-[#ff3b3b]" : "border-[#262626]"
+          className={`w-full bg-[#f5f7f3] border px-2.5 py-2 text-[#111d0f] font-body text-xs outline-none focus:border-[#16a34a] transition-colors ${
+            zipError ? "border-[#ff3b3b]" : "border-[#d4dbc8]"
           }`}
           value={zip}
           onChange={(e) => {
@@ -78,11 +78,11 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
       </div>
 
       <div className="mb-2">
-        <label className="block font-mono text-[10px] text-[#555] tracking-wider mb-1">
+        <label className="block font-mono text-[10px] text-[#6b7869] tracking-wider mb-1">
           Describe the situation *
         </label>
         <textarea
-          className="w-full bg-[#0b0b0b] border border-[#262626] px-2.5 py-2 text-white font-body text-xs outline-none focus:border-[#c8ff00] transition-colors resize-vertical min-h-[50px]"
+          className="w-full bg-[#f5f7f3] border border-[#d4dbc8] px-2.5 py-2 text-[#111d0f] font-body text-xs outline-none focus:border-[#16a34a] transition-colors resize-vertical min-h-[50px]"
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
           placeholder="e.g. Flooding on main street, roads impassable..."
@@ -91,11 +91,11 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
       </div>
 
       <div className="mb-2">
-        <label className="block font-mono text-[10px] text-[#555] tracking-wider mb-1">
+        <label className="block font-mono text-[10px] text-[#6b7869] tracking-wider mb-1">
           Your name (optional)
         </label>
         <input
-          className="w-full bg-[#0b0b0b] border border-[#262626] px-2.5 py-2 text-white font-body text-xs outline-none focus:border-[#c8ff00] transition-colors"
+          className="w-full bg-[#f5f7f3] border border-[#d4dbc8] px-2.5 py-2 text-[#111d0f] font-body text-xs outline-none focus:border-[#16a34a] transition-colors"
           value={reporter}
           onChange={(e) => setReporter(e.target.value)}
           placeholder="Anonymous"
@@ -103,46 +103,11 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
       </div>
 
       <button
-        className="w-full py-2.5 bg-[#c8ff00] text-[#0b0b0b] font-mono text-[11px] font-medium tracking-wider uppercase border-none cursor-pointer mt-2 hover:shadow-[0_0_16px_rgba(200,255,0,0.25)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full py-2.5 bg-[#16a34a] text-white font-mono text-[11px] font-medium tracking-wider uppercase border-none cursor-pointer mt-2 hover:shadow-[0_0_16px_rgba(22,163,74,0.25)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         onClick={handleSubmit}
         disabled={submitting || !desc.trim() || zip.length !== 5}
       >
         {submitting ? "⏳ Triage Agent processing..." : "📡 Submit to Pipeline"}
-      </button>
-    </div>
-  );
-}
-      </div>
-
-      <div className="flex gap-1.5 mb-2">
-        <div className="flex-1">
-          <label className="block font-mono text-[10px] text-[#555] tracking-wider mb-1">
-            Lat
-          </label>
-          <input
-            className="w-full bg-[#0b0b0b] border border-[#262626] px-2.5 py-2 text-white font-body text-xs outline-none focus:border-[#c8ff00] transition-colors"
-            value={lat}
-            onChange={(e) => setLat(e.target.value)}
-          />
-        </div>
-        <div className="flex-1">
-          <label className="block font-mono text-[10px] text-[#555] tracking-wider mb-1">
-            Lng
-          </label>
-          <input
-            className="w-full bg-[#0b0b0b] border border-[#262626] px-2.5 py-2 text-white font-body text-xs outline-none focus:border-[#c8ff00] transition-colors"
-            value={lng}
-            onChange={(e) => setLng(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <button
-        className="w-full py-2.5 bg-[#c8ff00] text-[#0b0b0b] font-mono text-[11px] font-medium tracking-wider uppercase border-none cursor-pointer mt-2 hover:shadow-[0_0_16px_rgba(200,255,0,0.25)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-        onClick={handleSubmit}
-        disabled={submitting || !desc.trim()}
-      >
-        {submitting ? "⏳ Processing..." : "📡 Submit Report"}
       </button>
     </div>
   );

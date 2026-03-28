@@ -90,33 +90,33 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="min-h-screen pt-14 bg-[#0b0b0b]">
+    <div className="min-h-screen pt-14 bg-[#f5f7f3]">
       <ToastContainer toasts={toasts} />
       <SitBanner />
 
       {/* Main 3-column grid */}
       <div
-        className="grid min-h-[calc(100vh-100px)] gap-px bg-[#262626]"
+        className="grid min-h-[calc(100vh-100px)] gap-px bg-[#d4dbc8]"
         style={{ gridTemplateColumns: "280px 1fr 300px" }}
       >
         {/* LEFT: Agent Panel */}
-        <div className="bg-[#0b0b0b]">
+        <div className="bg-[#f5f7f3]">
           <AgentPanel />
         </div>
 
         {/* CENTER: Map + Bottom panels */}
-        <div className="bg-[#0b0b0b] flex flex-col">
+        <div className="bg-[#f5f7f3] flex flex-col">
           <MapView incidents={incidents} resources={mockResources} />
 
           {/* Bottom: Form + Chart */}
-          <div className="grid grid-cols-2 gap-px bg-[#262626] mx-4 mb-4 mt-2">
+          <div className="grid grid-cols-2 gap-px bg-[#d4dbc8] mx-4 mb-4 mt-2">
             <ReportForm onSubmit={handleReport} submitting={submitting} />
             <HistoricalChart />
           </div>
         </div>
 
         {/* RIGHT: Incidents + Resources */}
-        <div className="bg-[#0b0b0b] flex flex-col max-h-[calc(100vh-100px)] overflow-y-auto">
+        <div className="bg-[#f5f7f3] flex flex-col max-h-[calc(100vh-100px)] overflow-y-auto">
           <IncidentFeed incidents={incidents} />
           <ResourcePanel resources={mockResources} />
         </div>

@@ -244,7 +244,7 @@ function MarkerContent({ children, className }: MarkerContentProps) {
 
 function DefaultMarkerIcon() {
   return (
-    <div className="relative h-3 w-3 border-2 border-[#c8ff00] bg-[#c8ff00]/30 shadow-[0_0_8px_rgba(200,255,0,0.4)]" />
+    <div className="relative h-3 w-3 border-2 border-[#16a34a] bg-[#16a34a]/30 shadow-[0_0_8px_rgba(22,163,74,0.4)]" />
   );
 }
 
@@ -299,7 +299,7 @@ function MarkerPopup({
   return createPortal(
     <div
       className={cn(
-        "relative border bg-[#1a1a1a] border-[#3a3a3a] p-3 text-white shadow-[0_8px_24px_rgba(0,0,0,0.5)] animate-in fade-in-0 zoom-in-95",
+        "relative border bg-white border-[#b8c4aa] p-3 text-[#111d0f] shadow-[0_8px_24px_rgba(0,0,0,0.12)] animate-in fade-in-0 zoom-in-95",
         className
       )}
     >
@@ -401,7 +401,7 @@ type MapRouteProps = {
 
 function MapRoute({
   coordinates,
-  color = "#c8ff00",
+  color = "#16a34a",
   width = 3,
   opacity = 0.8,
   dashArray,
@@ -511,20 +511,20 @@ function MapControls({
       )}
     >
       {showZoom && (
-        <div className="flex flex-col border border-[#262626] bg-[#0b0b0b] shadow-sm overflow-hidden">
+        <div className="flex flex-col border border-[#d4dbc8] bg-white shadow-sm overflow-hidden">
           <button
             onClick={handleZoomIn}
             aria-label="Zoom in"
-            className="flex items-center justify-center size-8 hover:bg-[#1a1a1a] transition-colors border-b border-[#262626]"
+            className="flex items-center justify-center size-8 hover:bg-[#edf1e8] transition-colors border-b border-[#d4dbc8]"
           >
-            <Plus className="size-4 text-[#888]" />
+            <Plus className="size-4 text-[#52665e]" />
           </button>
           <button
             onClick={handleZoomOut}
             aria-label="Zoom out"
-            className="flex items-center justify-center size-8 hover:bg-[#1a1a1a] transition-colors"
+            className="flex items-center justify-center size-8 hover:bg-[#edf1e8] transition-colors"
           >
-            <Minus className="size-4 text-[#888]" />
+            <Minus className="size-4 text-[#52665e]" />
           </button>
         </div>
       )}

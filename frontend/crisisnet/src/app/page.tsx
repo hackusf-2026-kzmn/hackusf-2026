@@ -44,22 +44,22 @@ export default function HomePage() {
       <section className="relative min-h-[calc(100vh-56px)] flex flex-col justify-center px-[60px] py-20 overflow-hidden">
         {/* Grid bg */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.06]"
           style={{
             backgroundImage:
-              "linear-gradient(#f0f0f0 1px, transparent 1px), linear-gradient(90deg, #f0f0f0 1px, transparent 1px)",
+              "linear-gradient(#c0c8b8 1px, transparent 1px), linear-gradient(90deg, #c0c8b8 1px, transparent 1px)",
             backgroundSize: "40px 40px",
           }}
         />
-        {/* HUD corners */}
-        <div className="absolute top-5 left-5 w-5 h-5 border-t-2 border-l-2 border-[#c8ff00] opacity-30" />
-        <div className="absolute top-5 right-5 w-5 h-5 border-t-2 border-r-2 border-[#c8ff00] opacity-30" />
-        <div className="absolute bottom-5 left-5 w-5 h-5 border-b-2 border-l-2 border-[#c8ff00] opacity-30" />
-        <div className="absolute bottom-5 right-5 w-5 h-5 border-b-2 border-r-2 border-[#c8ff00] opacity-30" />
+        {/* HUD corners */}}
+        <div className="absolute top-5 left-5 w-5 h-5 border-t-2 border-l-2 border-[#16a34a] opacity-30" />
+        <div className="absolute top-5 right-5 w-5 h-5 border-t-2 border-r-2 border-[#16a34a] opacity-30" />
+        <div className="absolute bottom-5 left-5 w-5 h-5 border-b-2 border-l-2 border-[#16a34a] opacity-30" />
+        <div className="absolute bottom-5 right-5 w-5 h-5 border-b-2 border-r-2 border-[#16a34a] opacity-30" />
 
         <div className="relative z-10">
-          <div className="font-mono text-[11px] text-[#c8ff00] tracking-[3px] uppercase mb-6 flex items-center gap-3">
-            <span className="w-10 h-px bg-[#c8ff00]" />
+          <div className="font-mono text-[11px] text-[#16a34a] tracking-[3px] uppercase mb-6 flex items-center gap-3">
+            <span className="w-10 h-px bg-[#16a34a]" />
             Multi-Agent Disaster Response · Google ADK
           </div>
 
@@ -67,14 +67,14 @@ export default function HomePage() {
             Detect Risk.
             <br />
             Match{" "}
-            <em className="font-serif italic font-normal text-[#c8ff00]">
+            <em className="font-serif italic font-normal text-[#16a34a]">
               Support.
             </em>
             <br />
             Alert Fast.
           </h1>
 
-          <p className="text-base text-[#888] max-w-[560px] leading-relaxed font-light mb-12">
+          <p className="text-base text-[#52665e] max-w-[560px] leading-relaxed font-light mb-12">
             CrisisNet is an agentic system built to assist the people who prevent
             harm during environmental disasters — continuously scanning for
             anomalous weather, scoring severity, matching affected populations to
@@ -85,13 +85,13 @@ export default function HomePage() {
           <div className="flex gap-3 items-center">
             <Link
               href="/dashboard"
-              className="font-mono text-xs bg-[#c8ff00] text-[#0b0b0b] px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:shadow-[0_0_30px_rgba(200,255,0,0.3)] hover:-translate-y-px transition-all"
+              className="font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:shadow-[0_0_30px_rgba(22,163,74,0.3)] hover:-translate-y-px transition-all"
             >
               Launch Dashboard
             </Link>
             <Link
               href="/about"
-              className="font-mono text-xs text-white px-8 py-3.5 border border-[#262626] tracking-[1.5px] uppercase hover:border-white transition-all"
+              className="font-mono text-xs text-[#111d0f] px-8 py-3.5 border border-[#d4dbc8] tracking-[1.5px] uppercase hover:border-[#111d0f] transition-all"
             >
               Learn More
             </Link>
@@ -99,19 +99,19 @@ export default function HomePage() {
         </div>
 
         {/* Meta corner */}
-        <div className="absolute bottom-10 right-[60px] font-mono text-[10px] text-[#555] text-right leading-[1.8] tracking-wider">
+        <div className="absolute bottom-10 right-[60px] font-mono text-[10px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
           HACKUSF 2026
           <br />
           TAMPA, FL
           <br />
           BUILD WITH AI
           <br />
-          <span className="text-[#c8ff00]">V1.0.0</span>
+          <span className="text-[#16a34a]">V1.0.0</span>
         </div>
       </section>
 
       {/* ═══ STATS BAR ═══ */}
-      <div className="grid grid-cols-4 border-t border-b border-[#262626]">
+      <div className="grid grid-cols-4 border-t border-b border-[#d4dbc8]">
         {[
           { num: "001", value: "5", accent: " Agents", label: "Full Pipeline Automation" },
           { num: "002", value: "ZIP", accent: ".", label: "Single Input to Dashboard" },
@@ -120,16 +120,16 @@ export default function HomePage() {
         ].map((s, i) => (
           <div
             key={s.num}
-            className={`relative px-10 py-10 ${i < 3 ? "border-r border-[#262626]" : ""}`}
+            className={`relative px-10 py-10 ${i < 3 ? "border-r border-[#d4dbc8]" : ""}`}
           >
-            <span className="absolute top-3 right-4 font-mono text-[9px] text-[#555] tracking-wider">
+            <span className="absolute top-3 right-4 font-mono text-[9px] text-[#6b7869] tracking-wider">
               {s.num}
             </span>
             <div className="font-display text-5xl font-extrabold tracking-[-2px] leading-none">
               {s.value}
-              <span className="text-[#c8ff00]">{s.accent}</span>
+              <span className="text-[#16a34a]">{s.accent}</span>
             </div>
-            <div className="font-mono text-[11px] text-[#555] mt-2 tracking-wider uppercase">
+            <div className="font-mono text-[11px] text-[#6b7869] mt-2 tracking-wider uppercase">
               {s.label}
             </div>
           </div>
@@ -138,16 +138,16 @@ export default function HomePage() {
 
       {/* ═══ WORLD MAP ═══ */}
       <section className="px-[60px] py-20">
-        <div className="flex justify-between items-end mb-12 pb-5 border-b border-[#262626]">
+        <div className="flex justify-between items-end mb-12 pb-5 border-b border-[#d4dbc8]">
           <div>
-            <div className="font-mono text-[10px] text-[#555] tracking-[2px] mb-2">
+            <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-2">
               002 ————
             </div>
             <div className="font-display text-4xl font-bold tracking-[-1px] uppercase">
               Disaster Monitoring Network
             </div>
           </div>
-          <div className="font-mono text-[11px] text-[#555] text-right leading-[1.8] tracking-wider">
+          <div className="font-mono text-[11px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
             NWS + FEMA + LOCAL NEWS
             <br />
             POWERED BY GOOGLE ADK + GEMINI
@@ -155,55 +155,55 @@ export default function HomePage() {
         </div>
 
         <div className="relative">
-          <div className="absolute top-4 left-5 z-10 font-mono text-[9px] text-[#555] tracking-[2px]">
+          <div className="absolute top-4 left-5 z-10 font-mono text-[9px] text-[#6b7869] tracking-[2px]">
             CRISISNET ACTIVE MONITORING ZONES
           </div>
-          <div className="absolute top-4 right-5 z-10 font-mono text-[9px] text-[#c8ff00] tracking-[2px] flex items-center gap-1.5">
+          <div className="absolute top-4 right-5 z-10 font-mono text-[9px] text-[#16a34a] tracking-[2px] flex items-center gap-1.5">
             <span className="animate-blink">●</span> LIVE
           </div>
           <WorldMap
             dots={CRISIS_CONNECTIONS}
-            lineColor="#c8ff00"
+            lineColor="#16a34a"
             animationDuration={2.5}
           />
         </div>
       </section>
 
       {/* ═══ AGENTS GRID ═══ */}
-      <section className="px-[60px] py-20 border-t border-[#262626]">
-        <div className="flex justify-between items-end mb-12 pb-5 border-b border-[#262626]">
+      <section className="px-[60px] py-20 border-t border-[#d4dbc8]">
+        <div className="flex justify-between items-end mb-12 pb-5 border-b border-[#d4dbc8]">
           <div>
-            <div className="font-mono text-[10px] text-[#555] tracking-[2px] mb-2">
+            <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-2">
               003 ————
             </div>
             <div className="font-display text-4xl font-bold tracking-[-1px] uppercase">
               The Agent Pipeline
             </div>
           </div>
-          <div className="font-mono text-[11px] text-[#555] text-right leading-[1.8] tracking-wider">
+          <div className="font-mono text-[11px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
             5 SPECIALIZED AGENTS
             <br />
             ORCHESTRATED VIA GOOGLE ADK
           </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-px bg-[#262626] border border-[#262626]">
+        <div className="grid grid-cols-5 gap-px bg-[#d4dbc8] border border-[#d4dbc8]">
           {mockAgentStatus.map((a, i) => (
             <div
               key={a.id}
-              className="bg-[#0b0b0b] p-7 min-h-[240px] flex flex-col group hover:bg-[#141414] transition-colors"
+              className="bg-white p-7 min-h-[240px] flex flex-col group hover:bg-[#edf1e8] transition-colors"
             >
-              <div className="font-mono text-[10px] text-[#555] tracking-[2px] mb-4 group-hover:text-[#c8ff00] transition-colors">
+              <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-4 group-hover:text-[#16a34a] transition-colors">
                 0{i + 1} / 05
               </div>
               <div className="text-2xl mb-3">{a.icon}</div>
               <div className="font-display text-[15px] font-bold uppercase tracking-tight mb-2.5">
                 {a.name}
               </div>
-              <div className="text-xs text-[#888] leading-relaxed flex-1">
+              <div className="text-xs text-[#52665e] leading-relaxed flex-1">
                 {a.description}
               </div>
-              <div className="mt-4 font-mono text-[10px] text-[#c8ff00] tracking-wider flex items-center gap-1.5">
+              <div className="mt-4 font-mono text-[10px] text-[#16a34a] tracking-wider flex items-center gap-1.5">
                 <span className="animate-blink">●</span> ONLINE
               </div>
             </div>
@@ -212,7 +212,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══ TECH STRIP ═══ */}
-      <div className="flex items-center border-t border-b border-[#262626]">
+      <div className="flex items-center border-t border-b border-[#d4dbc8]">
         {[
           ["Framework", "Next.js + TypeScript"],
           ["AI", "Google ADK + Gemini"],
@@ -222,11 +222,11 @@ export default function HomePage() {
         ].map(([label, value], i, arr) => (
           <div
             key={label}
-            className={`flex-1 px-8 py-5 font-mono text-xs text-[#555] tracking-wider text-center ${
-              i < arr.length - 1 ? "border-r border-[#262626]" : ""
+            className={`flex-1 px-8 py-5 font-mono text-xs text-[#6b7869] tracking-wider text-center ${
+              i < arr.length - 1 ? "border-r border-[#d4dbc8]" : ""
             }`}
           >
-            <strong className="block text-white font-medium mb-1">
+            <strong className="block text-[#111d0f] font-medium mb-1">
               {value}
             </strong>
             {label}
@@ -237,28 +237,28 @@ export default function HomePage() {
       {/* ═══ CTA ═══ */}
       <section className="relative px-[60px] py-[120px] text-center">
         <div
-          className="absolute inset-0 opacity-[0.02]"
+          className="absolute inset-0 opacity-[0.06]"
           style={{
             backgroundImage:
-              "linear-gradient(#f0f0f0 1px, transparent 1px), linear-gradient(90deg, #f0f0f0 1px, transparent 1px)",
+              "linear-gradient(#c0c8b8 1px, transparent 1px), linear-gradient(90deg, #c0c8b8 1px, transparent 1px)",
             backgroundSize: "40px 40px",
           }}
         />
         <div className="relative z-10">
-          <div className="font-mono text-[10px] text-[#555] tracking-[2px] mb-4">
+          <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-4">
             004 ————
           </div>
           <h2 className="font-display text-[clamp(32px,5vw,64px)] font-extrabold uppercase tracking-[-2px] mb-5">
             Try It Live.
           </h2>
-          <p className="text-base text-[#888] max-w-[480px] mx-auto mb-10 leading-relaxed font-light">
+          <p className="text-base text-[#52665e] max-w-[480px] mx-auto mb-10 leading-relaxed font-light">
             Enter a zip code and watch the pipeline run — Scout identifies active
             threats, Triage scores severity, Resource Agent matches support
             programs, and Comms drafts an alert. All in seconds.
           </p>
           <Link
             href="/dashboard"
-            className="inline-block font-mono text-xs bg-[#c8ff00] text-[#0b0b0b] px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:shadow-[0_0_30px_rgba(200,255,0,0.3)] hover:-translate-y-px transition-all"
+            className="inline-block font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:shadow-[0_0_30px_rgba(22,163,74,0.3)] hover:-translate-y-px transition-all"
           >
             Open the Dashboard →
           </Link>

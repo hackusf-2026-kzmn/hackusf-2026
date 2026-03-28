@@ -63,7 +63,7 @@ function AnimatedDot({ path, color, startTime, endTime, resetTime, fullCycleDura
 
 export function WorldMap({
   dots = [],
-  lineColor = "#c8ff00",
+  lineColor = "#16a34a",
   showLabels = true,
   labelClassName = "text-sm",
   animationDuration = 2,
@@ -85,9 +85,9 @@ export function WorldMap({
     () =>
       map.getSVG({
         radius: 0.22,
-        color: theme === "dark" ? "#c8ff0040" : "#00000040",
+        color: "#16a34a35",
         shape: "circle",
-        backgroundColor: theme === "dark" ? "#0b0b0b" : "white",
+        backgroundColor: "#f5f7f3",
       }),
     [map, theme]
   );
@@ -114,12 +114,12 @@ export function WorldMap({
 
   if (!isMounted) {
     return (
-      <div className="w-full aspect-[2/1] md:aspect-[2.5/1] lg:aspect-[2/1] bg-[#0b0b0b] border border-[#262626]" />
+      <div className="w-full aspect-[2/1] md:aspect-[2.5/1] lg:aspect-[2/1] bg-[#eef2ea] border border-[#d4dbc8]" />
     );
   }
 
   return (
-    <div className="w-full aspect-[2/1] md:aspect-[2.5/1] lg:aspect-[2/1] bg-[#0b0b0b] relative font-sans overflow-hidden border border-[#262626]">
+    <div className="w-full aspect-[2/1] md:aspect-[2.5/1] lg:aspect-[2/1] bg-[#eef2ea] relative font-sans overflow-hidden border border-[#d4dbc8]">
       <Image
         src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
         className="h-full w-full [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)] pointer-events-none select-none object-cover"
@@ -280,7 +280,7 @@ export function WorldMap({
                       className="block"
                     >
                       <div className="flex items-center justify-center h-full">
-                        <span className="text-[10px] font-mono font-medium px-2 py-0.5 bg-[#0b0b0b]/95 text-white border border-[#262626] shadow-sm tracking-wider">
+                        <span className="text-[10px] font-mono font-medium px-2 py-0.5 bg-white/95 text-[#111d0f] border border-[#d4dbc8] shadow-sm tracking-wider">
                           {dot.start.label}
                         </span>
                       </div>
@@ -351,7 +351,7 @@ export function WorldMap({
                       className="block"
                     >
                       <div className="flex items-center justify-center h-full">
-                        <span className="text-[10px] font-mono font-medium px-2 py-0.5 bg-[#0b0b0b]/95 text-white border border-[#262626] shadow-sm tracking-wider">
+                        <span className="text-[10px] font-mono font-medium px-2 py-0.5 bg-white/95 text-[#111d0f] border border-[#d4dbc8] shadow-sm tracking-wider">
                           {dot.end.label}
                         </span>
                       </div>
@@ -371,7 +371,7 @@ export function WorldMap({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute bottom-4 left-4 bg-[#0b0b0b]/90 text-white px-3 py-2 text-xs font-mono font-medium backdrop-blur-sm sm:hidden border border-[#262626]"
+            className="absolute bottom-4 left-4 bg-white/90 text-[#111d0f] px-3 py-2 text-xs font-mono font-medium backdrop-blur-sm sm:hidden border border-[#d4dbc8]"
           >
             {hoveredLocation}
           </motion.div>
