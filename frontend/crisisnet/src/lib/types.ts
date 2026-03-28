@@ -14,7 +14,7 @@ export interface Incident {
   isNew?: boolean;
 }
 
-export type ResourceType = "rescue" | "medical" | "supply" | "recon";
+export type ResourceType = "rescue" | "medical" | "supply" | "recon" | "federal" | "nonprofit" | "state" | "local";
 export type ResourceStatus = "deployed" | "available" | "en_route";
 
 export interface Resource {

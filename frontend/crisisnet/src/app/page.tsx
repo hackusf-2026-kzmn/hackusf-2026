@@ -64,20 +64,22 @@ export default function HomePage() {
           </div>
 
           <h1 className="font-display font-extrabold text-[clamp(48px,8vw,110px)] leading-[0.92] tracking-[-3px] uppercase max-w-[900px] mb-8">
-            When Crisis
+            Detect Risk.
             <br />
-            Strikes,{" "}
+            Match{" "}
             <em className="font-serif italic font-normal text-[#c8ff00]">
-              Agents
+              Support.
             </em>
             <br />
-            Respond.
+            Alert Fast.
           </h1>
 
-          <p className="text-base text-[#888] max-w-[520px] leading-relaxed font-light mb-12">
-            Five specialized AI agents coordinate in real-time to triage
-            incidents, allocate resources, and route responders — orchestrated
-            through Google ADK&apos;s Agent-to-Agent protocol.
+          <p className="text-base text-[#888] max-w-[560px] leading-relaxed font-light mb-12">
+            CrisisNet is an agentic system built to assist the people who prevent
+            harm during environmental disasters — continuously scanning for
+            anomalous weather, scoring severity, matching affected populations to
+            local and federal support programs, and publishing it all through a
+            public dashboard and API.
           </p>
 
           <div className="flex gap-3 items-center">
@@ -111,10 +113,10 @@ export default function HomePage() {
       {/* ═══ STATS BAR ═══ */}
       <div className="grid grid-cols-4 border-t border-b border-[#262626]">
         {[
-          { num: "001", value: "5", accent: " Agents", label: "Autonomous AI Workers" },
-          { num: "002", value: "<3", accent: "s", label: "Incident Classification" },
-          { num: "003", value: "24", accent: "/7", label: "Continuous Monitoring" },
-          { num: "004", value: "A2A", accent: ".", label: "Agent-to-Agent Protocol" },
+          { num: "001", value: "5", accent: " Agents", label: "Full Pipeline Automation" },
+          { num: "002", value: "ZIP", accent: ".", label: "Single Input to Dashboard" },
+          { num: "003", value: "24", accent: "/7", label: "Continuous Weather Monitoring" },
+          { num: "004", value: "API", accent: ".", label: "Gov't Alert System Ready" },
         ].map((s, i) => (
           <div
             key={s.num}
@@ -142,19 +144,19 @@ export default function HomePage() {
               002 ————
             </div>
             <div className="font-display text-4xl font-bold tracking-[-1px] uppercase">
-              Global Response Network
+              Disaster Monitoring Network
             </div>
           </div>
           <div className="font-mono text-[11px] text-[#555] text-right leading-[1.8] tracking-wider">
-            POWERED BY
+            NWS + FEMA + LOCAL NEWS
             <br />
-            GOOGLE ADK + GEMINI
+            POWERED BY GOOGLE ADK + GEMINI
           </div>
         </div>
 
         <div className="relative">
           <div className="absolute top-4 left-5 z-10 font-mono text-[9px] text-[#555] tracking-[2px]">
-            CRISISNET GLOBAL RESPONSE NETWORK
+            CRISISNET ACTIVE MONITORING ZONES
           </div>
           <div className="absolute top-4 right-5 z-10 font-mono text-[9px] text-[#c8ff00] tracking-[2px] flex items-center gap-1.5">
             <span className="animate-blink">●</span> LIVE
