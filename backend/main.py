@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import requests
 import pgeocode
 import pandas as pd
+import asyncio
 
 app = FastAPI()
 
@@ -49,21 +50,9 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
             })
 
     return {
-<<<<<<< HEAD
         "zip_code": zip_code,
-        "alerts": matching  # fix: return filtered list
-    }
-=======
-        "state": state,
-        "alerts": alerts,
-        "forecast": {
-            "office": forecast_office,
-            "url": forecast_url,
-        },
+        "alerts": matching,  # fix: return filtered list
+        "coords": (latitude, longitude)
     }
 
-
-@app.get("/resourceMatcher")
-async def resourceMatcher() -> dict:
-    
->>>>>>> 1552211f2e30fafc957b71eb74ed50a7fbdeea5f
+asyncio.run(scout())
