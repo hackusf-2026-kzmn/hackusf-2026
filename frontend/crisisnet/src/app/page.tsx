@@ -44,10 +44,10 @@ export default function HomePage() {
       <section className="relative min-h-[calc(100vh-56px)] flex flex-col justify-center px-[60px] py-20 overflow-hidden">
         {/* Grid bg */}
         <div
-          className="absolute inset-0 opacity-[0.06]"
+          className="absolute inset-0 opacity-[0.15]"
           style={{
             backgroundImage:
-              "linear-gradient(#c0c8b8 1px, transparent 1px), linear-gradient(90deg, #c0c8b8 1px, transparent 1px)",
+              "linear-gradient(#7a9470 1px, transparent 1px), linear-gradient(90deg, #7a9470 1px, transparent 1px)",
             backgroundSize: "40px 40px",
           }}
         />
@@ -237,10 +237,10 @@ export default function HomePage() {
       {/* ═══ CTA ═══ */}
       <section className="relative px-[60px] py-[120px] text-center">
         <div
-          className="absolute inset-0 opacity-[0.06]"
+          className="absolute inset-0 opacity-[0.22]"
           style={{
             backgroundImage:
-              "linear-gradient(#c0c8b8 1px, transparent 1px), linear-gradient(90deg, #c0c8b8 1px, transparent 1px)",
+              "linear-gradient(#7a9470 1px, transparent 1px), linear-gradient(90deg, #7a9470 1px, transparent 1px)",
             backgroundSize: "40px 40px",
           }}
         />
