@@ -7,11 +7,11 @@ import requests, os
 
 FASTAPI_SERVER_URL = "http://127.0.0.1:8000/"
 SCOUT_URL = os.path.join(FASTAPI_SERVER_URL, "scout")
-TAMPA_ZIP_CODE = "33712"
+TAMPA_ZIP_CODE = "33620"
 
 def fetch_disaster_signals(zip: str=TAMPA_ZIP_CODE) -> list[dict]:
     # call NWS, return structured data
-    disaster_signals_api_request = requests.get(url=SCOUT_URL, params={"zip":zip}).json()
+    disaster_signals_api_request = requests.get(url=SCOUT_URL, params={"zip_code":zip}).json()
     return disaster_signals_api_request
 
 # Step 1: Scout runs first (sequential, must complete before anything else)
