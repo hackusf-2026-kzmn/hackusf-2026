@@ -64,4 +64,6 @@ async def scout(zip_code: str=USF_ZIP_CODE) -> dict:
     }
 
 
-asyncio.run(scout())
+@app.get("/resourceMatcher")
+async def resourceMatcher() -> dict:
+    

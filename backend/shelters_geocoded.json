@@ -1,0 +1,290 @@
+[
+  {
+    "name": "Riverview High School",
+    "address": "11311 Boyette Road, Riverview Fl",
+    "lat": 27.853458445848,
+    "lng": -82.31287817311
+  },
+  {
+    "name": "Sessums Elementary",
+    "address": "11525 Ramble Creek Dr, Riverview, FL 33569",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Boyette Springs Elementary",
+    "address": "10141 Sedgebrook Dr, Riverview, FL 33569",
+    "lat": 27.852717457663,
+    "lng": -82.278168502141
+  },
+  {
+    "name": "Collins Elementary",
+    "address": "12424 Summerfield Blvd, Riverview, FL 33569",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Barrington/Stowers",
+    "address": "5925 Village Center Dr, Lithia, FL 33547",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Cimino Elementary",
+    "address": "4329 Culbreath Rd, Valrico, FL 33596",
+    "lat": 27.875317782173,
+    "lng": -82.244289532071
+  },
+  {
+    "name": "Bloomingdale High School",
+    "address": "1700 E Bloomingdale Ave, Valrico, FL 33596",
+    "lat": 27.893719773208,
+    "lng": -82.253615222004
+  },
+  {
+    "name": "Bevis Elementary",
+    "address": "5720 Osprey Ridge Dr, Lithia, FL 33547",
+    "lat": 27.852652209111,
+    "lng": -82.231552291655
+  },
+  {
+    "name": "Sumner High School",
+    "address": "10650 Co Rd 672, Riverview, FL 33579",
+    "lat": 27.770101163412,
+    "lng": -82.329743041477
+  },
+  {
+    "name": "Mulrennan Middle",
+    "address": "4215 Durant Rd, Valrico, FL 33594",
+    "lat": 27.908244535966,
+    "lng": -82.227539425993
+  },
+  {
+    "name": "Brandon High School",
+    "address": "1101 Victoria St, Brandon, FL 33510",
+    "lat": 27.945062443501,
+    "lng": -82.300235926528
+  },
+  {
+    "name": "Newsome High School",
+    "address": "16550 Fishhawk Blvd, Lithia, FL 33547",
+    "lat": 27.854382271404,
+    "lng": -82.207204965658
+  },
+  {
+    "name": "Valrico Elementary",
+    "address": "609 S Miller Rd, Valrico, FL 33594",
+    "lat": 27.930108871203,
+    "lng": -82.244485913065
+  },
+  {
+    "name": "Nelson Elementary",
+    "address": "5413 Durant Road, Dover, FL 33527",
+    "lat": 27.908298535392,
+    "lng": -82.205452831402
+  },
+  {
+    "name": "Cypress Creek Elementary",
+    "address": "4040 19th Ave NE, Ruskin, FL 33573",
+    "lat": 27.740740865103,
+    "lng": -82.365065131742
+  },
+  {
+    "name": "Shields Middle",
+    "address": "15732 Beth Shields Way, Ruskin, FL 33573",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Durant High School",
+    "address": "4748 Cougar Path, Plant City, FL 33567",
+    "lat": 27.887047796851,
+    "lng": -82.171893448716
+  },
+  {
+    "name": "Reddick Elementary",
+    "address": "325 W Lake Dr, Wimauma, FL 33598",
+    "lat": 27.717398327867,
+    "lng": -82.319060868024
+  },
+  {
+    "name": "Armwood High School",
+    "address": "12000 US-92, Seffner, FL",
+    "lat": 28.003202306037,
+    "lng": -82.295590144234
+  },
+  {
+    "name": "Turkey Creek Middle",
+    "address": "5005 Turkey Creek Rd, Plant City, FL 33567",
+    "lat": 27.944825040194,
+    "lng": -82.170498511331
+  },
+  {
+    "name": "Burnett Middle",
+    "address": "1010 N Kingsway Rd, Seffner, FL 33584",
+    "lat": 28.006911778571,
+    "lng": -82.277798175424
+  },
+  {
+    "name": "Lockhart Elementary",
+    "address": "3710 N 17th St, Tampa, FL 33610",
+    "lat": 27.978837675107,
+    "lng": -82.440121348472
+  },
+  {
+    "name": "Jennings Middle",
+    "address": "9325 Governors Run Dr, Seffner, FL 33584",
+    "lat": 28.02628303595,
+    "lng": -82.330330141373
+  },
+  {
+    "name": "Middleton High School",
+    "address": "4801 N 22nd St, Tampa, FL 33610",
+    "lat": 27.988810297516,
+    "lng": -82.434680428581
+  },
+  {
+    "name": "Sheehy Elementary",
+    "address": "6402 N 40th St, Tampa, FL 33610",
+    "lat": 28.005341378144,
+    "lng": -82.414267732747
+  },
+  {
+    "name": "Erwin Technical College",
+    "address": "2010 E. Hillsborough Ave, Tampa, Fl. 33610",
+    "lat": 27.996127111445,
+    "lng": -82.436541028045
+  },
+  {
+    "name": "Strawberry Crest High School",
+    "address": "4691 Gallagher Rd, Dover, FL 33527",
+    "lat": 28.017773377517,
+    "lng": -82.236386357588
+  },
+  {
+    "name": "Greco Middle",
+    "address": "6925 E Fowler Ave, Temple Terrace, FL 33617",
+    "lat": 28.054319456287,
+    "lng": -82.375619914218
+  },
+  {
+    "name": "Pizzo K8",
+    "address": "11701 USF Bull Run Drive, Tampa, FL 33617",
+    "lat": 28.054505911492,
+    "lng": -82.404770144609
+  },
+  {
+    "name": "Yuengling Center - USF Stadium/Sports Arenas",
+    "address": "12499 USF Bull Run Drive, Tampa, FL 33617",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Tomlin Middle",
+    "address": "501 N Woodrow Wilson St, Plant City, FL 33563",
+    "lat": 28.018552578285,
+    "lng": -82.146297900995
+  },
+  {
+    "name": "Wilson Elementary",
+    "address": "702 W English St, Plant City, FL 33563",
+    "lat": 28.027509345913,
+    "lng": -82.128886907581
+  },
+  {
+    "name": "Bowers-Whitley / Muller",
+    "address": "13609 N 22nd St, Tampa, FL 33613",
+    "lat": 28.070199009023,
+    "lng": -82.434473167526
+  },
+  {
+    "name": "Marshall Middle",
+    "address": "18 S Maryland Ave, Plant City, FL 33566",
+    "lat": 28.016863302915,
+    "lng": -82.109068031611
+  },
+  {
+    "name": "Lake Mag Elementary",
+    "address": "2002 Pine Lake Dr, Tampa, FL 33612",
+    "lat": 28.058273981389,
+    "lng": -82.478035888612
+  },
+  {
+    "name": "Mort Elementary",
+    "address": "1806 E Bearss Ave, Tampa, FL 33613",
+    "lat": 28.080585610064,
+    "lng": -82.440958292852
+  },
+  {
+    "name": "Knights Elementary",
+    "address": "4815 Keene Rd, Plant City, FL 33565",
+    "lat": 28.073272483586,
+    "lng": -82.154604215113
+  },
+  {
+    "name": "Cannella Elementary",
+    "address": "10707 Nixon Rd, Tampa, FL 33624",
+    "lat": 28.054712419416,
+    "lng": -82.532559251617
+  },
+  {
+    "name": "Benito Middle School",
+    "address": "10101 Cross Creek Blvd, Tampa, FL 33647",
+    "lat": 28.142037619113,
+    "lng": -82.325874497796
+  },
+  {
+    "name": "Heritage Elementary",
+    "address": "18201 Meadows Rd, Tampa, FL 33647",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Pride Elementary",
+    "address": "10310 Lion's Den Drive, Tampa, FL 33647",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Wharton High School",
+    "address": "20150 Bruce B Downs Blvd, Tampa, FL 33647",
+    "lat": 28.159795954754,
+    "lng": -82.353519694335
+  },
+  {
+    "name": "Turner Bartels (Lower Campus)",
+    "address": "9020 Imperial Oak Blvd, Tampa, FL 33647",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Turner Bartels (Upper Campus)",
+    "address": "9020 Imperial Oak Blvd, Tampa, FL 33647",
+    "lat": null,
+    "lng": null
+  },
+  {
+    "name": "Sickles High School",
+    "address": "7950 Gunn Hwy, Tampa, FL 33626",
+    "lat": 28.078703088212,
+    "lng": -82.57754416857
+  },
+  {
+    "name": "Hammond Elementary",
+    "address": "8008 N Mobley Rd, Odessa, FL 33556",
+    "lat": 28.114211465042,
+    "lng": -82.573017263986
+  },
+  {
+    "name": "McKitrick Elementary",
+    "address": "5503 W Lutz Lake Fern Rd, Lutz, FL 33558",
+    "lat": 28.155767001415,
+    "lng": -82.534551028552
+  },
+  {
+    "name": "Steinbrenner High School",
+    "address": "5575 W Lutz Lake Fern Rd, Lutz, FL 33558",
+    "lat": 28.155821624492,
+    "lng": -82.535987671108
+  }
+]
