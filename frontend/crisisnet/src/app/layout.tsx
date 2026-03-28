@@ -4,7 +4,7 @@ import { Nav } from "@/components/Nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CrisisNet — Multi-Agent Real-Time Response",
+  title: "Crisis-Net: Multi-Agent Real-Time Response",
   description:
     "Five specialized AI agents coordinate in real-time to triage incidents, allocate resources, and route responders via Google ADK.",
 };

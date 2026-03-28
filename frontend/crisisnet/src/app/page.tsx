@@ -116,13 +116,13 @@ export default function HomePage() {
 
         <div className="relative z-10 flex items-center">
           <div className="flex-1 min-w-0 max-w-[55%]" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
-          <div className="font-mono text-[11px] text-[#16a34a] tracking-[3px] uppercase mb-6 flex items-center gap-3">
+          <div className="font-mono text-[15px] text-[#16a34a] tracking-[3px] uppercase mb-6 flex items-center gap-3">
             <span className="w-10 h-px bg-[#16a34a]" />
             Multi-Agent Disaster Response · Google ADK
           </div>
 
           <h1 className="font-display font-extrabold text-[clamp(48px,8vw,110px)] leading-[0.92] tracking-[-3px] uppercase max-w-[900px] mb-8">
-            CrisisNet
+            <span className="whitespace-nowrap">Crisis-Net</span>
             <br />
             <em className="font-serif italic font-normal text-[#16a34a]">
               Real-Time Response.
@@ -133,7 +133,7 @@ export default function HomePage() {
             Florida
           </h1>
 
-          <div className="font-mono text-[11px] text-[#16a34a] tracking-[3px] uppercase leading-[2.2] mb-12">
+          <div className="font-mono text-[15px] text-[#16a34a] tracking-[3px] uppercase leading-[2.2] mb-12">
             Agentic Weather Monitoring &amp; Severity Scoring
             <br />
             Automated Resource Matching for Affected Communities
@@ -180,14 +180,14 @@ export default function HomePage() {
             key={s.num}
             className={`relative px-10 py-10 ${i < 3 ? "border-r border-[#d4dbc8]" : ""}`}
           >
-            <span className="absolute top-3 right-4 font-mono text-[9px] text-[#6b7869] tracking-wider">
+            <span className="absolute top-3 right-4 font-mono text-[13px] text-[#6b7869] tracking-wider">
               {s.num}
             </span>
             <div className="font-display text-5xl font-extrabold tracking-[-2px] leading-none">
               {s.value}
               <span className="text-[#16a34a]">{s.accent}</span>
             </div>
-            <div className="font-mono text-[11px] text-[#6b7869] mt-2 tracking-wider uppercase">
+            <div className="font-mono text-[15px] text-[#6b7869] mt-2 tracking-wider uppercase">
               {s.label}
             </div>
           </div>
@@ -199,14 +199,14 @@ export default function HomePage() {
         <div className="px-[60px] mb-12">
           <div className="flex justify-between items-end pb-5 border-b border-[#d4dbc8]">
             <div>
-              <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-2">
+              <div className="font-mono text-[14px] text-[#6b7869] tracking-[2px] mb-2">
                 002 ————
               </div>
               <div className="font-display text-4xl font-bold tracking-[-1px] uppercase">
                 Platform Capabilities
               </div>
             </div>
-            <div className="font-mono text-[11px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
+            <div className="font-mono text-[15px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
               NWS + FEMA + LOCAL NEWS
               <br />
               POWERED BY GOOGLE ADK + GEMINI
@@ -220,14 +220,14 @@ export default function HomePage() {
       <section className="px-[60px] py-20 border-t border-[#d4dbc8]">
         <div className="flex justify-between items-end mb-12 pb-5 border-b border-[#d4dbc8]">
           <div>
-            <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-2">
+            <div className="font-mono text-[14px] text-[#6b7869] tracking-[2px] mb-2">
               003 ————
             </div>
             <div className="font-display text-4xl font-bold tracking-[-1px] uppercase">
               The Agent Pipeline
             </div>
           </div>
-          <div className="font-mono text-[11px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
+          <div className="font-mono text-[15px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
             5 SPECIALIZED AGENTS
             <br />
             ORCHESTRATED VIA GOOGLE ADK
@@ -241,10 +241,10 @@ export default function HomePage() {
               containerClassName="p-0"
               className="w-full h-full"
             >
-              <CardBody className="bg-white p-7 h-[280px] flex flex-col group hover:bg-[#edf1e8] transition-colors w-full">
+              <CardBody className="bg-white p-7 h-[340px] flex flex-col group hover:bg-[#edf1e8] transition-colors w-full">
                 <CardItem
                   translateZ={30}
-                  className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-4 group-hover:text-[#16a34a] transition-colors"
+                  className="font-mono text-[14px] text-[#6b7869] tracking-[2px] mb-4 group-hover:text-[#16a34a] transition-colors"
                 >
                   0{i + 1} / 05
                 </CardItem>
@@ -253,19 +253,19 @@ export default function HomePage() {
                 </CardItem>
                 <CardItem
                   translateZ={40}
-                  className="font-display text-[15px] font-bold uppercase tracking-tight mb-2.5"
+                  className="font-display text-[18px] font-bold uppercase tracking-tight mb-2.5"
                 >
                   {a.name}
                 </CardItem>
                 <CardItem
                   translateZ={20}
-                  className="text-xs text-[#52665e] leading-relaxed flex-1"
+                  className="text-[15px] text-[#52665e] leading-relaxed flex-1"
                 >
                   {a.description}
                 </CardItem>
                 <CardItem
                   translateZ={35}
-                  className="mt-4 font-mono text-[10px] text-[#16a34a] tracking-wider flex items-center gap-1.5"
+                  className="mt-4 font-mono text-[14px] text-[#16a34a] tracking-wider flex items-center gap-1.5"
                 >
                   <span className="animate-blink">●</span> ONLINE
                 </CardItem>
@@ -286,7 +286,7 @@ export default function HomePage() {
         ].map(([label, value], i, arr) => (
           <div
             key={label}
-            className={`relative flex-1 px-8 py-5 font-mono text-xs text-[#6b7869] tracking-wider text-center ${
+            className={`relative flex-1 px-8 py-5 font-mono text-[13px] text-[#6b7869] tracking-wider text-center ${
               i < arr.length - 1 ? "border-r border-[#d4dbc8]" : ""
             }`}
           >
