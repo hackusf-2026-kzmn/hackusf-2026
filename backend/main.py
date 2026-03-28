@@ -18,8 +18,7 @@ def get_nomi_info(zip_code: str) -> dict:
     nomi_info = {
         "state_code": str(nomi_result.state_code),
         "county_name": str(nomi_result.county_name),
-        "latitude": str(nomi_result.latitude),
-        "longitude": str(nomi_result.longitude)
+        "coords": (str(nomi_result.latitude), str(nomi_result.longitude))
     }
 
     return nomi_info
@@ -27,7 +26,6 @@ def get_nomi_info(zip_code: str) -> dict:
 @app.get("/scout")
 async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     nomi = get_nomi_info(zip_code)
-
 
     county_short = nomi["county_name"].replace(" County", "").strip()
 
@@ -65,16 +63,7 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
         "alerts": matching,  # fix: return filtered list
     }
 
-
-def get_closest_shelters(lat: float, lng: float, k: int = 5):
-    """
-    Returns the k closest shelters from shelters_geocoded.json.
-    Skips shelters with null lat/lng.
-    """
-    data_path = Path(__file__).parent / "shelters_geocoded.json"
-    shelters = json.loads(data_path.read_text(encoding="utf-8"))
-
-    def haversine(lat1, lon1, lat2, lon2):
+def haversine(lat1, lon1, lat2, lon2):
         r = 6371.0  # km
         phi1 = math.radians(lat1)
         phi2 = math.radians(lat2)
@@ -83,17 +72,26 @@ def get_closest_shelters(lat: float, lng: float, k: int = 5):
         a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
         return 2 * r * math.asin(math.sqrt(a))
 
+@app.get("/resourceMatcher")
+async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int = 5) -> list:
+    """
+    Returns the k closest shelters from shelters_geocoded.json.
+    Skips shelters with null lat/lng.
+    """
+
+    lat_i, lng_i = get_nomi_info(zip_code)["coords"]
+    data_path = Path(__file__).parent / "shelters_geocoded.json"
+    shelters = json.loads(data_path.read_text(encoding="utf-8"))
+
     candidates = []
     for s in shelters:
         s_lat = s.get("lat")
         s_lng = s.get("lng")
         if s_lat is None or s_lng is None:
             continue
-        dist_km = haversine(lat, lng, s_lat, s_lng)
+        dist_km = haversine(float(lat_i), float(lng_i), s_lat, s_lng)
         candidates.append({**s, "distance_km": dist_km})
 
     candidates.sort(key=lambda x: x["distance_km"])
-    return candidates[:k]
+    return candidates[:num_of_shelter]
 
-@app.get("/resourceMatcher")
-def resourceMatcher
