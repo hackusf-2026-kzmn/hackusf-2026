@@ -26,3 +26,10 @@ htmlcov/
 # OS junk
 .DS_Store
 Thumbs.db
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
