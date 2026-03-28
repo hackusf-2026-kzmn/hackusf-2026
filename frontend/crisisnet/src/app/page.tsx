@@ -97,9 +97,9 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen pt-14">
+    <div className="min-h-screen pt-[70px]">
       {/* ═══ HERO ═══ */}
-      <section ref={heroRef} className="relative min-h-[calc(100vh-56px)] flex flex-col justify-center px-[60px] py-20 overflow-hidden">
+      <section ref={heroRef} className="relative min-h-[calc(100vh-70px)] flex flex-col justify-center px-[60px] py-20 overflow-hidden">
         {/* Animated grid bg */}
         <GridHero
           gridColor="#7a9470"
