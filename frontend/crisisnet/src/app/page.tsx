@@ -286,10 +286,14 @@ export default function HomePage() {
         ].map(([label, value], i, arr) => (
           <div
             key={label}
-            className={`flex-1 px-8 py-5 font-mono text-xs text-[#6b7869] tracking-wider text-center ${
+            className={`relative flex-1 px-8 py-5 font-mono text-xs text-[#6b7869] tracking-wider text-center ${
               i < arr.length - 1 ? "border-r border-[#d4dbc8]" : ""
             }`}
           >
+            <span className="absolute -left-px -top-px block size-2 border-l-2 border-t-2 border-[#16a34a]" />
+            <span className="absolute -right-px -top-px block size-2 border-r-2 border-t-2 border-[#16a34a]" />
+            <span className="absolute -left-px -bottom-px block size-2 border-l-2 border-b-2 border-[#16a34a]" />
+            <span className="absolute -right-px -bottom-px block size-2 border-r-2 border-b-2 border-[#16a34a]" />
             <strong className="block text-[#111d0f] font-medium mb-1">
               {value}
             </strong>
