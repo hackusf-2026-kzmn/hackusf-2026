@@ -65,7 +65,7 @@ export default function HomePage() {
         <div className="absolute bottom-5 left-5 w-5 h-5 border-b-2 border-l-2 border-[#16a34a] opacity-30" />
         <div className="absolute bottom-5 right-5 w-5 h-5 border-b-2 border-r-2 border-[#16a34a] opacity-30" />
 
-        <div className="relative z-10">
+        <div className="relative z-10" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
           <div className="font-mono text-[11px] text-[#16a34a] tracking-[3px] uppercase mb-6 flex items-center gap-3">
             <span className="w-10 h-px bg-[#16a34a]" />
             Multi-Agent Disaster Response · Google ADK
@@ -110,7 +110,7 @@ export default function HomePage() {
         </div>
 
         {/* Meta corner */}
-        <div className="absolute bottom-10 right-[60px] font-mono text-[10px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
+        <div className="absolute bottom-10 right-[60px] font-mono text-[10px] text-[#6b7869] text-right leading-[1.8] tracking-wider" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
           HACKUSF 2026
           <br />
           TAMPA, FL
@@ -270,7 +270,7 @@ export default function HomePage() {
           gridOpacity={0.22}
           containerRef={ctaRef}
         />
-        <div className="relative z-10">
+        <div className="relative z-10" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
           <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-4">
             004 ————
           </div>
