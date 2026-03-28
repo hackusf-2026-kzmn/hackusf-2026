@@ -163,7 +163,7 @@ export default function HomePage() {
         </div>
 
         {/* Globe — anchored to section bottom-right, clipped by overflow-hidden */}
-        <div className="absolute right-[-350px] bottom-[-400px] w-[1300px] h-[1300px] z-[5] pointer-events-auto">
+        <div className="absolute right-[-350px] bottom-[-400px] w-[1400px] h-[1400px] z-[5] pointer-events-auto">
           <CobeGlobe speed={0.002} />
         </div>
       </section>

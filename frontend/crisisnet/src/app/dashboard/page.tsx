@@ -7,10 +7,7 @@ import type { Incident } from "@/lib/types";
 
 import { SitBanner } from "@/components/dashboard/SitBanner";
 import { AgentPanel } from "@/components/dashboard/AgentPanel";
-import { MapView } from "@/components/dashboard/MapView";
-// To use the real MapLibre map instead of SVG, swap the import:
-// import { LiveMap } from "@/components/dashboard/LiveMap";
-// Then replace <MapView ... /> with <LiveMap ... /> below
+import { LiveMap } from "@/components/dashboard/LiveMap";
 import { IncidentFeed } from "@/components/dashboard/IncidentFeed";
 import { ResourcePanel } from "@/components/dashboard/ResourcePanel";
 import { ReportForm } from "@/components/dashboard/ReportForm";
@@ -106,7 +103,7 @@ export default function DashboardPage() {
 
         {/* CENTER: Map + Bottom panels */}
         <div className="bg-[#f5f7f3] flex flex-col">
-          <MapView incidents={incidents} resources={mockResources} />
+          <LiveMap incidents={incidents} resources={mockResources} />
 
           {/* Bottom: Form + Chart */}
           <div className="grid grid-cols-2 gap-px bg-[#d4dbc8] mx-4 mb-4 mt-2">
