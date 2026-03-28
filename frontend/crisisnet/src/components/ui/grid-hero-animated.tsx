@@ -26,6 +26,7 @@ interface GridHeroProps {
   particleColor?: string;
   gridOpacity?: number;
   containerRef?: RefObject<HTMLElement | null>;
+  rippleCenterRef?: RefObject<{ x: number; y: number } | null>;
 }
 
 export function GridHero({
@@ -35,6 +36,7 @@ export function GridHero({
   particleColor = "#16a34a",
   gridOpacity = 0.22,
   containerRef,
+  rippleCenterRef,
 }: GridHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>();
@@ -42,6 +44,8 @@ export function GridHero({
   const hoveredRef = useRef<{ col: number; row: number } | null>(null);
   const fillsRef = useRef<HoverFill[]>([]);
   const lastTimeRef = useRef(0);
+  const ripplesRef = useRef<{ cx: number; cy: number; start: number }[]>([]);
+  const wasHoveringRef = useRef(false);
   const [mounted, setMounted] = useState(false);
 
   // Trigger a re-render after mount so containerRef.current is populated
@@ -139,6 +143,84 @@ export function GridHero({
       });
     };
 
+    const RIPPLE_MAX_RADIUS = 22;
+    const RIPPLE_EXPAND_SPEED = 14; // cells per second
+    const RIPPLE_RING_WIDTH = 4;    // ring thickness in cells
+
+    const drawRipples = (w: number, h: number, cx: number, cy: number, now: number) => {
+      // Detect new hover → spawn a new ripple ring
+      const isHovering = rippleCenterRef?.current !== null && rippleCenterRef?.current !== undefined;
+      if (isHovering && !wasHoveringRef.current && rippleCenterRef?.current) {
+        ripplesRef.current.push({
+          cx: rippleCenterRef.current.x,
+          cy: rippleCenterRef.current.y,
+          start: now,
+        });
+      }
+      wasHoveringRef.current = isHovering;
+
+      // Build a per-cell alpha accumulator for all active ripples
+      const cols = Math.ceil(w / gridSize);
+      const rows = Math.ceil(h / gridSize);
+      const cellAlpha = new Float32Array(cols * rows);
+
+      ripplesRef.current = ripplesRef.current.filter((ripple) => {
+        const elapsed = (now - ripple.start) / 1000;
+        const wavefront = elapsed * RIPPLE_EXPAND_SPEED;
+        if (wavefront > RIPPLE_MAX_RADIUS + RIPPLE_RING_WIDTH) return false; // expired
+
+        const centerCol = Math.floor(ripple.cx / gridSize);
+        const centerRow = Math.floor(ripple.cy / gridSize);
+        const outerR = Math.min(Math.ceil(wavefront) + 1, RIPPLE_MAX_RADIUS + RIPPLE_RING_WIDTH);
+        const innerR = Math.max(0, Math.floor(wavefront - RIPPLE_RING_WIDTH));
+        const scanR = outerR;
+        const minCol = Math.max(0, centerCol - scanR);
+        const maxCol = Math.min(cols - 1, centerCol + scanR);
+        const minRow = Math.max(0, centerRow - scanR);
+        const maxRow = Math.min(rows - 1, centerRow + scanR);
+
+        for (let col = minCol; col <= maxCol; col++) {
+          for (let row = minRow; row <= maxRow; row++) {
+            const dist = Math.sqrt((col - centerCol) ** 2 + (row - centerRow) ** 2);
+            // Only light cells within the ring band
+            if (dist > wavefront || dist < wavefront - RIPPLE_RING_WIDTH) continue;
+            if (dist > RIPPLE_MAX_RADIUS) continue;
+            // Position within the ring: 1 at wavefront, 0 at inner edge
+            const ringPos = 1 - (wavefront - dist) / RIPPLE_RING_WIDTH;
+            // Fade as ring expands outward
+            const distFade = 1 - dist / RIPPLE_MAX_RADIUS;
+            const alpha = ringPos * distFade;
+            if (alpha > 0) {
+              cellAlpha[row * cols + col] = Math.min(1, cellAlpha[row * cols + col] + alpha);
+            }
+          }
+        }
+        return true;
+      });
+
+      // Draw all lit cells
+      for (let col = 0; col < cols; col++) {
+        for (let row = 0; row < rows; row++) {
+          const a = cellAlpha[row * cols + col];
+          if (a <= 0.01) continue;
+          const bx = col * gridSize;
+          const by = row * gridSize;
+          const corners = [
+            [bx, by], [bx + gridSize, by],
+            [bx + gridSize, by + gridSize], [bx, by + gridSize],
+          ].map(([px, py]) => [px + wave(px, py, cx, cy, w), py + wave(px, py, cx, cy, h)]);
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(corners[0][0], corners[0][1]);
+          for (let i = 1; i < 4; i++) ctx.lineTo(corners[i][0], corners[i][1]);
+          ctx.closePath();
+          ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${a * 0.22})`;
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+    };
+
     const drawLights = (w: number, h: number, cx: number, cy: number) => {
       lightsRef.current.forEach((light) => {
         const d = Math.sqrt((light.x - cx) ** 2 + (light.y - cy) ** 2);
@@ -168,6 +250,7 @@ export function GridHero({
       const cx = w / 2, cy = h / 2;
       ctx.clearRect(0, 0, w, h);
       drawGrid(w, h, cx, cy);
+      drawRipples(w, h, cx, cy, now);
       drawFills(w, h, cx, cy);
       drawLights(w, h, cx, cy);
       lightsRef.current = lightsRef.current.filter((light) => {
@@ -190,7 +273,7 @@ export function GridHero({
       ro.disconnect();
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [mounted, gridSize, gridColor, particleColor, gridOpacity, createLight, hexToRgb]);
+  }, [mounted, gridSize, gridColor, particleColor, gridOpacity, createLight, hexToRgb, rippleCenterRef]);
 
   // Separate effect for mouse listeners — uses containerRef.current after mount
   useEffect(() => {

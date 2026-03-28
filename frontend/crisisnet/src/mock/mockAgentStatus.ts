@@ -5,11 +5,11 @@ export const mockAgentStatus: AgentStatus[] = [
     id: "scout",
     name: "Scout Agent",
     shortName: "SCOUT",
-    icon: "🔭",
+    icon: "scout",
     active: true,
     last_action: "NWS: Anomalous pressure drop — Gulf of Mexico",
     description:
-      "Continuously monitors NWS API, FEMA feeds, and local news/social media for anomalous weather patterns that may indicate hurricanes, earthquakes, or floods.",
+      "Monitors NWS, FEMA, and local news feeds for anomalous weather patterns indicating hurricanes, earthquakes, or floods.",
     actions: [
       "NWS: Anomalous pressure drop — Gulf of Mexico",
       "Scraping Tampa Bay Times — active flood coverage flagged",
@@ -23,11 +23,11 @@ export const mockAgentStatus: AgentStatus[] = [
     id: "triage",
     name: "Triage Agent",
     shortName: "TRIAGE",
-    icon: "⚡",
+    icon: "triage",
     active: true,
     last_action: "Scored EVT-001: 8.4/10 — Cat 3, high-density zone",
     description:
-      "Scores severity and affected population using a rules-based weighted formula: storm category, population density (Census API), and historical damage data (NOAA). The foundation of an ML model.",
+      "Scores severity via storm category, population density, and historical damage data. Foundation of an ML model.",
     actions: [
       "Scored EVT-001: 8.4/10 — Cat 3, high-density zone",
       "Querying Census API for Hillsborough population density",
@@ -41,11 +41,11 @@ export const mockAgentStatus: AgentStatus[] = [
     id: "resource",
     name: "Resource Agent",
     shortName: "RESOURCE",
-    icon: "🤝",
+    icon: "resource",
     active: true,
     last_action: "Matched 3 FEMA programs to zip 33602 residents",
     description:
-      "Finds and matches local non-profit and government assistance programs to affected individuals based on location, need type, and program eligibility.",
+      "Matches local non-profit and government programs to affected individuals by location and eligibility.",
     actions: [
       "Matched 3 FEMA programs to zip 33602 residents",
       "Red Cross shelter capacity verified — 12 sites available",
@@ -59,11 +59,11 @@ export const mockAgentStatus: AgentStatus[] = [
     id: "comms",
     name: "Comms Agent",
     shortName: "COMMS",
-    icon: "📡",
+    icon: "comms",
     active: true,
     last_action: "Alert sent via Mailgun — EN/ES for zip 33602",
     description:
-      "Drafts and sends public alerts via Mailgun, generates multilingual communications, and exposes an API endpoint for integration with local government emergency alert systems.",
+      "Drafts multilingual alerts via Mailgun and exposes an API for local government emergency systems.",
     actions: [
       "Alert sent via Mailgun — EN/ES for zip 33602",
       "Translation complete: Haitian Creole advisory dispatched",
@@ -77,11 +77,11 @@ export const mockAgentStatus: AgentStatus[] = [
     id: "coordinator",
     name: "Coordinator Agent",
     shortName: "COORD",
-    icon: "🌐",
+    icon: "coordinator",
     active: true,
     last_action: "ParallelAgent: Scout + Triage running concurrently",
     description:
-      "Orchestrates all agents using Google ADK's ParallelAgent feature, managing task sequencing, data handoffs, and pipeline coordination across the full response workflow.",
+      "Orchestrates all agents via Google ADK's ParallelAgent, managing sequencing and data handoffs.",
     actions: [
       "ParallelAgent: Scout + Triage running concurrently",
       "Dispatching Resource Agent with EVT-001 triage output",

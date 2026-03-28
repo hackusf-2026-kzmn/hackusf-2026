@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useCallback } from "react";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { WorldMap } from "@/components/ui/world-map";
@@ -12,6 +12,53 @@ import {
 } from "@/components/ui/3d-card-effect";
 import { mockAgentStatus } from "@/mock/mockAgentStatus";
 import { CobeGlobe } from "@/components/ui/cobe-globe";
+
+const agentIcons: Record<string, React.ReactNode> = {
+  scout: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+      <line x1="12" y1="2" x2="12" y2="4" />
+      <line x1="12" y1="20" x2="12" y2="22" />
+      <line x1="2" y1="12" x2="4" y2="12" />
+      <line x1="20" y1="12" x2="22" y2="12" />
+    </svg>
+  ),
+  triage: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </svg>
+  ),
+  resource: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  ),
+  comms: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5.636 18.364a9 9 0 0 1 0-12.728" />
+      <path d="M8.464 15.536a5 5 0 0 1 0-7.072" />
+      <circle cx="12" cy="12" r="1" />
+      <path d="M15.536 8.464a5 5 0 0 1 0 7.072" />
+      <path d="M18.364 5.636a9 9 0 0 1 0 12.728" />
+    </svg>
+  ),
+  coordinator: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <circle cx="4" cy="6" r="2" />
+      <circle cx="20" cy="6" r="2" />
+      <circle cx="4" cy="18" r="2" />
+      <circle cx="20" cy="18" r="2" />
+      <line x1="9.5" y1="10" x2="5.5" y2="7.5" />
+      <line x1="14.5" y1="10" x2="18.5" y2="7.5" />
+      <line x1="9.5" y1="14" x2="5.5" y2="16.5" />
+      <line x1="14.5" y1="14" x2="18.5" y2="16.5" />
+    </svg>
+  ),
+};
 
 // CrisisNet global response network connections
 const CRISIS_CONNECTIONS = [
@@ -48,6 +95,36 @@ const CRISIS_CONNECTIONS = [
 export default function HomePage() {
   const heroRef = useRef<HTMLElement>(null);
   const ctaRef = useRef<HTMLElement>(null);
+  const rippleCenterRef = useRef<{ x: number; y: number } | null>(null);
+  const ctaRippleCenterRef = useRef<{ x: number; y: number } | null>(null);
+
+  const handleButtonHover = useCallback((e: React.MouseEvent) => {
+    if (!heroRef.current) return;
+    const sectionRect = heroRef.current.getBoundingClientRect();
+    const btnRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    rippleCenterRef.current = {
+      x: btnRect.left + btnRect.width / 2 - sectionRect.left,
+      y: btnRect.top + btnRect.height / 2 - sectionRect.top,
+    };
+  }, []);
+
+  const handleButtonLeave = useCallback(() => {
+    rippleCenterRef.current = null;
+  }, []);
+
+  const handleCtaButtonHover = useCallback((e: React.MouseEvent) => {
+    if (!ctaRef.current) return;
+    const sectionRect = ctaRef.current.getBoundingClientRect();
+    const btnRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    ctaRippleCenterRef.current = {
+      x: btnRect.left + btnRect.width / 2 - sectionRect.left,
+      y: btnRect.top + btnRect.height / 2 - sectionRect.top,
+    };
+  }, []);
+
+  const handleCtaButtonLeave = useCallback(() => {
+    ctaRippleCenterRef.current = null;
+  }, []);
 
   return (
     <div className="min-h-screen pt-14">
@@ -59,6 +136,7 @@ export default function HomePage() {
           particleColor="#16a34a"
           gridOpacity={0.22}
           containerRef={heroRef}
+          rippleCenterRef={rippleCenterRef}
         />
         {/* HUD corners */}
         <div className="absolute top-5 left-5 w-5 h-5 border-t-2 border-l-2 border-[#16a34a] opacity-30" />
@@ -74,12 +152,10 @@ export default function HomePage() {
           </div>
 
           <h1 className="font-display font-extrabold text-[clamp(48px,8vw,110px)] leading-[0.92] tracking-[-3px] uppercase max-w-[900px] mb-8">
-            Crisis
-            <br />
-            Net
+            CrisisNet
             <br />
             <em className="font-serif italic font-normal text-[#16a34a]">
-              Disaster Response.
+              Real-Time Response.
             </em>
             <br />
             Tampa,
@@ -87,24 +163,28 @@ export default function HomePage() {
             Florida
           </h1>
 
-          <p className="text-base text-[#52665e] max-w-[560px] leading-relaxed font-light mb-12">
-            CrisisNet is an agentic system built to assist the people who prevent
-            harm during environmental disasters — continuously scanning for
-            anomalous weather, scoring severity, matching affected populations to
-            local and federal support programs, and publishing it all through a
-            public dashboard and API.
-          </p>
+          <div className="font-mono text-[11px] text-[#16a34a] tracking-[3px] uppercase leading-[2.2] mb-12">
+            Agentic Weather Monitoring &amp; Severity Scoring
+            <br />
+            Automated Resource Matching for Affected Communities
+            <br />
+            Real-Time Alerts via Public Dashboard &amp; API
+          </div>
 
-          <div className="flex gap-3 items-center">
+          <div className="flex gap-3 items-center" style={{ textShadow: 'none' }}>
             <Link
               href="/dashboard"
-              className="font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:shadow-[0_0_30px_rgba(22,163,74,0.3)] hover:-translate-y-px transition-all"
+              className="font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase shadow-none hover:brightness-110 hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200"
+              onMouseEnter={handleButtonHover}
+              onMouseLeave={handleButtonLeave}
             >
               Launch Dashboard
             </Link>
             <Link
               href="/about"
-              className="font-mono text-xs text-[#111d0f] px-8 py-3.5 border border-[#d4dbc8] tracking-[1.5px] uppercase hover:border-[#111d0f] transition-all"
+              className="font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase shadow-none hover:brightness-110 hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200"
+              onMouseEnter={handleButtonHover}
+              onMouseLeave={handleButtonLeave}
             >
               Learn More
             </Link>
@@ -209,8 +289,8 @@ export default function HomePage() {
                 >
                   0{i + 1} / 05
                 </CardItem>
-                <CardItem translateZ={50} className="text-2xl mb-3">
-                  {a.icon}
+                <CardItem translateZ={50} className="mb-3">
+                  {agentIcons[a.icon] ?? a.icon}
                 </CardItem>
                 <CardItem
                   translateZ={40}
@@ -266,22 +346,19 @@ export default function HomePage() {
           particleColor="#16a34a"
           gridOpacity={0.22}
           containerRef={ctaRef}
+          rippleCenterRef={ctaRippleCenterRef}
         />
         <div className="relative z-10" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
-          <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-4">
-            004 ————
-          </div>
+
           <h2 className="font-display text-[clamp(32px,5vw,64px)] font-extrabold uppercase tracking-[-2px] mb-5">
             Try It Live.
           </h2>
-          <p className="text-base text-[#52665e] max-w-[480px] mx-auto mb-10 leading-relaxed font-light">
-            Enter a zip code and watch the pipeline run — Scout identifies active
-            threats, Triage scores severity, Resource Agent matches support
-            programs, and Comms drafts an alert. All in seconds.
-          </p>
           <Link
             href="/dashboard"
-            className="inline-block font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:shadow-[0_0_30px_rgba(22,163,74,0.3)] hover:-translate-y-px transition-all"
+            className="inline-block font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:brightness-110 hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200"
+            style={{ textShadow: 'none' }}
+            onMouseEnter={handleCtaButtonHover}
+            onMouseLeave={handleCtaButtonLeave}
           >
             Open the Dashboard →
           </Link>
