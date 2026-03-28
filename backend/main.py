@@ -63,6 +63,15 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
         "alerts": matching,  # fix: return filtered list
     }
 
+def haversine(lat1, lon1, lat2, lon2):
+        r = 6371.0  # km
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
+        a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+        return 2 * r * math.asin(math.sqrt(a))
+
 @app.get("/resourceMatcher")
 async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int = 5) -> list:
     """
@@ -73,15 +82,6 @@ async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int
     lat_i, lng_i = get_nomi_info(zip_code)["coords"]
     data_path = Path(__file__).parent / "shelters_geocoded.json"
     shelters = json.loads(data_path.read_text(encoding="utf-8"))
-
-    def haversine(lat1, lon1, lat2, lon2):
-        r = 6371.0  # km
-        phi1 = math.radians(lat1)
-        phi2 = math.radians(lat2)
-        dphi = math.radians(lat2 - lat1)
-        dlambda = math.radians(lon2 - lon1)
-        a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
-        return 2 * r * math.asin(math.sqrt(a))
 
     candidates = []
     for s in shelters:
@@ -95,4 +95,3 @@ async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int
     candidates.sort(key=lambda x: x["distance_km"])
     return candidates[:num_of_shelter]
 
-asyncio.run(get_closest_shelters())
