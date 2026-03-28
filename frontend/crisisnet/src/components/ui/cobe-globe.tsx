@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useCallback } from "react";
 import createGlobe from "cobe";
@@ -60,7 +60,7 @@ export function CobeGlobe({ className = "", speed = 0.003 }: CobeGlobeProps) {
         markerColor: [0.086, 0.639, 0.29],
         glowColor: [0.83, 0.86, 0.78],
         markers: MARKERS,
-        opacity: 0.85,
+        opacity: 0.72,
       });
 
       function animate() {
@@ -99,22 +99,53 @@ export function CobeGlobe({ className = "", speed = 0.003 }: CobeGlobeProps) {
   }, [speed]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerOut={handlePointerOut}
-      onPointerMove={handlePointerMove}
-      className={className}
-      style={{
-        width: "100%",
-        height: "100%",
-        cursor: "grab",
-        opacity: 0,
-        transition: "opacity 1s ease",
-        touchAction: "none",
-        aspectRatio: "1",
-      }}
-    />
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <canvas
+        ref={canvasRef}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerOut={handlePointerOut}
+        onPointerMove={handlePointerMove}
+        className={className}
+        style={{
+          width: "100%",
+          height: "100%",
+          cursor: "grab",
+          opacity: 0,
+          transition: "opacity 1s ease",
+          touchAction: "none",
+          aspectRatio: "1",
+        }}
+      />
+
+      {/* Rim refraction — blur is masked to the edge of the sphere only (accurate: center of lens refracts ~0, rim refracts most) */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "50%",
+          backdropFilter: "blur(6px) brightness(1.04) saturate(1.08)",
+          WebkitBackdropFilter: "blur(6px) brightness(1.04) saturate(1.08)",
+          WebkitMaskImage: "radial-gradient(circle, transparent 58%, rgba(0,0,0,0.4) 72%, rgba(0,0,0,0.85) 85%, black 100%)",
+          maskImage: "radial-gradient(circle, transparent 58%, rgba(0,0,0,0.4) 72%, rgba(0,0,0,0.85) 85%, black 100%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Specular highlights — upper-left primary reflection + lower-right secondary */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "50%",
+          background: [
+            "radial-gradient(ellipse at 32% 28%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 35%, transparent 60%)",
+            "radial-gradient(ellipse at 68% 72%, rgba(255,255,255,0.07) 0%, transparent 40%)",
+            "radial-gradient(circle at 50% 50%, transparent 56%, rgba(220,230,215,0.12) 72%, rgba(200,215,195,0.18) 88%, rgba(180,200,175,0.08) 100%)",
+          ].join(", "),
+          pointerEvents: "none",
+        }}
+      />
+    </div>
   );
 }

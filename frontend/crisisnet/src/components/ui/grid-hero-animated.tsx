@@ -58,12 +58,14 @@ export function GridHero({
   }), []);
 
   const createLight = useCallback((w: number, h: number): LightParticle => {
+    // speed is in pixels per second — caps both axes at the same visual rate
+    const speed = 150 + Math.random() * 250;
     if (Math.random() > 0.5) {
       const y = Math.floor(Math.random() * (h / gridSize)) * gridSize;
-      return { x: 0, y, targetX: w, targetY: y, speed: 0.4 + Math.random() * 1.2, brightness: 0.7 + Math.random() * 0.3, gridLine: "horizontal", progress: 0 };
+      return { x: 0, y, targetX: w, targetY: y, speed, brightness: 0.7 + Math.random() * 0.3, gridLine: "horizontal", progress: 0 };
     }
     const x = Math.floor(Math.random() * (w / gridSize)) * gridSize;
-    return { x, y: 0, targetX: x, targetY: h, speed: 0.4 + Math.random() * 1.2, brightness: 0.7 + Math.random() * 0.3, gridLine: "vertical", progress: 0 };
+    return { x, y: 0, targetX: x, targetY: h, speed, brightness: 0.7 + Math.random() * 0.3, gridLine: "vertical", progress: 0 };
   }, [gridSize]);
 
   // Main animation + drawing effect
@@ -254,7 +256,9 @@ export function GridHero({
       drawFills(w, h, cx, cy);
       drawLights(w, h, cx, cy);
       lightsRef.current = lightsRef.current.filter((light) => {
-        light.progress += light.speed * dt * 0.001;
+        // Normalize by pixel distance so both axes share the same px/s rate
+        const totalDist = light.gridLine === "horizontal" ? light.targetX : light.targetY;
+        light.progress += (light.speed * dt * 0.001) / totalDist;
         if (light.gridLine === "horizontal") light.x = light.progress * light.targetX;
         else light.y = light.progress * light.targetY;
         return light.progress < 1;
