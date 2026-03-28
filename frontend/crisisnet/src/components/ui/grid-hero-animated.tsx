@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState, type RefObject } from "react";
 
 interface LightParticle {
   x: number;
@@ -20,301 +20,214 @@ interface HoverFill {
 }
 
 interface GridHeroProps {
-  /** Overlay children rendered above the canvas (your hero text) */
-  children?: React.ReactNode;
   className?: string;
-  /** Grid cell size in px, defaults to 40 */
   gridSize?: number;
-  /** Static grid line color */
   gridColor?: string;
-  /** Particle glow color (center stop) */
   particleColor?: string;
-  /** Grid opacity (0–1) */
   gridOpacity?: number;
+  containerRef?: RefObject<HTMLElement | null>;
 }
 
 export function GridHero({
-  children,
   className = "",
   gridSize = 40,
   gridColor = "#7a9470",
   particleColor = "#16a34a",
   gridOpacity = 0.22,
+  containerRef,
 }: GridHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animRef = useRef<number>();
   const lightsRef = useRef<LightParticle[]>([]);
   const hoveredRef = useRef<{ col: number; row: number } | null>(null);
-  const hoverFillsRef = useRef<HoverFill[]>([]);
+  const fillsRef = useRef<HoverFill[]>([]);
   const lastTimeRef = useRef(0);
+  const [mounted, setMounted] = useState(false);
 
-  // Parse hex to rgb
-  const hexToRgb = useCallback((hex: string) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return { r, g, b };
-  }, []);
+  // Trigger a re-render after mount so containerRef.current is populated
+  useEffect(() => setMounted(true), []);
 
-  const createLight = useCallback(
-    (width: number, height: number): LightParticle => {
-      const isHorizontal = Math.random() > 0.5;
-      if (isHorizontal) {
-        const y = Math.floor(Math.random() * (height / gridSize)) * gridSize;
-        return {
-          x: 0,
-          y,
-          targetX: width,
-          targetY: y,
-          speed: 0.4 + Math.random() * 1.2,
-          brightness: 0.7 + Math.random() * 0.3,
-          gridLine: "horizontal",
-          progress: 0,
-        };
-      } else {
-        const x = Math.floor(Math.random() * (width / gridSize)) * gridSize;
-        return {
-          x,
-          y: 0,
-          targetX: x,
-          targetY: height,
-          speed: 0.4 + Math.random() * 1.2,
-          brightness: 0.7 + Math.random() * 0.3,
-          gridLine: "vertical",
-          progress: 0,
-        };
-      }
-    },
-    [gridSize]
-  );
+  const hexToRgb = useCallback((hex: string) => ({
+    r: parseInt(hex.slice(1, 3), 16),
+    g: parseInt(hex.slice(3, 5), 16),
+    b: parseInt(hex.slice(5, 7), 16),
+  }), []);
 
+  const createLight = useCallback((w: number, h: number): LightParticle => {
+    if (Math.random() > 0.5) {
+      const y = Math.floor(Math.random() * (h / gridSize)) * gridSize;
+      return { x: 0, y, targetX: w, targetY: y, speed: 0.4 + Math.random() * 1.2, brightness: 0.7 + Math.random() * 0.3, gridLine: "horizontal", progress: 0 };
+    }
+    const x = Math.floor(Math.random() * (w / gridSize)) * gridSize;
+    return { x, y: 0, targetX: x, targetY: h, speed: 0.4 + Math.random() * 1.2, brightness: 0.7 + Math.random() * 0.3, gridLine: "vertical", progress: 0 };
+  }, [gridSize]);
+
+  // Main animation + drawing effect
   useEffect(() => {
+    if (!mounted) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const rgb = hexToRgb(particleColor);
-    const gridRgb = hexToRgb(gridColor);
+    const gRgb = hexToRgb(gridColor);
+    let currentW = 0;
+    let currentH = 0;
 
-    const resizeCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * window.devicePixelRatio;
-      canvas.height = rect.height * window.devicePixelRatio;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    const applySize = (w: number, h: number) => {
+      if (w === 0 || h === 0) return;
+      canvas.width = w * window.devicePixelRatio;
+      canvas.height = h * window.devicePixelRatio;
+      ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+      currentW = w;
+      currentH = h;
     };
 
-    const getWaveOffset = (
-      x: number,
-      y: number,
-      centerX: number,
-      centerY: number,
-      size: number
-    ) => {
-      const dist = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
-      const wave = Math.sin(dist * 0.02) * 12;
-      const perspective = Math.max(0, 1 - dist / (size * 0.85));
-      return wave * perspective;
+    // Use ResizeObserver — fires when element actually gets dimensions
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        applySize(width, height);
+      }
+    });
+    ro.observe(canvas);
+
+    const wave = (x: number, y: number, cx: number, cy: number, size: number) => {
+      const d = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+      return Math.sin(d * 0.02) * 12 * Math.max(0, 1 - d / (size * 0.85));
     };
 
-    const drawGrid = (
-      width: number,
-      height: number,
-      centerX: number,
-      centerY: number
-    ) => {
-      ctx.strokeStyle = `rgba(${gridRgb.r},${gridRgb.g},${gridRgb.b},${gridOpacity})`;
+    const drawGrid = (w: number, h: number, cx: number, cy: number) => {
+      ctx.strokeStyle = `rgba(${gRgb.r},${gRgb.g},${gRgb.b},${gridOpacity})`;
       ctx.lineWidth = 1;
-
-      // vertical grid lines
-      for (let gx = 0; gx <= width + gridSize; gx += gridSize) {
+      for (let gx = 0; gx <= w + gridSize; gx += gridSize) {
         ctx.beginPath();
-        for (let gy = 0; gy <= height; gy += 2) {
-          const offset = getWaveOffset(gx, gy, centerX, centerY, width);
-          const ax = gx + offset;
+        for (let gy = 0; gy <= h; gy += 2) {
+          const ax = gx + wave(gx, gy, cx, cy, w);
           gy === 0 ? ctx.moveTo(ax, gy) : ctx.lineTo(ax, gy);
         }
         ctx.stroke();
       }
-
-      // horizontal grid lines
-      for (let gy = 0; gy <= height + gridSize; gy += gridSize) {
+      for (let gy = 0; gy <= h + gridSize; gy += gridSize) {
         ctx.beginPath();
-        for (let gx = 0; gx <= width; gx += 2) {
-          const offset = getWaveOffset(gx, gy, centerX, centerY, height);
-          const ay = gy + offset;
+        for (let gx = 0; gx <= w; gx += 2) {
+          const ay = gy + wave(gx, gy, cx, cy, h);
           gx === 0 ? ctx.moveTo(gx, ay) : ctx.lineTo(gx, ay);
         }
         ctx.stroke();
       }
     };
 
-    const drawHoverFills = (
-      width: number,
-      height: number,
-      centerX: number,
-      centerY: number
-    ) => {
-      hoverFillsRef.current.forEach((hf) => {
+    const drawFills = (w: number, h: number, cx: number, cy: number) => {
+      fillsRef.current.forEach((hf) => {
         if (hf.alpha <= 0) return;
         const bx = hf.col * gridSize;
         const by = hf.row * gridSize;
-
-        ctx.save();
-
-        // Clip to the (roughly) warped cell region using a polygon of the 4 corners
         const corners = [
-          [bx, by],
-          [bx + gridSize, by],
-          [bx + gridSize, by + gridSize],
-          [bx, by + gridSize],
-        ].map(([cx, cy]) => {
-          const ov = getWaveOffset(cx, cy, centerX, centerY, width);
-          const oh = getWaveOffset(cx, cy, centerX, centerY, height);
-          return [cx + ov, cy + oh];
-        });
-
+          [bx, by], [bx + gridSize, by],
+          [bx + gridSize, by + gridSize], [bx, by + gridSize],
+        ].map(([px, py]) => [px + wave(px, py, cx, cy, w), py + wave(px, py, cx, cy, h)]);
+        ctx.save();
         ctx.beginPath();
         ctx.moveTo(corners[0][0], corners[0][1]);
         for (let i = 1; i < 4; i++) ctx.lineTo(corners[i][0], corners[i][1]);
         ctx.closePath();
-
-        ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${hf.alpha * 0.18})`;
+        ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${hf.alpha * 0.2})`;
         ctx.fill();
         ctx.restore();
       });
     };
 
-    const drawLights = (
-      width: number,
-      height: number,
-      centerX: number,
-      centerY: number
-    ) => {
+    const drawLights = (w: number, h: number, cx: number, cy: number) => {
       lightsRef.current.forEach((light) => {
-        const dist = Math.sqrt(
-          (light.x - centerX) ** 2 + (light.y - centerY) ** 2
-        );
-        const wave = Math.sin(dist * 0.02) * 12;
-
-        let ax = light.x;
-        let ay = light.y;
-        if (light.gridLine === "vertical") {
-          ax = light.x + wave * Math.max(0, 1 - dist / (width * 0.85));
-        } else {
-          ay = light.y + wave * Math.max(0, 1 - dist / (height * 0.85));
-        }
-
-        const grad = ctx.createRadialGradient(ax, ay, 0, ax, ay, 16);
-        grad.addColorStop(
-          0,
-          `rgba(${rgb.r},${rgb.g},${rgb.b},${light.brightness})`
-        );
-        grad.addColorStop(
-          0.5,
-          `rgba(${rgb.r},${rgb.g},${rgb.b},${light.brightness * 0.45})`
-        );
-        grad.addColorStop(1, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
-
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(ax, ay, 16, 0, Math.PI * 2);
-        ctx.fill();
-
+        const d = Math.sqrt((light.x - cx) ** 2 + (light.y - cy) ** 2);
+        const wv = Math.sin(d * 0.02) * 12 * Math.max(0, 1 - d / (w * 0.85));
+        const ax = light.gridLine === "vertical" ? light.x + wv : light.x;
+        const ay = light.gridLine === "horizontal" ? light.y + wv : light.y;
+        const g = ctx.createRadialGradient(ax, ay, 0, ax, ay, 16);
+        g.addColorStop(0, `rgba(${rgb.r},${rgb.g},${rgb.b},${light.brightness})`);
+        g.addColorStop(0.5, `rgba(${rgb.r},${rgb.g},${rgb.b},${light.brightness * 0.45})`);
+        g.addColorStop(1, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(ax, ay, 16, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${light.brightness})`;
-        ctx.beginPath();
-        ctx.arc(ax, ay, 2, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(ax, ay, 2, 0, Math.PI * 2); ctx.fill();
       });
     };
 
     const animate = (now: number) => {
       const dt = now - lastTimeRef.current;
       lastTimeRef.current = now;
-
-      const w = canvas.width / window.devicePixelRatio;
-      const h = canvas.height / window.devicePixelRatio;
-      const cx = w / 2;
-      const cy = h / 2;
-
+      if (currentW === 0 || currentH === 0) {
+        animRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      const w = currentW;
+      const h = currentH;
+      const cx = w / 2, cy = h / 2;
       ctx.clearRect(0, 0, w, h);
-
       drawGrid(w, h, cx, cy);
-      drawHoverFills(w, h, cx, cy);
+      drawFills(w, h, cx, cy);
       drawLights(w, h, cx, cy);
-
-      // Update lights
       lightsRef.current = lightsRef.current.filter((light) => {
         light.progress += light.speed * dt * 0.001;
-        if (light.gridLine === "horizontal") {
-          light.x = light.progress * light.targetX;
-        } else {
-          light.y = light.progress * light.targetY;
-        }
+        if (light.gridLine === "horizontal") light.x = light.progress * light.targetX;
+        else light.y = light.progress * light.targetY;
         return light.progress < 1;
       });
-
-      if (Math.random() < 0.025 && lightsRef.current.length < 8) {
+      if (Math.random() < 0.025 && lightsRef.current.length < 8)
         lightsRef.current.push(createLight(w, h));
-      }
-
-      // Decay hover fills
-      hoverFillsRef.current = hoverFillsRef.current
-        .map((hf) => ({ ...hf, alpha: hf.alpha - dt * 0.0018 }))
+      fillsRef.current = fillsRef.current
+        .map((hf) => ({ ...hf, alpha: hf.alpha - dt * 0.002 }))
         .filter((hf) => hf.alpha > 0);
-
-      animationRef.current = requestAnimationFrame(animate);
+      animRef.current = requestAnimationFrame(animate);
     };
 
-    resizeCanvas();
-    animationRef.current = requestAnimationFrame(animate);
-    window.addEventListener("resize", resizeCanvas);
+    animRef.current = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      ro.disconnect();
+      if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [gridSize, gridColor, particleColor, gridOpacity, createLight, hexToRgb]);
+  }, [mounted, gridSize, gridColor, particleColor, gridOpacity, createLight, hexToRgb]);
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      const col = Math.floor(mx / gridSize);
-      const row = Math.floor(my / gridSize);
+  // Separate effect for mouse listeners — uses containerRef.current after mount
+  useEffect(() => {
+    if (!mounted) return;
+    const canvas = canvasRef.current;
+    const target = containerRef?.current ?? canvas;
+    if (!target) return;
 
+    const onMove = (e: MouseEvent) => {
+      const rect = (target as Element).getBoundingClientRect();
+      const col = Math.floor((e.clientX - rect.left) / gridSize);
+      const row = Math.floor((e.clientY - rect.top) / gridSize);
       const prev = hoveredRef.current;
       if (!prev || prev.col !== col || prev.row !== row) {
         hoveredRef.current = { col, row };
-        // Push a new fill or refresh existing
-        const existing = hoverFillsRef.current.find(
-          (hf) => hf.col === col && hf.row === row
-        );
-        if (existing) {
-          existing.alpha = 1;
-        } else {
-          hoverFillsRef.current.push({ col, row, alpha: 1 });
-        }
+        const ex = fillsRef.current.find((hf) => hf.col === col && hf.row === row);
+        if (ex) ex.alpha = 1;
+        else fillsRef.current.push({ col, row, alpha: 1 });
       }
-    },
-    [gridSize]
-  );
+    };
+    const onLeave = () => { hoveredRef.current = null; };
 
-  const handleMouseLeave = useCallback(() => {
-    hoveredRef.current = null;
-  }, []);
+    target.addEventListener("mousemove", onMove as EventListener);
+    target.addEventListener("mouseleave", onLeave);
+
+    return () => {
+      target.removeEventListener("mousemove", onMove as EventListener);
+      target.removeEventListener("mouseleave", onLeave);
+    };
+  }, [mounted, containerRef, gridSize]);
 
   return (
     <div className={`absolute inset-0 ${className}`}>
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: "100%", height: "100%", pointerEvents: "none" }}
       />
     </div>
   );

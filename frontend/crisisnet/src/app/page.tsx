@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { WorldMap } from "@/components/ui/world-map";
@@ -39,15 +40,19 @@ const CRISIS_CONNECTIONS = [
 ];
 
 export default function HomePage() {
+  const heroRef = useRef<HTMLElement>(null);
+  const ctaRef = useRef<HTMLElement>(null);
+
   return (
     <div className="min-h-screen pt-14">
       {/* ═══ HERO ═══ */}
-      <section className="relative min-h-[calc(100vh-56px)] flex flex-col justify-center px-[60px] py-20 overflow-hidden">
+      <section ref={heroRef} className="relative min-h-[calc(100vh-56px)] flex flex-col justify-center px-[60px] py-20 overflow-hidden">
         {/* Animated grid bg */}
         <GridHero
           gridColor="#7a9470"
           particleColor="#16a34a"
           gridOpacity={0.22}
+          containerRef={heroRef}
         />
         {/* HUD corners */}
         <div className="absolute top-5 left-5 w-5 h-5 border-t-2 border-l-2 border-[#16a34a] opacity-30" />
@@ -233,14 +238,12 @@ export default function HomePage() {
       </div>
 
       {/* ═══ CTA ═══ */}
-      <section className="relative px-[60px] py-[120px] text-center">
-        <div
-          className="absolute inset-0 opacity-[0.22]"
-          style={{
-            backgroundImage:
-              "linear-gradient(#7a9470 1px, transparent 1px), linear-gradient(90deg, #7a9470 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
+      <section ref={ctaRef} className="relative px-[60px] py-[120px] text-center">
+        <GridHero
+          gridColor="#7a9470"
+          particleColor="#16a34a"
+          gridOpacity={0.22}
+          containerRef={ctaRef}
         />
         <div className="relative z-10">
           <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-4">
