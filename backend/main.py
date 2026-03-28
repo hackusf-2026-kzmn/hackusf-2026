@@ -49,6 +49,21 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
             })
 
     return {
+<<<<<<< HEAD
         "zip_code": zip_code,
         "alerts": matching  # fix: return filtered list
     }
+=======
+        "state": state,
+        "alerts": alerts,
+        "forecast": {
+            "office": forecast_office,
+            "url": forecast_url,
+        },
+    }
+
+
+@app.get("/resourceMatcher")
+async def resourceMatcher() -> dict:
+    
+>>>>>>> 1552211f2e30fafc957b71eb74ed50a7fbdeea5f

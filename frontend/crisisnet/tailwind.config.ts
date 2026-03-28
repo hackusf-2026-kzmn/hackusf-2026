@@ -76,12 +76,17 @@ const config: Config = {
           from: { opacity: "0", transform: "translateX(16px)" },
           to: { opacity: "1", transform: "translateX(0)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         blink: "blink 1.5s ease-in-out infinite",
         scanline: "scanline 3s linear infinite",
         "slide-in": "slide-in 0.4s ease-out",
         "toast-in": "toast-in 0.3s ease-out",
+        marquee: "marquee 20s linear infinite",
       },
     },
   },
