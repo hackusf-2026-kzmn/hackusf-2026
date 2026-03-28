@@ -198,7 +198,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-5 bg-[#d4dbc8] border border-[#d4dbc8]" style={{ gap: '1px' }}>
+        <div className="grid grid-cols-5 border border-[#d4dbc8] divide-x divide-[#d4dbc8]">
           {mockAgentStatus.map((a, i) => (
             <CardContainer
               key={a.id}
