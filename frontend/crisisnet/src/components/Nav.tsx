@@ -43,12 +43,14 @@ export function Nav() {
         })}
       </div>
 
-      {/* CTA */}
+      {/* CTA CHANGE LATER*/}
       <Link
-        href="/dashboard"
+        href="https://devpost.com/software/stroke-shield?"
+        target="_blank"
+        rel="noopener noreferrer"
         className="font-mono text-[13px] bg-[#16a34a] text-white px-6 py-2.5 font-medium tracking-widest uppercase hover:shadow-[0_0_20px_rgba(22,163,74,0.3)] transition-all duration-200"
       >
-        Open Dashboard →
+        DEVPOST →
       </Link>
     </nav>
   );

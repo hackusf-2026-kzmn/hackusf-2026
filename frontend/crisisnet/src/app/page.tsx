@@ -107,6 +107,7 @@ export default function HomePage() {
           gridOpacity={0.22}
           containerRef={heroRef}
           rippleCenterRef={rippleCenterRef}
+          scrollDirection="tr"
         />
         {/* HUD corners */}
         <div className="absolute top-5 left-5 w-5 h-5 border-t-2 border-l-2 border-[#16a34a] opacity-30" />
@@ -310,6 +311,7 @@ export default function HomePage() {
           gridOpacity={0.22}
           containerRef={ctaRef}
           rippleCenterRef={ctaRippleCenterRef}
+          scrollDirection="bl"
         />
         <div className="relative z-10" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
 

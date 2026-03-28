@@ -5,17 +5,14 @@ import { useEffect, useRef, useCallback, useState, type RefObject } from "react"
 interface LightParticle {
   x: number;
   y: number;
-  targetX: number;
-  targetY: number;
   speed: number;
   brightness: number;
   gridLine: "horizontal" | "vertical";
-  progress: number;
 }
 
 interface HoverFill {
-  col: number;
-  row: number;
+  col: number; // world col
+  row: number; // world row
   alpha: number;
 }
 
@@ -27,6 +24,8 @@ interface GridHeroProps {
   gridOpacity?: number;
   containerRef?: RefObject<HTMLElement | null>;
   rippleCenterRef?: RefObject<{ x: number; y: number } | null>;
+  scrollDirection?: "tr" | "tl" | "br" | "bl";
+  scrollSpeed?: number;
 }
 
 export function GridHero({
@@ -37,6 +36,8 @@ export function GridHero({
   gridOpacity = 0.22,
   containerRef,
   rippleCenterRef,
+  scrollDirection = "tr",
+  scrollSpeed = 18,
 }: GridHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>();
@@ -44,11 +45,16 @@ export function GridHero({
   const hoveredRef = useRef<{ col: number; row: number } | null>(null);
   const fillsRef = useRef<HoverFill[]>([]);
   const lastTimeRef = useRef(0);
-  const ripplesRef = useRef<{ cx: number; cy: number; start: number }[]>([]);
+  const ripplesRef = useRef<{ wx: number; wy: number; start: number }[]>([]);
   const wasHoveringRef = useRef(false);
+  const scrollXRef = useRef(0);
+  const scrollYRef = useRef(0);
+  const mouseCanvasRef = useRef<{ x: number; y: number } | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Trigger a re-render after mount so containerRef.current is populated
+  const dx = scrollDirection.includes("r") ? 1 : -1;
+  const dy = scrollDirection.includes("b") ? 1 : -1;
+
   useEffect(() => setMounted(true), []);
 
   const hexToRgb = useCallback((hex: string) => ({
@@ -57,18 +63,33 @@ export function GridHero({
     b: parseInt(hex.slice(5, 7), 16),
   }), []);
 
-  const createLight = useCallback((w: number, h: number): LightParticle => {
-    // speed is in pixels per second — caps both axes at the same visual rate
-    const speed = 150 + Math.random() * 250;
-    if (Math.random() > 0.5) {
-      const y = Math.floor(Math.random() * (h / gridSize)) * gridSize;
-      return { x: 0, y, targetX: w, targetY: y, speed, brightness: 0.7 + Math.random() * 0.3, gridLine: "horizontal", progress: 0 };
-    }
-    const x = Math.floor(Math.random() * (w / gridSize)) * gridSize;
-    return { x, y: 0, targetX: x, targetY: h, speed, brightness: 0.7 + Math.random() * 0.3, gridLine: "vertical", progress: 0 };
-  }, [gridSize]);
+  // Returns visual canvas offset for a given total scroll value: always in [0, gridSize)
+  const gridOffset = useCallback(
+    (scroll: number) => ((scroll % gridSize) + gridSize) % gridSize,
+    [gridSize]
+  );
 
-  // Main animation + drawing effect
+  // Spawn a particle on a random visible grid line
+  const createLight = useCallback(
+    (w: number, h: number, ox: number, oy: number): LightParticle => {
+      const speed = 150 + Math.random() * 250;
+      if (Math.random() > 0.5) {
+        // horizontal — travels in +x across canvas, y snapped to a visible row
+        const numRows = Math.ceil(h / gridSize) + 2;
+        const k = Math.floor(Math.random() * numRows);
+        const y = oy - gridSize + k * gridSize;
+        return { x: -12, y, speed, brightness: 0.7 + Math.random() * 0.3, gridLine: "horizontal" };
+      } else {
+        // vertical — travels in +y across canvas, x snapped to a visible column
+        const numCols = Math.ceil(w / gridSize) + 2;
+        const k = Math.floor(Math.random() * numCols);
+        const x = ox - gridSize + k * gridSize;
+        return { x, y: -12, speed, brightness: 0.7 + Math.random() * 0.3, gridLine: "vertical" };
+      }
+    },
+    [gridSize]
+  );
+
   useEffect(() => {
     if (!mounted) return;
     const canvas = canvasRef.current;
@@ -90,7 +111,6 @@ export function GridHero({
       currentH = h;
     };
 
-    // Use ResizeObserver — fires when element actually gets dimensions
     const ro = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
@@ -105,9 +125,12 @@ export function GridHero({
     };
 
     const drawGrid = (w: number, h: number, cx: number, cy: number) => {
+      const ox = gridOffset(scrollXRef.current);
+      const oy = gridOffset(scrollYRef.current);
       ctx.strokeStyle = `rgba(${gRgb.r},${gRgb.g},${gRgb.b},${gridOpacity})`;
       ctx.lineWidth = 1;
-      for (let gx = 0; gx <= w + gridSize; gx += gridSize) {
+      // vertical lines — start one cell before canvas left edge to fill seamlessly
+      for (let gx = ox - gridSize; gx <= w + gridSize; gx += gridSize) {
         ctx.beginPath();
         for (let gy = 0; gy <= h; gy += 2) {
           const ax = gx + wave(gx, gy, cx, cy, w);
@@ -115,7 +138,8 @@ export function GridHero({
         }
         ctx.stroke();
       }
-      for (let gy = 0; gy <= h + gridSize; gy += gridSize) {
+      // horizontal lines
+      for (let gy = oy - gridSize; gy <= h + gridSize; gy += gridSize) {
         ctx.beginPath();
         for (let gx = 0; gx <= w; gx += 2) {
           const ay = gy + wave(gx, gy, cx, cy, h);
@@ -125,11 +149,16 @@ export function GridHero({
       }
     };
 
+    // World → canvas conversion
+    const toCanvasX = (worldX: number) => worldX - scrollXRef.current;
+    const toCanvasY = (worldY: number) => worldY - scrollYRef.current;
+
     const drawFills = (w: number, h: number, cx: number, cy: number) => {
       fillsRef.current.forEach((hf) => {
         if (hf.alpha <= 0) return;
-        const bx = hf.col * gridSize;
-        const by = hf.row * gridSize;
+        const bx = toCanvasX(hf.col * gridSize);
+        const by = toCanvasY(hf.row * gridSize);
+        if (bx > w + gridSize || bx + gridSize < -gridSize || by > h + gridSize || by + gridSize < -gridSize) return;
         const corners = [
           [bx, by], [bx + gridSize, by],
           [bx + gridSize, by + gridSize], [bx, by + gridSize],
@@ -146,81 +175,81 @@ export function GridHero({
     };
 
     const RIPPLE_MAX_RADIUS = 22;
-    const RIPPLE_EXPAND_SPEED = 14; // cells per second
-    const RIPPLE_RING_WIDTH = 4;    // ring thickness in cells
+    const RIPPLE_EXPAND_SPEED = 14;
+    const RIPPLE_RING_WIDTH = 4;
 
     const drawRipples = (w: number, h: number, cx: number, cy: number, now: number) => {
-      // Detect new hover → spawn a new ripple ring
-      const isHovering = rippleCenterRef?.current !== null && rippleCenterRef?.current !== undefined;
+      const isHovering = rippleCenterRef?.current != null;
       if (isHovering && !wasHoveringRef.current && rippleCenterRef?.current) {
+        // Store in world coords so ripple travels with the grid
         ripplesRef.current.push({
-          cx: rippleCenterRef.current.x,
-          cy: rippleCenterRef.current.y,
+          wx: rippleCenterRef.current.x + scrollXRef.current,
+          wy: rippleCenterRef.current.y + scrollYRef.current,
           start: now,
         });
       }
       wasHoveringRef.current = isHovering;
 
-      // Build a per-cell alpha accumulator for all active ripples
-      const cols = Math.ceil(w / gridSize);
-      const rows = Math.ceil(h / gridSize);
-      const cellAlpha = new Float32Array(cols * rows);
+      const cellAlpha = new Map<string, number>();
 
       ripplesRef.current = ripplesRef.current.filter((ripple) => {
         const elapsed = (now - ripple.start) / 1000;
         const wavefront = elapsed * RIPPLE_EXPAND_SPEED;
-        if (wavefront > RIPPLE_MAX_RADIUS + RIPPLE_RING_WIDTH) return false; // expired
+        if (wavefront > RIPPLE_MAX_RADIUS + RIPPLE_RING_WIDTH) return false;
 
-        const centerCol = Math.floor(ripple.cx / gridSize);
-        const centerRow = Math.floor(ripple.cy / gridSize);
+        const centerCol = Math.floor(ripple.wx / gridSize);
+        const centerRow = Math.floor(ripple.wy / gridSize);
         const outerR = Math.min(Math.ceil(wavefront) + 1, RIPPLE_MAX_RADIUS + RIPPLE_RING_WIDTH);
-        const innerR = Math.max(0, Math.floor(wavefront - RIPPLE_RING_WIDTH));
-        const scanR = outerR;
-        const minCol = Math.max(0, centerCol - scanR);
-        const maxCol = Math.min(cols - 1, centerCol + scanR);
-        const minRow = Math.max(0, centerRow - scanR);
-        const maxRow = Math.min(rows - 1, centerRow + scanR);
+
+        // Visible world col/row range
+        const visColMin = Math.floor(scrollXRef.current / gridSize) - 1;
+        const visRowMin = Math.floor(scrollYRef.current / gridSize) - 1;
+        const visColMax = visColMin + Math.ceil(w / gridSize) + 3;
+        const visRowMax = visRowMin + Math.ceil(h / gridSize) + 3;
+
+        const minCol = Math.max(visColMin, centerCol - outerR);
+        const maxCol = Math.min(visColMax, centerCol + outerR);
+        const minRow = Math.max(visRowMin, centerRow - outerR);
+        const maxRow = Math.min(visRowMax, centerRow + outerR);
 
         for (let col = minCol; col <= maxCol; col++) {
           for (let row = minRow; row <= maxRow; row++) {
             const dist = Math.sqrt((col - centerCol) ** 2 + (row - centerRow) ** 2);
-            // Only light cells within the ring band
             if (dist > wavefront || dist < wavefront - RIPPLE_RING_WIDTH) continue;
             if (dist > RIPPLE_MAX_RADIUS) continue;
-            // Position within the ring: 1 at wavefront, 0 at inner edge
             const ringPos = 1 - (wavefront - dist) / RIPPLE_RING_WIDTH;
-            // Fade as ring expands outward
             const distFade = 1 - dist / RIPPLE_MAX_RADIUS;
             const alpha = ringPos * distFade;
             if (alpha > 0) {
-              cellAlpha[row * cols + col] = Math.min(1, cellAlpha[row * cols + col] + alpha);
+              const key = `${col},${row}`;
+              cellAlpha.set(key, Math.min(1, (cellAlpha.get(key) ?? 0) + alpha));
             }
           }
         }
         return true;
       });
 
-      // Draw all lit cells
-      for (let col = 0; col < cols; col++) {
-        for (let row = 0; row < rows; row++) {
-          const a = cellAlpha[row * cols + col];
-          if (a <= 0.01) continue;
-          const bx = col * gridSize;
-          const by = row * gridSize;
-          const corners = [
-            [bx, by], [bx + gridSize, by],
-            [bx + gridSize, by + gridSize], [bx, by + gridSize],
-          ].map(([px, py]) => [px + wave(px, py, cx, cy, w), py + wave(px, py, cx, cy, h)]);
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(corners[0][0], corners[0][1]);
-          for (let i = 1; i < 4; i++) ctx.lineTo(corners[i][0], corners[i][1]);
-          ctx.closePath();
-          ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${a * 0.22})`;
-          ctx.fill();
-          ctx.restore();
-        }
-      }
+      cellAlpha.forEach((a, key) => {
+        if (a <= 0.01) return;
+        const [colStr, rowStr] = key.split(",");
+        const col = parseInt(colStr);
+        const row = parseInt(rowStr);
+        const bx = toCanvasX(col * gridSize);
+        const by = toCanvasY(row * gridSize);
+        if (bx > w + gridSize || bx + gridSize < -gridSize || by > h + gridSize || by + gridSize < -gridSize) return;
+        const corners = [
+          [bx, by], [bx + gridSize, by],
+          [bx + gridSize, by + gridSize], [bx, by + gridSize],
+        ].map(([px, py]) => [px + wave(px, py, cx, cy, w), py + wave(px, py, cx, cy, h)]);
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(corners[0][0], corners[0][1]);
+        for (let i = 1; i < 4; i++) ctx.lineTo(corners[i][0], corners[i][1]);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${a * 0.22})`;
+        ctx.fill();
+        ctx.restore();
+      });
     };
 
     const drawLights = (w: number, h: number, cx: number, cy: number) => {
@@ -241,8 +270,10 @@ export function GridHero({
     };
 
     const animate = (now: number) => {
-      const dt = now - lastTimeRef.current;
+      if (lastTimeRef.current === 0) lastTimeRef.current = now;
+      const dt = Math.min(now - lastTimeRef.current, 50);
       lastTimeRef.current = now;
+
       if (currentW === 0 || currentH === 0) {
         animRef.current = requestAnimationFrame(animate);
         return;
@@ -250,24 +281,55 @@ export function GridHero({
       const w = currentW;
       const h = currentH;
       const cx = w / 2, cy = h / 2;
+
+      // Advance scroll
+      const scrollDX = dx * scrollSpeed * dt * 0.001;
+      const scrollDY = dy * scrollSpeed * dt * 0.001;
+      scrollXRef.current += scrollDX;
+      scrollYRef.current += scrollDY;
+
+      const ox = gridOffset(scrollXRef.current);
+      const oy = gridOffset(scrollYRef.current);
+
+      // Update hovered cell from current mouse position (so stationary mouse
+      // sees cells scrolling under it and lights them up correctly)
+      if (mouseCanvasRef.current) {
+        const col = Math.floor((mouseCanvasRef.current.x + scrollXRef.current) / gridSize);
+        const row = Math.floor((mouseCanvasRef.current.y + scrollYRef.current) / gridSize);
+        const prev = hoveredRef.current;
+        if (!prev || prev.col !== col || prev.row !== row) {
+          hoveredRef.current = { col, row };
+          const ex = fillsRef.current.find((hf) => hf.col === col && hf.row === row);
+          if (ex) ex.alpha = 1;
+          else fillsRef.current.push({ col, row, alpha: 1 });
+        }
+      }
+
       ctx.clearRect(0, 0, w, h);
       drawGrid(w, h, cx, cy);
       drawRipples(w, h, cx, cy, now);
       drawFills(w, h, cx, cy);
       drawLights(w, h, cx, cy);
+
+      // Update particles: move with grid scroll AND along their grid line
+      const margin = gridSize * 2;
       lightsRef.current = lightsRef.current.filter((light) => {
-        // Normalize by pixel distance so both axes share the same px/s rate
-        const totalDist = light.gridLine === "horizontal" ? light.targetX : light.targetY;
-        light.progress += (light.speed * dt * 0.001) / totalDist;
-        if (light.gridLine === "horizontal") light.x = light.progress * light.targetX;
-        else light.y = light.progress * light.targetY;
-        return light.progress < 1;
+        light.x += scrollDX + (light.gridLine === "horizontal" ? light.speed * dt * 0.001 : 0);
+        light.y += scrollDY + (light.gridLine === "vertical" ? light.speed * dt * 0.001 : 0);
+        return (
+          light.x > -margin && light.x < w + margin &&
+          light.y > -margin && light.y < h + margin
+        );
       });
-      if (Math.random() < 0.025 && lightsRef.current.length < 8)
-        lightsRef.current.push(createLight(w, h));
+
+      if (Math.random() < 0.025 && lightsRef.current.length < 8) {
+        lightsRef.current.push(createLight(w, h, ox, oy));
+      }
+
       fillsRef.current = fillsRef.current
         .map((hf) => ({ ...hf, alpha: hf.alpha - dt * 0.002 }))
         .filter((hf) => hf.alpha > 0);
+
       animRef.current = requestAnimationFrame(animate);
     };
 
@@ -277,9 +339,9 @@ export function GridHero({
       ro.disconnect();
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [mounted, gridSize, gridColor, particleColor, gridOpacity, createLight, hexToRgb, rippleCenterRef]);
+  }, [mounted, gridSize, gridColor, particleColor, gridOpacity, createLight, hexToRgb, rippleCenterRef, gridOffset, dx, dy, scrollSpeed]);
 
-  // Separate effect for mouse listeners — uses containerRef.current after mount
+  // Mouse listeners — only update mouseCanvasRef; hover cell computed per-frame in animate loop
   useEffect(() => {
     if (!mounted) return;
     const canvas = canvasRef.current;
@@ -288,17 +350,15 @@ export function GridHero({
 
     const onMove = (e: MouseEvent) => {
       const rect = (target as Element).getBoundingClientRect();
-      const col = Math.floor((e.clientX - rect.left) / gridSize);
-      const row = Math.floor((e.clientY - rect.top) / gridSize);
-      const prev = hoveredRef.current;
-      if (!prev || prev.col !== col || prev.row !== row) {
-        hoveredRef.current = { col, row };
-        const ex = fillsRef.current.find((hf) => hf.col === col && hf.row === row);
-        if (ex) ex.alpha = 1;
-        else fillsRef.current.push({ col, row, alpha: 1 });
-      }
+      mouseCanvasRef.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
     };
-    const onLeave = () => { hoveredRef.current = null; };
+    const onLeave = () => {
+      mouseCanvasRef.current = null;
+      hoveredRef.current = null;
+    };
 
     target.addEventListener("mousemove", onMove as EventListener);
     target.addEventListener("mouseleave", onLeave);
@@ -307,7 +367,7 @@ export function GridHero({
       target.removeEventListener("mousemove", onMove as EventListener);
       target.removeEventListener("mouseleave", onLeave);
     };
-  }, [mounted, containerRef, gridSize]);
+  }, [mounted, containerRef]);
 
   return (
     <div className={`absolute inset-0 ${className}`}>
@@ -319,3 +379,4 @@ export function GridHero({
     </div>
   );
 }
+
