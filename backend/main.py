@@ -96,4 +96,5 @@ def get_closest_shelters(lat: float, lng: float, k: int = 5):
     return candidates[:k]
 
 @app.get("/resourceMatcher")
-def resourceMatcher
+def resourceMatcher(get_closest_shelters()) -> list:
+    
