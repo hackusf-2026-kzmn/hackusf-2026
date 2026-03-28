@@ -5,6 +5,11 @@ import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { WorldMap } from "@/components/ui/world-map";
 import { GridHero } from "@/components/ui/grid-hero-animated";
+import {
+  CardContainer,
+  CardBody,
+  CardItem,
+} from "@/components/ui/3d-card-effect";
 import { mockAgentStatus } from "@/mock/mockAgentStatus";
 
 // CrisisNet global response network connections
@@ -67,14 +72,17 @@ export default function HomePage() {
           </div>
 
           <h1 className="font-display font-extrabold text-[clamp(48px,8vw,110px)] leading-[0.92] tracking-[-3px] uppercase max-w-[900px] mb-8">
-            Detect Risk.
+            Crisis
             <br />
-            Match{" "}
+            Net
+            <br />
             <em className="font-serif italic font-normal text-[#16a34a]">
-              Support.
+              Disaster Response.
             </em>
             <br />
-            Alert Fast.
+            Tampa,
+            <br />
+            Florida
           </h1>
 
           <p className="text-base text-[#52665e] max-w-[560px] leading-relaxed font-light mb-12">
@@ -190,26 +198,43 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-px bg-[#d4dbc8] border border-[#d4dbc8]">
+        <div className="grid grid-cols-5 bg-[#d4dbc8] border border-[#d4dbc8]" style={{ gap: '1px' }}>
           {mockAgentStatus.map((a, i) => (
-            <div
+            <CardContainer
               key={a.id}
-              className="bg-white p-7 min-h-[240px] flex flex-col group hover:bg-[#edf1e8] transition-colors"
+              containerClassName="p-0"
+              className="w-full h-full"
             >
-              <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-4 group-hover:text-[#16a34a] transition-colors">
-                0{i + 1} / 05
-              </div>
-              <div className="text-2xl mb-3">{a.icon}</div>
-              <div className="font-display text-[15px] font-bold uppercase tracking-tight mb-2.5">
-                {a.name}
-              </div>
-              <div className="text-xs text-[#52665e] leading-relaxed flex-1">
-                {a.description}
-              </div>
-              <div className="mt-4 font-mono text-[10px] text-[#16a34a] tracking-wider flex items-center gap-1.5">
-                <span className="animate-blink">●</span> ONLINE
-              </div>
-            </div>
+              <CardBody className="bg-white p-7 h-[280px] flex flex-col group hover:bg-[#edf1e8] transition-colors w-full">
+                <CardItem
+                  translateZ={30}
+                  className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-4 group-hover:text-[#16a34a] transition-colors"
+                >
+                  0{i + 1} / 05
+                </CardItem>
+                <CardItem translateZ={50} className="text-2xl mb-3">
+                  {a.icon}
+                </CardItem>
+                <CardItem
+                  translateZ={40}
+                  className="font-display text-[15px] font-bold uppercase tracking-tight mb-2.5"
+                >
+                  {a.name}
+                </CardItem>
+                <CardItem
+                  translateZ={20}
+                  className="text-xs text-[#52665e] leading-relaxed flex-1"
+                >
+                  {a.description}
+                </CardItem>
+                <CardItem
+                  translateZ={35}
+                  className="mt-4 font-mono text-[10px] text-[#16a34a] tracking-wider flex items-center gap-1.5"
+                >
+                  <span className="animate-blink">●</span> ONLINE
+                </CardItem>
+              </CardBody>
+            </CardContainer>
           ))}
         </div>
       </section>
