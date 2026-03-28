@@ -94,3 +94,7 @@ def get_closest_shelters(zip_code: str, num_of_shelter: int = 5):
 
     candidates.sort(key=lambda x: x["distance_km"])
     return candidates[:num_of_shelter]
+
+@app.get("/resourceMatcher")
+def resourceMatcher(get_closest_shelters()) -> list:
+    pass
