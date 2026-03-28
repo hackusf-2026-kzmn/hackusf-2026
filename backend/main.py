@@ -64,13 +64,13 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     }
 
 @app.get("/resourceMatcher")
-async def get_closest_shelters(zip_code: str, num_of_shelter: int = 5) -> list:
+async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int = 5) -> list:
     """
     Returns the k closest shelters from shelters_geocoded.json.
     Skips shelters with null lat/lng.
     """
 
-    lat, lng = get_nomi_info(zip_code)["coords"]
+    lat_i, lng_i = get_nomi_info(zip_code)["coords"]
     data_path = Path(__file__).parent / "shelters_geocoded.json"
     shelters = json.loads(data_path.read_text(encoding="utf-8"))
 
@@ -89,8 +89,10 @@ async def get_closest_shelters(zip_code: str, num_of_shelter: int = 5) -> list:
         s_lng = s.get("lng")
         if s_lat is None or s_lng is None:
             continue
-        dist_km = haversine(lat, lng, s_lat, s_lng)
+        dist_km = haversine(float(lat_i), float(lng_i), s_lat, s_lng)
         candidates.append({**s, "distance_km": dist_km})
 
     candidates.sort(key=lambda x: x["distance_km"])
     return candidates[:num_of_shelter]
+
+asyncio.run(get_closest_shelters())
