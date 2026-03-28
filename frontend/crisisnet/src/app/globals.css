@@ -1,0 +1,63 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 88 15% 96%;
+    --foreground: 113 29% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 113 29% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 113 29% 9%;
+    --primary: 142 71% 36%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 84 14% 93%;
+    --secondary-foreground: 113 29% 9%;
+    --muted: 84 14% 93%;
+    --muted-foreground: 113 8% 43%;
+    --accent: 142 71% 36%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 84 16% 83%;
+    --input: 84 16% 83%;
+    --ring: 142 71% 36%;
+    --radius: 0px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+}
+
+/* ─── CUSTOM UTILITIES ─── */
+@layer utilities {
+  .text-crisis-green {
+    color: #16a34a;
+  }
+  .bg-crisis-green {
+    background-color: #16a34a;
+  }
+  .border-crisis-green {
+    border-color: #16a34a;
+  }
+}
