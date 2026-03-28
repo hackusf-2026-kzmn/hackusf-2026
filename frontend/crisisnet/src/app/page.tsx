@@ -3,7 +3,7 @@
 import { useRef, useCallback } from "react";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
-import { WorldMap } from "@/components/ui/world-map";
+import { Features } from "@/components/ui/features-section";
 import { GridHero } from "@/components/ui/grid-hero-animated";
 import {
   CardContainer,
@@ -60,37 +60,7 @@ const agentIcons: Record<string, React.ReactNode> = {
   ),
 };
 
-// CrisisNet global response network connections
-const CRISIS_CONNECTIONS = [
-  {
-    start: { lat: 27.95, lng: -82.46, label: "Tampa" },
-    end: { lat: 25.76, lng: -80.19, label: "Miami" },
-  },
-  {
-    start: { lat: 27.95, lng: -82.46, label: "Tampa" },
-    end: { lat: 38.9, lng: -77.04, label: "D.C." },
-  },
-  {
-    start: { lat: 38.9, lng: -77.04, label: "D.C." },
-    end: { lat: 51.51, lng: -0.13, label: "London" },
-  },
-  {
-    start: { lat: 51.51, lng: -0.13, label: "London" },
-    end: { lat: 28.61, lng: 77.21, label: "New Delhi" },
-  },
-  {
-    start: { lat: 28.61, lng: 77.21, label: "New Delhi" },
-    end: { lat: 35.68, lng: 139.69, label: "Tokyo" },
-  },
-  {
-    start: { lat: 27.95, lng: -82.46, label: "Tampa" },
-    end: { lat: -22.91, lng: -43.17, label: "Rio" },
-  },
-  {
-    start: { lat: 51.51, lng: -0.13, label: "London" },
-    end: { lat: -1.29, lng: 36.82, label: "Nairobi" },
-  },
-];
+
 
 export default function HomePage() {
   const heroRef = useRef<HTMLElement>(null);
@@ -224,37 +194,26 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* ═══ WORLD MAP ═══ */}
-      <section className="px-[60px] py-20">
-        <div className="flex justify-between items-end mb-12 pb-5 border-b border-[#d4dbc8]">
-          <div>
-            <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-2">
-              002 ————
+      {/* ═══ FEATURES ═══ */}
+      <section className="py-16 md:py-32">
+        <div className="px-[60px] mb-12">
+          <div className="flex justify-between items-end pb-5 border-b border-[#d4dbc8]">
+            <div>
+              <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-2">
+                002 ————
+              </div>
+              <div className="font-display text-4xl font-bold tracking-[-1px] uppercase">
+                Platform Capabilities
+              </div>
             </div>
-            <div className="font-display text-4xl font-bold tracking-[-1px] uppercase">
-              Disaster Monitoring Network
+            <div className="font-mono text-[11px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
+              NWS + FEMA + LOCAL NEWS
+              <br />
+              POWERED BY GOOGLE ADK + GEMINI
             </div>
-          </div>
-          <div className="font-mono text-[11px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
-            NWS + FEMA + LOCAL NEWS
-            <br />
-            POWERED BY GOOGLE ADK + GEMINI
           </div>
         </div>
-
-        <div className="relative">
-          <div className="absolute top-4 left-5 z-10 font-mono text-[9px] text-[#6b7869] tracking-[2px]">
-            CRISISNET ACTIVE MONITORING ZONES
-          </div>
-          <div className="absolute top-4 right-5 z-10 font-mono text-[9px] text-[#16a34a] tracking-[2px] flex items-center gap-1.5">
-            <span className="animate-blink">●</span> LIVE
-          </div>
-          <WorldMap
-            dots={CRISIS_CONNECTIONS}
-            lineColor="#16a34a"
-            animationDuration={2.5}
-          />
-        </div>
+        <Features />
       </section>
 
       {/* ═══ AGENTS GRID ═══ */}
@@ -327,10 +286,14 @@ export default function HomePage() {
         ].map(([label, value], i, arr) => (
           <div
             key={label}
-            className={`flex-1 px-8 py-5 font-mono text-xs text-[#6b7869] tracking-wider text-center ${
+            className={`relative flex-1 px-8 py-5 font-mono text-xs text-[#6b7869] tracking-wider text-center ${
               i < arr.length - 1 ? "border-r border-[#d4dbc8]" : ""
             }`}
           >
+            <span className="absolute -left-px -top-px block size-2 border-l-2 border-t-2 border-[#16a34a]" />
+            <span className="absolute -right-px -top-px block size-2 border-r-2 border-t-2 border-[#16a34a]" />
+            <span className="absolute -left-px -bottom-px block size-2 border-l-2 border-b-2 border-[#16a34a]" />
+            <span className="absolute -right-px -bottom-px block size-2 border-r-2 border-b-2 border-[#16a34a]" />
             <strong className="block text-[#111d0f] font-medium mb-1">
               {value}
             </strong>
