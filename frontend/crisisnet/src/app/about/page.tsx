@@ -132,7 +132,7 @@ export default function AboutPage() {
             What we&apos;re about.
           </h1>
 
-          <div className="font-mono text-[12px] text-[#6b7869] tracking-[2px] uppercase leading-[2]" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+          <div className="font-mono text-[16px] text-[#6b7869] tracking-[2px] uppercase leading-[2]" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
             AI-powered disaster response.
             <br />
             Built for Tampa.
@@ -157,14 +157,14 @@ export default function AboutPage() {
             key={s.num}
             className={`relative px-10 py-10 ${i < 2 ? "border-r border-[#d4dbc8]" : ""}`}
           >
-            <span className="absolute top-3 right-4 font-mono text-[9px] text-[#6b7869] tracking-wider">
+            <span className="absolute top-3 right-4 font-mono text-[13px] text-[#6b7869] tracking-wider">
               {s.num}
             </span>
             <div className="font-display text-5xl font-extrabold tracking-[-2px] leading-none">
               {s.value}
               <span className="text-[#16a34a]">{s.accent}</span>
             </div>
-            <div className="font-mono text-[11px] text-[#6b7869] mt-2 tracking-wider uppercase">
+            <div className="font-mono text-[16px] text-[#6b7869] mt-2 tracking-wider uppercase">
               {s.label}
             </div>
           </div>
@@ -178,14 +178,14 @@ export default function AboutPage() {
           <span className="absolute -right-px -top-px block size-2 border-r-2 border-t-2 border-[#16a34a]" />
           <span className="absolute -left-px -bottom-px block size-2 border-l-2 border-b-2 border-[#16a34a]" />
           <span className="absolute -right-px -bottom-px block size-2 border-r-2 border-b-2 border-[#16a34a]" />
-          <div className="font-mono text-[10px] text-[#16a34a] tracking-[2px] uppercase mb-5 flex items-center gap-2">
+          <div className="font-mono text-[15px] text-[#16a34a] tracking-[2px] uppercase mb-5 flex items-center gap-2">
             <span className="w-6 h-px bg-[#16a34a]" />
             The Problem
           </div>
           <div className="font-display text-lg font-bold uppercase tracking-tight mb-4 text-[#111d0f]">
             Disasters Outpace Human Coordination
           </div>
-          <div className="text-sm text-[#52665e] leading-[1.8]">
+          <div className="text-[18px] text-[#52665e] leading-[1.8]">
             During large-scale disasters, emergency coordinators and support
             workers manually process hundreds of reports. Triage decisions are
             delayed. Victims don&apos;t know what programs exist for them. Communication
@@ -198,15 +198,15 @@ export default function AboutPage() {
           <span className="absolute -right-px -top-px block size-2 border-r-2 border-t-2 border-[#16a34a]" />
           <span className="absolute -left-px -bottom-px block size-2 border-l-2 border-b-2 border-[#16a34a]" />
           <span className="absolute -right-px -bottom-px block size-2 border-r-2 border-b-2 border-[#16a34a]" />
-          <div className="font-mono text-[10px] text-[#16a34a] tracking-[2px] uppercase mb-5 flex items-center gap-2">
+          <div className="font-mono text-[15px] text-[#16a34a] tracking-[2px] uppercase mb-5 flex items-center gap-2">
             <span className="w-6 h-px bg-[#16a34a]" />
             Our Solution
           </div>
           <div className="font-display text-lg font-bold uppercase tracking-tight mb-4 text-[#111d0f]">
             Five Agents, One Pipeline, Zero Delay
           </div>
-          <div className="text-sm text-[#52665e] leading-[1.8]">
-            CrisisNet is an agentic companion to the people who prevent harm.
+          <div className="text-[18px] text-[#52665e] leading-[1.8]">
+            Crisis-Net is an agentic companion to the people who prevent harm.
             Five specialized agents — Scout, Triage, Resource, Comms, and
             Coordinator — work in a pipeline orchestrated via Google ADK&apos;s
             ParallelAgent. A Scout finds threats, Triage scores impact, Resource
@@ -220,14 +220,14 @@ export default function AboutPage() {
       <section className="px-[60px] py-20 border-b border-[#d4dbc8]">
         <div className="flex justify-between items-end mb-12 pb-5 border-b border-[#d4dbc8]">
           <div>
-            <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-2">
+            <div className="font-mono text-[15px] text-[#6b7869] tracking-[2px] mb-2">
               002 ————
             </div>
             <div className="font-display text-4xl font-bold tracking-[-1px] uppercase">
               How It Works
             </div>
           </div>
-          <div className="font-mono text-[11px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
+          <div className="font-mono text-[16px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
             4-STAGE PIPELINE
             <br />
             GOOGLE ADK ORCHESTRATION
@@ -244,7 +244,7 @@ export default function AboutPage() {
               <CardBody className="bg-white p-8 h-[300px] flex flex-col group hover:bg-[#edf1e8] transition-colors w-full relative">
                 <CardItem
                   translateZ={30}
-                  className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-4 group-hover:text-[#16a34a] transition-colors"
+                  className="font-mono text-[15px] text-[#6b7869] tracking-[2px] mb-4 group-hover:text-[#16a34a] transition-colors"
                 >
                   0{i + 1} / 04
                 </CardItem>
@@ -253,13 +253,13 @@ export default function AboutPage() {
                 </CardItem>
                 <CardItem
                   translateZ={40}
-                  className="font-display text-[15px] font-bold uppercase tracking-tight mb-2.5"
+                  className="font-display text-[18px] font-bold uppercase tracking-tight mb-2.5"
                 >
                   {s.title}
                 </CardItem>
                 <CardItem
                   translateZ={20}
-                  className="text-xs text-[#52665e] leading-relaxed flex-1"
+                  className="text-sm text-[#52665e] leading-relaxed flex-1"
                 >
                   {s.desc}
                 </CardItem>
@@ -277,10 +277,10 @@ export default function AboutPage() {
       {/* ═══ TECH STRIP (infinite scroll) ═══ */}
       <div className="overflow-hidden border-b border-[#d4dbc8]">
         <div className="flex w-max animate-marquee">
-          {[...TECH_STACK, ...TECH_STACK].map(([label, value], i) => (
+          {[...TECH_STACK, ...TECH_STACK, ...TECH_STACK, ...TECH_STACK].map(([label, value], i) => (
             <div
               key={`${label}-${i}`}
-              className="relative flex-shrink-0 w-[200px] px-6 py-5 font-mono text-xs text-[#6b7869] tracking-wider text-center border-r border-[#d4dbc8] hover:bg-white transition-colors"
+              className="relative flex-shrink-0 w-[200px] px-6 py-5 font-mono text-[16px] text-[#6b7869] tracking-wider text-center border-r border-[#d4dbc8] hover:bg-white transition-colors"
             >
               <span className="absolute -left-px -top-px block size-2 border-l-2 border-t-2 border-[#16a34a]" />
               <span className="absolute -right-px -top-px block size-2 border-r-2 border-t-2 border-[#16a34a]" />
@@ -299,14 +299,14 @@ export default function AboutPage() {
       <section className="px-[60px] py-20 border-b border-[#d4dbc8]">
         <div className="flex justify-between items-end mb-12 pb-5 border-b border-[#d4dbc8]">
           <div>
-            <div className="font-mono text-[10px] text-[#6b7869] tracking-[2px] mb-2">
+            <div className="font-mono text-[15px] text-[#6b7869] tracking-[2px] mb-2">
               003 ————
             </div>
             <div className="font-display text-4xl font-bold tracking-[-1px] uppercase">
               The Team
             </div>
           </div>
-          <div className="font-mono text-[11px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
+          <div className="font-mono text-[15px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
             UNIVERSITY OF SOUTH FLORIDA
             <br />
             HACKUSF 2026 · TAMPA, FL
@@ -315,11 +315,11 @@ export default function AboutPage() {
 
         <div className="grid grid-cols-2 gap-px bg-[#d4dbc8]">
           <div className="bg-white p-10">
-            <div className="font-mono text-[10px] text-[#16a34a] tracking-[2px] uppercase mb-5 flex items-center gap-2">
+            <div className="font-mono text-[15px] text-[#16a34a] tracking-[2px] uppercase mb-5 flex items-center gap-2">
               <span className="w-6 h-px bg-[#16a34a]" />
               Mission
             </div>
-            <div className="text-sm text-[#52665e] leading-[1.8]">
+            <div className="text-[18px] text-[#52665e] leading-[1.8]">
               Built in 24 hours at HackUSF 2026 by a team of four students from
               the University of South Florida, Tampa. Targeting the Google ADK
               sponsor challenge with a focus on measurable social impact — proving
@@ -328,12 +328,12 @@ export default function AboutPage() {
             </div>
           </div>
           <div className="bg-white p-10">
-            <div className="font-mono text-[10px] text-[#16a34a] tracking-[2px] uppercase mb-5 flex items-center gap-2">
+            <div className="font-mono text-[15px] text-[#16a34a] tracking-[2px] uppercase mb-5 flex items-center gap-2">
               <span className="w-6 h-px bg-[#16a34a]" />
               Philosophy
             </div>
-            <div className="text-sm text-[#52665e] leading-[1.8]">
-              CrisisNet isn&apos;t designed to replace emergency workers — it&apos;s built
+            <div className="text-[18px] text-[#52665e] leading-[1.8]">
+              Crisis-Net isn&apos;t designed to replace emergency workers, it&apos;s built
               to amplify them. Every agent in the pipeline exists to handle a task
               that currently costs minutes of human attention during moments when
               seconds matter. The system is transparent, auditable, and always
@@ -343,7 +343,7 @@ export default function AboutPage() {
         </div>
 
         <div className="mt-6 text-center">
-          <span className="font-mono text-[11px] text-[#6b7869] tracking-[2px]">
+          <span className="font-mono text-[15px] text-[#6b7869] tracking-[2px]">
             HACKUSF 2026 · TAMPA, FL · &quot;BUILD WITH AI&quot;
           </span>
         </div>

@@ -19,7 +19,7 @@ export function Nav() {
       <Link href="/" className="flex items-center gap-2.5 group">
         <GlobeLogo size={20} />
         <span className="font-display font-extrabold text-lg tracking-tight text-[#111d0f]">
-          CRISISNET
+          CRISIS-NET
         </span>
       </Link>
 

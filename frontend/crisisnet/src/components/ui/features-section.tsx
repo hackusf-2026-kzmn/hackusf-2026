@@ -49,7 +49,7 @@ export function Features() {
         </FeatureCard>
 
         <FeatureCard className="p-6 lg:col-span-2">
-          <p className="mx-auto mt-4 mb-6 max-w-lg text-balance text-center font-display text-[15px] font-bold uppercase tracking-tight">
+          <p className="mx-auto mt-4 mb-6 max-w-lg text-balance text-center font-display text-[18px] font-bold uppercase tracking-tight">
             Google ADK Orchestration · ~94s per cycle
           </p>
 
@@ -66,7 +66,7 @@ export function Features() {
 
             {/* Parallel fork */}
             <div className="flex flex-col items-center gap-3">
-              <div className="font-mono text-[8px] text-[#16a34a] tracking-[2px] mb-1">PARALLEL</div>
+              <div className="font-mono text-[13px] text-[#16a34a] tracking-[2px] mb-1">PARALLEL</div>
               <PipelineNode
                 icon={BarChart3}
                 label="Triage"
@@ -98,14 +98,14 @@ export function Features() {
               <div className="bg-gradient-to-b from-border size-fit rounded-2xl to-transparent p-px">
                 <div className="bg-gradient-to-b from-background to-muted/25 relative flex aspect-square w-fit items-center justify-center rounded-[15px] p-5">
                   <div className="size-11 rounded-md border-2 border-[#16a34a] bg-[#16a34a]/10 flex items-center justify-center">
-                    <span className="font-mono text-[10px] text-[#16a34a] font-bold">EOC</span>
+                    <span className="font-mono text-[13px] text-[#16a34a] font-bold">EOC</span>
                   </div>
                 </div>
               </div>
-              <span className="font-mono text-[10px] text-[#6b7869] tracking-[2px] text-center uppercase">
+              <span className="font-mono text-[13px] text-[#6b7869] tracking-[2px] text-center uppercase">
                 Dispatch
               </span>
-              <span className="font-mono text-[8px] text-[#6b7869]/60 tracking-wider text-center">
+              <span className="font-mono text-[12px] text-[#6b7869]/60 tracking-wider text-center">
                 Hillsborough EOC
               </span>
             </div>
@@ -154,11 +154,11 @@ const CardHeading = ({
   description,
 }: CardHeadingProps) => (
   <div className="p-6">
-    <span className="font-mono text-[10px] text-[#6b7869] tracking-[2px] uppercase flex items-center gap-2">
+    <span className="font-mono text-[13px] text-[#6b7869] tracking-[2px] uppercase flex items-center gap-2">
       <Icon className="size-3.5" />
       {title}
     </span>
-    <p className="mt-6 font-display text-[15px] font-bold uppercase tracking-tight text-foreground">{description}</p>
+    <p className="mt-6 font-display text-[18px] font-bold uppercase tracking-tight text-foreground">{description}</p>
   </div>
 );
 
@@ -187,10 +187,10 @@ const PipelineNode = ({ icon: Icon, label, sublabel, pattern }: PipelineNodeProp
         </div>
       </div>
     </div>
-    <span className="font-mono text-[10px] text-[#6b7869] tracking-[2px] text-center uppercase">
+    <span className="font-mono text-[13px] text-[#6b7869] tracking-[2px] text-center uppercase">
       {label}
     </span>
-    <span className="font-mono text-[8px] text-[#6b7869]/60 tracking-wider text-center">
+    <span className="font-mono text-[12px] text-[#6b7869]/60 tracking-wider text-center">
       {sublabel}
     </span>
   </div>
@@ -203,7 +203,7 @@ interface PipelineArrowProps {
 const PipelineArrow = ({ label }: PipelineArrowProps) => (
   <div className="flex flex-col items-center mx-5">
     {label && (
-      <span className="font-mono text-[8px] text-[#16a34a] tracking-[2px] mb-0.5">{label}</span>
+      <span className="font-mono text-[13px] text-[#16a34a] tracking-[2px] mb-0.5">{label}</span>
     )}
     <div className="flex items-center gap-0">
       <div className="w-24 h-px bg-[#d4dbc8]" />
