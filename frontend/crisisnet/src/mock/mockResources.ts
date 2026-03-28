@@ -1,0 +1,60 @@
+import type { Resource } from "@/lib/types";
+
+export const mockResources: Resource[] = [
+  {
+    id: "RES-001",
+    name: "Rescue Team Alpha",
+    type: "rescue",
+    status: "deployed",
+    assignedTo: "INC-001",
+    icon: "🚒",
+  },
+  {
+    id: "RES-002",
+    name: "Medical Unit 3",
+    type: "medical",
+    status: "deployed",
+    assignedTo: "INC-005",
+    icon: "🏥",
+  },
+  {
+    id: "RES-003",
+    name: "Supply Truck T-12",
+    type: "supply",
+    status: "deployed",
+    assignedTo: "INC-003",
+    icon: "🚛",
+  },
+  {
+    id: "RES-004",
+    name: "Rescue Team Bravo",
+    type: "rescue",
+    status: "deployed",
+    assignedTo: "INC-002",
+    icon: "🚒",
+  },
+  {
+    id: "RES-005",
+    name: "Drone Recon Unit",
+    type: "recon",
+    status: "available",
+    assignedTo: null,
+    icon: "🛸",
+  },
+  {
+    id: "RES-006",
+    name: "Supply Truck T-15",
+    type: "supply",
+    status: "available",
+    assignedTo: null,
+    icon: "🚛",
+  },
+  {
+    id: "RES-007",
+    name: "Medical Unit 7",
+    type: "medical",
+    status: "available",
+    assignedTo: null,
+    icon: "🏥",
+  },
+];

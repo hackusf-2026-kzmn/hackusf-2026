@@ -1,0 +1,173 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Map,
+  MapMarker,
+  MarkerContent,
+  MarkerPopup,
+  MapControls,
+  MapRoute,
+} from "@/components/ui/map";
+import type { Incident, Resource } from "@/lib/types";
+import { PRIORITY_CONFIG } from "@/lib/types";
+
+interface LiveMapProps {
+  incidents: Incident[];
+  resources: Resource[];
+}
+
+/**
+ * Production map using MapLibre + Carto dark basemap.
+ * Drop-in replacement for the SVG MapView.
+ *
+ * Usage in dashboard/page.tsx:
+ *   import { LiveMap } from "@/components/dashboard/LiveMap";
+ *   <LiveMap incidents={incidents} resources={mockResources} />
+ */
+export function LiveMap({ incidents, resources }: LiveMapProps) {
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(
+    null
+  );
+
+  const deployed = resources.filter((r) => r.status === "deployed");
+
+  // Build route lines from deployed resources to their assigned incidents
+  const routeCoordinates: { id: string; coords: [number, number][] }[] = [];
+  for (const r of deployed) {
+    const inc = incidents.find((i) => i.id === r.assignedTo);
+    if (!inc) continue;
+    routeCoordinates.push({
+      id: r.id,
+      coords: [
+        [inc.lng - 0.005, inc.lat + 0.003], // resource offset
+        [inc.lng, inc.lat], // incident
+      ],
+    });
+  }
+
+  return (
+    <div>
+      <div className="px-4 pt-3">
+        <div className="font-mono text-[10px] text-[#555] tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
+          <span className="w-1 h-1 bg-[#c8ff00]" />
+          Operations Map — Tampa Bay AO
+        </div>
+      </div>
+
+      <div className="mx-4 border border-[#262626] overflow-hidden" style={{ height: 380 }}>
+        <Map
+          center={[-82.46, 27.94]}
+          zoom={11.5}
+          styles={{
+            dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+          }}
+        >
+          <MapControls position="bottom-right" showZoom />
+
+          {/* Route lines */}
+          {routeCoordinates.map((route) => (
+            <MapRoute
+              key={route.id}
+              coordinates={route.coords}
+              color="#c8ff00"
+              width={2}
+              opacity={0.4}
+              dashArray={[4, 3]}
+            />
+          ))}
+
+          {/* Resource markers */}
+          {deployed.map((r) => {
+            const inc = incidents.find((i) => i.id === r.assignedTo);
+            if (!inc) return null;
+            return (
+              <MapMarker
+                key={r.id}
+                longitude={inc.lng - 0.005}
+                latitude={inc.lat + 0.003}
+              >
+                <MarkerContent className="flex items-center justify-center">
+                  <div className="w-4 h-4 border border-[#c8ff00]/50 bg-[#c8ff00]/10 flex items-center justify-center text-[8px]">
+                    {r.icon}
+                  </div>
+                </MarkerContent>
+              </MapMarker>
+            );
+          })}
+
+          {/* Incident markers */}
+          {incidents.map((inc) => {
+            const cfg = PRIORITY_CONFIG[inc.priority];
+            const size =
+              inc.priority === "P1"
+                ? "w-4 h-4"
+                : inc.priority === "P2"
+                ? "w-3 h-3"
+                : "w-2.5 h-2.5";
+
+            return (
+              <MapMarker
+                key={inc.id}
+                longitude={inc.lng}
+                latitude={inc.lat}
+                onClick={() =>
+                  setSelectedIncident((prev) =>
+                    prev?.id === inc.id ? null : inc
+                  )
+                }
+              >
+                <MarkerContent>
+                  <div className="relative">
+                    <div
+                      className={`${size} border-2`}
+                      style={{
+                        borderColor: cfg.color,
+                        backgroundColor: cfg.bg,
+                      }}
+                    />
+                    {inc.priority === "P1" && (
+                      <div
+                        className="absolute inset-0 animate-ping"
+                        style={{
+                          borderColor: cfg.color,
+                          border: `1px solid ${cfg.color}`,
+                          opacity: 0.3,
+                        }}
+                      />
+                    )}
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 font-mono text-[8px] font-bold whitespace-nowrap" style={{ color: cfg.color }}>
+                      {inc.id.replace("INC-", "")}
+                    </div>
+                  </div>
+                </MarkerContent>
+
+                {selectedIncident?.id === inc.id && (
+                  <MarkerPopup closeButton>
+                    <div className="min-w-[200px]">
+                      <div className="font-mono text-[10px] text-[#555]">
+                        {inc.id}
+                      </div>
+                      <div className="font-semibold text-xs mt-1">
+                        {inc.description}
+                      </div>
+                      <div className="text-[#555] text-[10px] mt-1">
+                        📍 {inc.location}
+                      </div>
+                      <span
+                        className="font-mono text-[9px] font-medium px-2 py-0.5 tracking-wider inline-block mt-1.5"
+                        style={{ background: cfg.bg, color: cfg.color }}
+                      >
+                        {inc.priority} · {cfg.label}
+                      </span>
+                    </div>
+                  </MarkerPopup>
+                )}
+              </MapMarker>
+            );
+          })}
+        </Map>
+      </div>
+    </div>
+  );
+}
