@@ -111,7 +111,7 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <div className="min-h-screen pt-14">
+    <div className="min-h-screen pt-[70px]">
       {/* ═══ HERO ═══ */}
       <section ref={heroRef} className="relative px-[60px] pt-[100px] pb-[60px] overflow-hidden border-b border-[#d4dbc8]">
         <GridHero

@@ -90,7 +90,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="min-h-screen pt-14 bg-[#f5f7f3]">
+    <div className="min-h-screen pt-[70px] bg-[#f5f7f3]">
       <ToastContainer toasts={toasts} />
       <SitBanner />
 
