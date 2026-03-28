@@ -1,15 +1,19 @@
 from fastapi import FastAPI
 import requests
+import pgeocode
+import pandas as pd
 
 app = FastAPI()
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+USF_ZIP_CODE="33617"
  
 @app.get("/scout")
-async def scout(state="FL", latitude=27.9506, longitude=-82.4572) -> dict:
+async def scout(zip_code: str=USF_ZIP_CODE) -> dict:
+    nomi = pgeocode.Nominatim('us')
+    nomi_result = nomi.query_postal_code(zip_code)
+    state = nomi_result.state_name
+    latitude = nomi_result.latitude
+    longitude = nomi_result.longitude
     headers = {"User-Agent": "CrisisNet (contact: ni717713@ucf.edu)"}
     alerts_resp = requests.get(
         f"https://api.weather.gov/alerts/active?area={state}",
@@ -22,11 +26,11 @@ async def scout(state="FL", latitude=27.9506, longitude=-82.4572) -> dict:
         timeout=10,
     )
 
-    alerts_json = alerts_resp.json() if alerts_resp.ok else {}
+    #alerts_json = alerts_resp.json() if alerts_resp.ok else {}
     points_json = points_resp.json() if points_resp.ok else {}
 
     alerts = []
-    for feature in alerts_json.get("features", []):
+    '''for feature in alerts_json.get("features", []):
         props = feature.get("properties", {})
         alerts.append(
             {
@@ -44,7 +48,7 @@ async def scout(state="FL", latitude=27.9506, longitude=-82.4572) -> dict:
                 "url": props.get("web") or props.get("@id"),
             }
         )
-
+'''
     forecast_url = points_json.get("properties", {}).get("forecast")
     forecast_office = points_json.get("properties", {}).get("cwa")
 

@@ -5,7 +5,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from google.adk.tools.function_tool import FunctionTool
 import requests, os
 
-FASTAPI_SERVER_URL = "127.0.0.1:8000/"
+FASTAPI_SERVER_URL = "http://127.0.0.1:8000/"
 SCOUT_URL = os.path.join(FASTAPI_SERVER_URL, "scout")
 TAMPA_ZIP_CODE = "33712"
 
