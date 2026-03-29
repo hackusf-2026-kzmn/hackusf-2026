@@ -183,7 +183,6 @@ export default function DashboardPage() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const toastIdRef = useRef(0);
-  const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
   /* Sidebar width state */
   const [leftOpen, setLeftOpen] = useState(true);
@@ -337,8 +336,17 @@ export default function DashboardPage() {
         setIncidents((prev) => [
           {
             id: result.incident_id,
+            event: report.description,
+            severity: result.priority === "P1" ? "Extreme" : result.priority === "P2" ? "Severe" : "Moderate",
+            urgency: "Immediate",
+            certainty: "Observed",
+            headline: report.description,
             description: report.description,
             location: `zip ${report.reporter ?? "unknown"} · ${report.lat.toFixed(4)}, ${report.lng.toFixed(4)}`,
+            alert_sent: "Yes",
+            effective_at: new Date().toISOString(),
+            expires: new Date(Date.now() + 3600000).toISOString(),
+            source: "User Report",
             lat: report.lat,
             lng: report.lng,
             priority: result.priority as Incident["priority"],
