@@ -40,21 +40,8 @@ export function LiveMap({ incidents, resources, onToggleFullscreen, onToggleSide
     null
   );
 
-  const deployed = resources.filter((r) => r.status === "deployed");
-
-  // Build route lines from deployed resources to their assigned incidents
+  // Build route lines from shelters to nearest incidents (visual connection)
   const routeCoordinates: { id: string; coords: [number, number][] }[] = [];
-  for (const r of deployed) {
-    const inc = incidents.find((i) => i.id === r.assignedTo);
-    if (!inc) continue;
-    routeCoordinates.push({
-      id: r.id,
-      coords: [
-        [inc.lng - 0.005, inc.lat + 0.003], // resource offset
-        [inc.lng, inc.lat], // incident
-      ],
-    });
-  }
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -137,27 +124,23 @@ export function LiveMap({ incidents, resources, onToggleFullscreen, onToggleSide
             />
           ))}
 
-          {/* Resource markers */}
-          {deployed.map((r) => {
-            const inc = incidents.find((i) => i.id === r.assignedTo);
-            if (!inc || inc.lat == null || inc.lng == null || !isFinite(inc.lat) || !isFinite(inc.lng)) return null;
-            return (
+          {/* Shelter markers */}
+          {resources.filter((r) => r.lat != null && r.lng != null).map((r, i) => (
               <MapMarker
-                key={r.id}
-                longitude={inc.lng - 0.005}
-                latitude={inc.lat + 0.003}
+                key={`shelter-${i}`}
+                longitude={Number(r.lng)}
+                latitude={Number(r.lat)}
               >
                 <MarkerContent className="flex items-center justify-center">
                   <div className="w-4 h-4 border border-[#16a34a]/50 bg-[#16a34a]/10 flex items-center justify-center text-[8px]">
-                    {r.icon}
+                    🏠
                   </div>
                 </MarkerContent>
               </MapMarker>
-            );
-          })}
+          ))}
 
           {/* Incident markers */}
-          {incidents.filter((inc) => inc.lat != null && inc.lng != null && isFinite(inc.lat) && isFinite(inc.lng)).map((inc) => {
+          {incidents.filter((inc): inc is Incident & { lat: number; lng: number } => inc.lat != null && inc.lng != null && isFinite(inc.lat) && isFinite(inc.lng)).map((inc) => {
             const cfg = PRIORITY_CONFIG[inc.priority];
             const size =
               inc.priority === "P1"

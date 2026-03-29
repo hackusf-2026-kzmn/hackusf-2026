@@ -55,6 +55,8 @@ export async function getIncidents(): Promise<Incident[]> {
     description: a.headline,
     priority: severityToPriority(a.severity),
     timestamp: a.effective_at?.slice(11, 16) ?? "",
+    lat: a.lat ?? undefined,
+    lng: a.lng ?? undefined,
     isNew: false,
   }));
 }

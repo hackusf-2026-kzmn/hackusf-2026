@@ -127,6 +127,49 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     county_short = nomi["county_name"].replace(" County", "").strip()
     watch_counties = TAMPA_COUNTIES if county_short in TAMPA_COUNTIES else [county_short]
 
+    # County centroids for map placement (with small jitter per-alert)
+    COUNTY_CENTROIDS: dict[str, tuple[float, float]] = {
+        "hillsborough": (27.95, -82.46),
+        "pinellas":     (27.88, -82.73),
+        "pasco":        (28.31, -82.43),
+        "polk":         (27.95, -81.70),
+        "manatee":      (27.47, -82.35),
+        "hernando":     (28.55, -82.47),
+        "sarasota":     (27.18, -82.37),
+        "highlands":    (27.34, -81.34),
+        "hardee":       (27.49, -81.81),
+        "citrus":       (28.85, -82.52),
+        "sumter":       (28.67, -82.08),
+        "lake":         (28.76, -81.71),
+        "osceola":      (28.06, -81.17),
+        "orange":       (28.51, -81.37),
+        "brevard":      (28.30, -80.72),
+        "volusia":      (29.03, -81.08),
+        "seminole":     (28.71, -81.24),
+        "marion":       (29.21, -82.06),
+        "levy":         (29.30, -82.78),
+        "dixie":        (29.58, -83.17),
+        "charlotte":    (26.90, -82.08),
+        "lee":          (26.56, -81.89),
+        "collier":      (26.12, -81.56),
+        "miami-dade":   (25.77, -80.21),
+        "dade":         (25.77, -80.21),
+        "broward":      (26.15, -80.25),
+        "palm beach":   (26.65, -80.27),
+    }
+
+    import random
+    _jitter_seed = 0
+    def _centroid_for_area(area_desc: str) -> tuple[float | None, float | None]:
+        nonlocal _jitter_seed
+        area_lower = area_desc.lower()
+        for county_name, (lat, lng) in COUNTY_CENTROIDS.items():
+            if county_name in area_lower:
+                _jitter_seed += 1
+                rng = random.Random(_jitter_seed)
+                return (lat + rng.uniform(-0.06, 0.06), lng + rng.uniform(-0.06, 0.06))
+        return (None, None)
+
     headers = {"User-Agent": "CrisisNet (contact: ni717713@ucf.edu)"}
 
     # 1) Active alerts
@@ -162,6 +205,22 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
         area = props.get("areaDesc", "")
         area_lower = area.lower()
         if any(c.lower() in area_lower for c in watch_counties):
+            # Try to get coordinates from GeoJSON geometry first
+            geom = feature.get("geometry")
+            lat, lng = None, None
+            if geom and geom.get("type") == "Polygon":
+                coords = geom["coordinates"][0]  # outer ring
+                lat = sum(c[1] for c in coords) / len(coords)
+                lng = sum(c[0] for c in coords) / len(coords)
+            elif geom and geom.get("type") == "MultiPolygon":
+                all_pts = [pt for poly in geom["coordinates"] for ring in poly for pt in ring]
+                if all_pts:
+                    lat = sum(c[1] for c in all_pts) / len(all_pts)
+                    lng = sum(c[0] for c in all_pts) / len(all_pts)
+            # Fall back to county centroid
+            if lat is None or lng is None:
+                lat, lng = _centroid_for_area(area)
+
             matching.append({
                 "id": props.get("id"),
                 "event": props.get("event"),
@@ -174,6 +233,8 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
                 "effective_at": props.get("effective"),
                 "expires": props.get("expires"),
                 "source": "NWS",
+                "lat": lat,
+                "lng": lng,
             })
 
     _log_activity("Scout", f"ingested {len(matching)} NWS alerts for zip {zip_code}")
