@@ -41,7 +41,7 @@ export function IncidentFeed({ incidents }: IncidentFeedProps) {
           >
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono text-[10px] text-[#6b7869] truncate min-w-0">
-                {inc.id}
+                {inc.event}
               </span>
               <div className="flex items-center gap-1.5">
                 <span

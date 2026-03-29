@@ -526,7 +526,7 @@ export default function DashboardPage() {
 
           {/* Bottom row — fills remaining space */}
           <div className="flex-1 min-h-0 grid grid-cols-2 gap-px bg-[#d4dbc8]">
-            <div className="bg-[#f5f7f3] overflow-hidden">
+            <div className="bg-[#f5f7f3] overflow-y-auto">
               <ReportForm onSubmit={handleReport} submitting={submitting} />
             </div>
             <div className="bg-[#f5f7f3] overflow-y-auto">

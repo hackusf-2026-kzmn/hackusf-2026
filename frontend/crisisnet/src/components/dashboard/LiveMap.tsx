@@ -180,7 +180,7 @@ export function LiveMap({ incidents, resources, onToggleFullscreen, onToggleSide
                       />
                     )}
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 font-mono text-[8px] font-bold whitespace-nowrap" style={{ color: cfg.color }}>
-                      {inc.id.replace("INC-", "")}
+                      {inc.event}
                     </div>
                   </div>
                 </MarkerContent>
@@ -189,7 +189,7 @@ export function LiveMap({ incidents, resources, onToggleFullscreen, onToggleSide
                   <MarkerPopup closeButton>
                     <div className="min-w-[200px]">
                       <div className="font-mono text-[10px] text-[#6b7869]">
-                        {inc.id}
+                        {inc.event}
                       </div>
                       <div className="font-semibold text-xs mt-1">
                         {inc.description}
