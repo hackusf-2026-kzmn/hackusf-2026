@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GlobeLogo } from "@/components/ui/globe-logo";
+import { LanguageToggle } from "@/components/ui/LanguageToggle";
 
 const links = [
   { href: "/", label: "Home", hideOnMobile: false },
@@ -44,7 +45,9 @@ export function Nav() {
         })}
       </div>
 
-      {/* CTA CHANGE LATER*/}
+      {/* Language toggle + CTA */}
+      <div className="flex items-center gap-3 md:gap-4">
+        <LanguageToggle />
       <Link
         href="https://devpost.com/software/stroke-shield?"
         target="_blank"
@@ -53,6 +56,7 @@ export function Nav() {
       >
         DEVPOST →
       </Link>
+      </div>
     </nav>
   );
 }
