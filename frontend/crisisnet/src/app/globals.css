@@ -64,3 +64,12 @@
 
 /* ─── GLOBE LOGO ─── */
 /* Canvas-based — no CSS keyframes needed */
+
+/* ─── MARQUEE ─── */
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0%); }
+}
+.animate-marquee-right {
+  animation: marquee-right 30s linear infinite;
+}

@@ -32,7 +32,7 @@ export function ParticlesBg({ className = "" }: { className?: string }) {
     // @ts-ignore
     window.particlesJS(id, {
       particles: {
-        number: { value: 90, density: { enable: true, value_area: 800 } },
+        number: { value: 180, density: { enable: true, value_area: 800 } },
         color: { value: "#16a34a" },
         shape: {
           type: "circle",

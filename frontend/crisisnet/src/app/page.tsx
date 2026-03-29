@@ -219,8 +219,24 @@ export default function HomePage() {
         <Features />
       </section>
 
+      {/* ═══ MARQUEE STRIP ═══ */}
+      <div className="overflow-hidden border-t border-b border-[#d4dbc8] py-5">
+        <div className="flex animate-marquee-right" style={{ width: "max-content" }}>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <span key={`a-${i}`} className="font-display font-extrabold uppercase text-[clamp(22px,2.5vw,36px)] tracking-[-1px] text-[#d4dbc8] whitespace-nowrap px-10">
+              CRISIS-NET
+            </span>
+          ))}
+          {Array.from({ length: 10 }).map((_, i) => (
+            <span key={`b-${i}`} className="font-display font-extrabold uppercase text-[clamp(22px,2.5vw,36px)] tracking-[-1px] text-[#d4dbc8] whitespace-nowrap px-10" aria-hidden>
+              CRISIS-NET
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* ═══ AGENTS GRID ═══ */}
-      <section className="px-[60px] py-20 border-t border-[#d4dbc8]">
+      <section className="px-[60px] py-20">
         <div className="flex justify-between items-end mb-12 pb-5 border-b border-[#d4dbc8]">
           <div>
             <div className="font-mono text-[14px] text-[#6b7869] tracking-[2px] mb-2">

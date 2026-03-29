@@ -93,7 +93,7 @@ export default function AboutPage() {
             What we&apos;re about.
           </h1>
 
-          <div className="font-mono text-[16px] text-[#6b7869] tracking-[2px] uppercase leading-[2]" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+          <div className="font-mono text-[16px] text-[#6b7869] tracking-[2px] uppercase leading-[2]" style={{ textShadow: '0 0px 5px rgb(255, 255, 255)' }}>
             AI-powered disaster response.
             <br />
             Built for Tampa.
@@ -222,11 +222,6 @@ export default function AboutPage() {
                 >
                   {s.desc}
                 </CardItem>
-                {i < 3 && (
-                  <div className="absolute right-[-8px] top-1/2 -translate-y-1/2 font-mono text-sm text-[#16a34a] z-10">
-                    →
-                  </div>
-                )}
               </CardBody>
             </CardContainer>
           ))}
