@@ -1,15 +1,20 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import requests
 import pgeocode
 import pandas as pd
 import asyncio
 import json
 import math
+import time
 from pathlib import Path
+from dotenv import load_dotenv, dotenv_values
+import os
+
+load_dotenv()
+CENSUS_API_KEY=os.getenv("CENSUS_API_KEY")
+USF_ZIP_CODE="33071"
 
 app = FastAPI()
-
-USF_ZIP_CODE="33071"
 
 def get_nomi_info(zip_code: str) -> dict:
     nomi = pgeocode.Nominatim('us')
@@ -18,10 +23,20 @@ def get_nomi_info(zip_code: str) -> dict:
     nomi_info = {
         "state_code": str(nomi_result.state_code),
         "county_name": str(nomi_result.county_name),
+        "fips_code": str(int(nomi_result.county_code)),
         "coords": (str(nomi_result.latitude), str(nomi_result.longitude))
     }
 
     return nomi_info
+
+def haversine(lat1, lon1, lat2, lon2):
+        r = 6371.0  # km
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
+        a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+        return 2 * r * math.asin(math.sqrt(a))
 
 @app.get("/scout")
 async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
@@ -31,7 +46,7 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
 
     headers = {"User-Agent": "CrisisNet (contact: ni717713@ucf.edu)"}
     alerts_resp = requests.get(
-        f"https://api.weather.gov/alerts/active?area={nomi["state_code"]}",
+        f"https://api.weather.gov/alerts/active?area={nomi['state_code']}",
         headers=headers,
         timeout=10,
     )
@@ -63,15 +78,6 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
         "alerts": matching,  # fix: return filtered list
     }
 
-def haversine(lat1, lon1, lat2, lon2):
-        r = 6371.0  # km
-        phi1 = math.radians(lat1)
-        phi2 = math.radians(lat2)
-        dphi = math.radians(lat2 - lat1)
-        dlambda = math.radians(lon2 - lon1)
-        a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
-        return 2 * r * math.asin(math.sqrt(a))
-
 @app.get("/resourceMatcher")
 async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int = 5) -> list:
     """
@@ -95,3 +101,5 @@ async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int
     candidates.sort(key=lambda x: x["distance_km"])
     return candidates[:num_of_shelter]
 
+if __name__ == "__main__":
+    asyncio.run(get_population_density())
