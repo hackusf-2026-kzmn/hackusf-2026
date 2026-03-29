@@ -302,7 +302,7 @@ export default function DashboardPage() {
     const load = async () => {
       try {
         const [nextIncidents, nextResources] = await Promise.all([
-          getIncidents(),
+          getIncidents(resourceZip),
           getResources(resourceZip),
         ]);
         if (!active) return;

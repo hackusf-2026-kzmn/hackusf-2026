@@ -39,8 +39,11 @@ function severityToPriority(s: string): "P1" | "P2" | "P3" {
   return "P3";
 }
 
-export async function getIncidents(days: number = 7): Promise<Incident[]> {
-  const res = await fetch(`${API_BASE}/scout?days=${days}`);
+export async function getIncidents(zipCode?: string, days: number = 7): Promise<Incident[]> {
+  const url = zipCode
+    ? `${API_BASE}/scout?zip_code=${encodeURIComponent(zipCode)}&days=${days}`
+    : `${API_BASE}/scout?days=${days}`;
+  const res = await fetch(url);
   const data = await res.json();
   const alerts = data.alerts ?? [];
   return alerts.map((a: any) => ({
