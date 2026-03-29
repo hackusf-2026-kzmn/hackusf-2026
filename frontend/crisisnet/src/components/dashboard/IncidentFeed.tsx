@@ -34,7 +34,7 @@ export function IncidentFeed({ incidents }: IncidentFeedProps) {
                 className="font-mono text-[9px] font-medium px-2 py-0.5 tracking-wider"
                 style={{ background: cfg.bg, color: cfg.color }}
               >
-                {inc.priority} · {cfg.label}
+                {inc.priority} | {cfg.label}
               </span>
             </div>
             <div className="text-[11px] leading-snug mb-1.5">
