@@ -180,6 +180,7 @@ function VSplit({
 export default function DashboardPage() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
+  const [resourceZip, setResourceZip] = useState("33602");
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const toastIdRef = useRef(0);
@@ -302,7 +303,7 @@ export default function DashboardPage() {
       try {
         const [nextIncidents, nextResources] = await Promise.all([
           getIncidents(),
-          getResources(),
+          getResources(resourceZip),
         ]);
         if (!active) return;
         setIncidents(nextIncidents);
@@ -317,19 +318,21 @@ export default function DashboardPage() {
     return () => {
       active = false;
     };
-  }, [addToast]);
+  }, [addToast, resourceZip]);
 
   const handleReport = useCallback(
     async (report: {
       description: string;
       lat: number;
       lng: number;
+      zip: string;
       reporter?: string;
     }) => {
       setSubmitting(true);
       addToast("Scout → Triage Agent processing...", "processing");
 
       try {
+        setResourceZip(report.zip);
         const result = await submitReport(report);
         addToast(`Severity scored: ${result.priority} — Programs matched`, "success");
         setIncidents((prev) => [

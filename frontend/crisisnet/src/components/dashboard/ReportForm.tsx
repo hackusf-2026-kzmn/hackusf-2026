@@ -7,6 +7,7 @@ interface ReportFormProps {
     description: string;
     lat: number;
     lng: number;
+    zip: string;
     reporter?: string;
   }) => void;
   submitting: boolean;
@@ -42,6 +43,7 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
       description: desc,
       lat: coords.lat,
       lng: coords.lng,
+      zip,
       reporter: reporter || undefined,
     });
     setDesc("");

@@ -55,8 +55,11 @@ export async function getIncidents(days: number = 7): Promise<Incident[]> {
 }
 
 // ─── RESOURCES ────────────────────────────────────────────────
-export async function getResources(): Promise<Resource[]> {
-  const res = await fetch(`${API_BASE}/resourceMatcher`);
+export async function getResources(zipCode?: string): Promise<Resource[]> {
+  const url = zipCode
+    ? `${API_BASE}/resourceMatcher?zip_code=${encodeURIComponent(zipCode)}`
+    : `${API_BASE}/resourceMatcher`;
+  const res = await fetch(url);
   return res.json();
 }
 
@@ -71,6 +74,7 @@ export async function submitReport(report: {
   description: string;
   lat: number;
   lng: number;
+  zip: string;
   reporter?: string;
 }): Promise<{ incident_id: string; priority: string }> {
   const res = await fetch(`${API_BASE}/incidents/report`, {
