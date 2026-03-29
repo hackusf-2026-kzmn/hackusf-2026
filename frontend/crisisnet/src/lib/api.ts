@@ -5,20 +5,20 @@ import { mockHistorical } from "@/mock/mockHistorical";
 import { mockComms } from "@/mock/mockComms";
 import type { Incident, Resource, AgentStatus, HistoricalEvent, CommMessage } from "@/lib/types";
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
-const API_BASE = "http://localhost:8000/api";
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "false";
+const API_BASE = "http://localhost:8080/api";
 
 // ─── INCIDENTS ────────────────────────────────────────────────
 export async function getIncidents(): Promise<Incident[]> {
   if (USE_MOCK) return mockIncidents;
-  const res = await fetch(`${API_BASE}/incidents`);
+  const res = await fetch(`${API_BASE}/scout`);
   return res.json();
 }
 
 // ─── RESOURCES ────────────────────────────────────────────────
 export async function getResources(): Promise<Resource[]> {
   if (USE_MOCK) return mockResources;
-  const res = await fetch(`${API_BASE}/resources`);
+  const res = await fetch(`${API_BASE}/resourceMatcher`);
   return res.json();
 }
 
@@ -59,6 +59,6 @@ export async function getHistorical(): Promise<HistoricalEvent[]> {
 // ─── COMMS ────────────────────────────────────────────────────
 export async function getComms(): Promise<CommMessage[]> {
   if (USE_MOCK) return mockComms;
-  // No real endpoint yet — always return mock
-  return mockComms;
+  const res = await fetch(`${API_BASE}/comms`);
+  return res.json();
 }

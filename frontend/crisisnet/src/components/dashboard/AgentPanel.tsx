@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getAgentStatus } from "@/lib/api";
 import { mockAgentStatus } from "@/mock/mockAgentStatus";
 
 interface AgentState {
@@ -15,14 +16,32 @@ interface AgentState {
 }
 
 export function AgentPanel() {
-  const [agents, setAgents] = useState<AgentState[]>(
-    mockAgentStatus.map((a) => ({
+  const seedAgents = (source: typeof mockAgentStatus): AgentState[] =>
+    source.map((a) => ({
       ...a,
       currentAction: a.actions[0],
       actionIndex: 0,
       flash: false,
-    }))
-  );
+    }));
+
+  const [agents, setAgents] = useState<AgentState[]>(seedAgents(mockAgentStatus));
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const data = await getAgentStatus();
+        if (!active) return;
+        setAgents(seedAgents(data));
+      } catch (err) {
+        console.error("Agent status load failed:", err);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {

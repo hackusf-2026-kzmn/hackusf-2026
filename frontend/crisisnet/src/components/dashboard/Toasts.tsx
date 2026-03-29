@@ -3,7 +3,7 @@
 export interface Toast {
   id: number;
   message: string;
-  type: "processing" | "success";
+  type: "processing" | "success" | "warning" | "error";
 }
 
 interface ToastContainerProps {
@@ -19,10 +19,22 @@ export function ToastContainer({ toasts }: ToastContainerProps) {
           className={`bg-white border border-[#d4dbc8] px-4 py-2.5 font-mono text-[11px] text-[#52665e] shadow-[0_8px_24px_rgba(0,0,0,0.1)] animate-toast-in flex gap-2 items-center min-w-[260px] ${
             t.type === "processing"
               ? "border-l-[3px] border-l-[#06b6d4]"
-              : "border-l-[3px] border-l-[#16a34a]"
+              : t.type === "success"
+                ? "border-l-[3px] border-l-[#16a34a]"
+                : t.type === "warning"
+                  ? "border-l-[3px] border-l-[#ff9f1a]"
+                  : "border-l-[3px] border-l-[#ff3b3b]"
           }`}
         >
-          <span>{t.type === "processing" ? "⚡" : "✅"}</span>
+          <span>
+            {t.type === "processing"
+              ? "⚡"
+              : t.type === "success"
+                ? "✅"
+                : t.type === "warning"
+                  ? "⚠"
+                  : "⛔"}
+          </span>
           <span>{t.message}</span>
         </div>
       ))}
