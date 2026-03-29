@@ -6,7 +6,37 @@ import { mockComms } from "@/mock/mockComms";
 import type { Incident, Resource, AgentStatus, HistoricalEvent, CommMessage } from "@/lib/types";
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "false";
-const API_BASE = "http://localhost:8080";
+const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000";
+const API_BASE = BACKEND_BASE;
+const ANON_TOKEN_KEY = "crisisnet_anon_token";
+const ANON_TOKEN_EXP_KEY = "crisisnet_anon_token_exp";
+
+function getCachedAnonToken(): string | null {
+  if (typeof window === "undefined") return null;
+  const token = window.localStorage.getItem(ANON_TOKEN_KEY);
+  const exp = window.localStorage.getItem(ANON_TOKEN_EXP_KEY);
+  if (!token || !exp) return null;
+  const expMs = Number(exp);
+  if (Number.isNaN(expMs) || Date.now() >= expMs) return null;
+  return token;
+}
+
+async function getAnonToken(): Promise<string> {
+  const cached = getCachedAnonToken();
+  if (cached) return cached;
+  const res = await fetch(`${BACKEND_BASE}/auth/anon`, { method: "POST" });
+  if (!res.ok) throw new Error("Failed to authenticate");
+  const data = await res.json();
+  const token = data.access_token as string | undefined;
+  const expiresIn = Number(data.expires_in ?? 0);
+  if (!token) throw new Error("Missing access token");
+  if (typeof window !== "undefined") {
+    const expMs = Date.now() + Math.max(expiresIn - 60, 60) * 1000;
+    window.localStorage.setItem(ANON_TOKEN_KEY, token);
+    window.localStorage.setItem(ANON_TOKEN_EXP_KEY, String(expMs));
+  }
+  return token;
+}
 
 // ─── INCIDENTS ────────────────────────────────────────────────
 function severityToPriority(s: string): "P1" | "P2" | "P3" {
@@ -81,12 +111,24 @@ export async function getComms(): Promise<CommMessage[]> {
 export async function subscribe(payload: {
   email: string;
   severity: string;
-  zip_code?: string;
-}): Promise<{ ok: boolean }> {
-  const res = await fetch(`${API_BASE}/subscribe`, {
+  zip_code: string;
+}): Promise<{ data: unknown }> {
+  const token = await getAnonToken();
+  const res = await fetch(`${BACKEND_BASE}/user-stuff`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      email: payload.email,
+      opt_in: true,
+      severity: payload.severity,
+      zip_code: payload.zip_code,
+    }),
   });
+  if (!res.ok) {
+    throw new Error("Subscription failed");
+  }
   return res.json();
 }
