@@ -13,6 +13,7 @@ import {
   CardItem,
 } from "@/components/ui/3d-card-effect";
 import { mockAgentStatus } from "@/mock/mockAgentStatus";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Lazy-load globe — skip entirely on mobile
 const CobeGlobe = dynamic(
@@ -79,7 +80,86 @@ const agentIcons: Record<string, React.ReactNode> = {
   ),
 };
 
-
+const translations = {
+  en: {
+    tagline: "Multi-Agent Disaster Response · Google ADK",
+    cycleWords: ["Real-Time Response.", "Tampa, Florida."],
+    sub1: "Agentic Weather Monitoring & Severity Scoring",
+    sub2: "Automated Resource Matching for Affected Communities",
+    sub3: "Real-Time Alerts via Public Dashboard & API",
+    launchDashboard: "Launch Dashboard",
+    learnMore: "Learn More",
+    stats: [
+      { num: "001", value: "5", accent: " Agents", label: "Full Pipeline Automation" },
+      { num: "002", value: "ZIP", accent: ".", label: "Single Input to Dashboard" },
+      { num: "003", value: "24", accent: "/7", label: "Continuous Weather Monitoring" },
+      { num: "004", value: "API", accent: ".", label: "Gov't Alert System Ready" },
+    ],
+    sectionNum: "002 ————",
+    platformCapabilities: "Platform Capabilities",
+    nwsFema: "NWS + FEMA + LOCAL NEWS",
+    poweredBy: "POWERED BY GOOGLE ADK + GEMINI",
+    agentPipeline: "The Agent Pipeline",
+    agentCount: "5 SPECIALIZED AGENTS",
+    orchestrated: "ORCHESTRATED VIA GOOGLE ADK",
+    techStrip: [
+      ["Framework", "Next.js + TypeScript"],
+      ["AI", "Google ADK + Gemini"],
+      ["Data APIs", "NWS · FEMA · Census · NOAA"],
+      ["Storage", "SQLite"],
+      ["Alerts", "Mailgun"],
+    ],
+    online: "ONLINE",
+    tryItLive: "Try It Live.",
+    openDashboard: "Open the Dashboard →",
+    agents: [
+      { name: "Scout Agent", description: "Monitors NWS, FEMA, and local news feeds for anomalous weather patterns indicating hurricanes, earthquakes, or floods." },
+      { name: "Triage Agent", description: "Scores severity via storm category, population density, and historical damage data. Foundation of an ML model." },
+      { name: "Resource Agent", description: "Matches local non-profit and government programs to affected individuals by location and eligibility." },
+      { name: "Comms Agent", description: "Drafts multilingual alerts via Mailgun and exposes an API for local government emergency systems." },
+      { name: "Coordinator Agent", description: "Orchestrates all agents via Google ADK's ParallelAgent, managing sequencing and data handoffs." },
+    ],
+  },
+  es: {
+    tagline: "Respuesta Multi-Agente ante Desastres · Google ADK",
+    cycleWords: ["Respuesta en Tiempo Real.", "Tampa, Florida."],
+    sub1: "Monitoreo Climático Agéntico y Puntuación de Severidad",
+    sub2: "Emparejamiento Automático de Recursos para Comunidades Afectadas",
+    sub3: "Alertas en Tiempo Real vía Panel Público y API",
+    launchDashboard: "Abrir Panel",
+    learnMore: "Más Información",
+    stats: [
+      { num: "001", value: "5", accent: " Agentes", label: "Automatización Completa" },
+      { num: "002", value: "ZIP", accent: ".", label: "Entrada Única al Panel" },
+      { num: "003", value: "24", accent: "/7", label: "Monitoreo Meteorológico Continuo" },
+      { num: "004", value: "API", accent: ".", label: "Sistema de Alertas Listo" },
+    ],
+    sectionNum: "002 ————",
+    platformCapabilities: "Capacidades de la Plataforma",
+    nwsFema: "NWS + FEMA + NOTICIAS LOCALES",
+    poweredBy: "IMPULSADO POR GOOGLE ADK + GEMINI",
+    agentPipeline: "El Pipeline de Agentes",
+    agentCount: "5 AGENTES ESPECIALIZADOS",
+    orchestrated: "ORQUESTADO VÍA GOOGLE ADK",
+    techStrip: [
+      ["Marco", "Next.js + TypeScript"],
+      ["IA", "Google ADK + Gemini"],
+      ["APIs de Datos", "NWS · FEMA · Census · NOAA"],
+      ["Almacenamiento", "SQLite"],
+      ["Alertas", "Mailgun"],
+    ],
+    online: "EN LÍNEA",
+    tryItLive: "Pruébalo en Vivo.",
+    openDashboard: "Abrir el Panel →",
+    agents: [
+      { name: "Agente Scout", description: "Monitorea NWS, FEMA y noticias locales en busca de patrones climáticos anómalos que indiquen huracanes, terremotos o inundaciones." },
+      { name: "Agente Triage", description: "Puntúa la severidad según la categoría de tormenta, densidad poblacional y datos históricos de daños. Base de un modelo de ML." },
+      { name: "Agente Resource", description: "Asocia programas de organizaciones sin fines de lucro y del gobierno a los individuos afectados según su ubicación y elegibilidad." },
+      { name: "Agente Comms", description: "Redacta alertas multilingüe vía Mailgun y expone una API para sistemas de emergencia del gobierno local." },
+      { name: "Agente Coordinator", description: "Orquesta todos los agentes vía ParallelAgent de Google ADK, gestionando la secuenciación y transferencia de datos." },
+    ],
+  },
+};
 
 export default function HomePage() {
   const heroRef = useRef<HTMLElement>(null);
@@ -87,6 +167,8 @@ export default function HomePage() {
   const rippleCenterRef = useRef<{ x: number; y: number } | null>(null);
   const ctaRippleCenterRef = useRef<{ x: number; y: number } | null>(null);
   const isMobile = useIsMobile();
+  const { language } = useLanguage();
+  const t = translations[language];
 
   const handleButtonHover = useCallback((e: React.MouseEvent) => {
     if (!heroRef.current) return;
@@ -140,7 +222,7 @@ export default function HomePage() {
           <div className="flex-1 min-w-0 md:max-w-[55%]" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
           <div className="font-mono text-[11px] md:text-[15px] text-[#16a34a] tracking-[3px] uppercase mb-4 md:mb-6 flex items-center gap-3">
             <span className="w-6 md:w-10 h-px bg-[#16a34a]" />
-            Multi-Agent Disaster Response · Google ADK
+            {t.tagline}
           </div>
 
           <h1 className="font-display font-extrabold text-[clamp(36px,10vw,110px)] leading-[0.92] tracking-[-2px] md:tracking-[-3px] uppercase max-w-[900px] mb-6 md:mb-8">
@@ -148,7 +230,7 @@ export default function HomePage() {
             <br />
             <em className="font-serif italic font-normal text-[#16a34a]">
               <AnimatedTextCycle
-                words={["Real-Time Response.", "Tampa, Florida."]}
+                words={t.cycleWords}
                 interval={3000}
                 className="font-serif italic font-normal text-[#16a34a]"
               />
@@ -156,11 +238,11 @@ export default function HomePage() {
           </h1>
 
           <div className="font-mono text-[11px] md:text-[15px] text-[#16a34a] tracking-[2px] md:tracking-[3px] uppercase leading-[2] md:leading-[2.2] mb-8 md:mb-12">
-            Agentic Weather Monitoring &amp; Severity Scoring
+            {t.sub1}
             <br />
-            Automated Resource Matching for Affected Communities
+            {t.sub2}
             <br />
-            Real-Time Alerts via Public Dashboard &amp; API
+            {t.sub3}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ textShadow: 'none' }}>
@@ -170,7 +252,7 @@ export default function HomePage() {
               onMouseEnter={handleButtonHover}
               onMouseLeave={handleButtonLeave}
             >
-              Launch Dashboard
+              {t.launchDashboard}
             </Link>
             <Link
               href="/about"
@@ -178,7 +260,7 @@ export default function HomePage() {
               onMouseEnter={handleButtonHover}
               onMouseLeave={handleButtonLeave}
             >
-              Learn More
+              {t.learnMore}
             </Link>
           </div>
           </div>
@@ -194,12 +276,7 @@ export default function HomePage() {
 
       {/* ═══ STATS BAR ═══ */}
       <div className="grid grid-cols-2 md:grid-cols-4 border-t border-b border-[#d4dbc8]">
-        {[
-          { num: "001", value: "5", accent: " Agents", label: "Full Pipeline Automation" },
-          { num: "002", value: "ZIP", accent: ".", label: "Single Input to Dashboard" },
-          { num: "003", value: "24", accent: "/7", label: "Continuous Weather Monitoring" },
-          { num: "004", value: "API", accent: ".", label: "Gov't Alert System Ready" },
-        ].map((s, i) => (
+        {t.stats.map((s, i) => (
           <div
             key={s.num}
             className={`relative px-6 md:px-10 py-6 md:py-10 border-b md:border-b-0 border-[#d4dbc8] ${
@@ -226,20 +303,20 @@ export default function HomePage() {
           <div className="flex flex-col md:flex-row justify-between md:items-end pb-5 border-b border-[#d4dbc8] gap-4">
             <div>
               <div className="font-mono text-[14px] text-[#6b7869] tracking-[2px] mb-2">
-                002 ————
+                {t.sectionNum}
               </div>
               <div className="font-display text-2xl md:text-4xl font-bold tracking-[-1px] uppercase">
-                Platform Capabilities
+                {t.platformCapabilities}
               </div>
             </div>
             <div className="font-mono text-[12px] md:text-[15px] text-[#6b7869] md:text-right leading-[1.8] tracking-wider">
-              NWS + FEMA + LOCAL NEWS
+              {t.nwsFema}
               <br />
-              POWERED BY GOOGLE ADK + GEMINI
+              {t.poweredBy}
             </div>
           </div>
         </div>
-        <Features />
+        <Features lang={language} />
       </section>
 
       {/* ═══ MARQUEE STRIP ═══ */}
@@ -266,13 +343,13 @@ export default function HomePage() {
               003 ————
             </div>
             <div className="font-display text-2xl md:text-4xl font-bold tracking-[-1px] uppercase">
-              The Agent Pipeline
+              {t.agentPipeline}
             </div>
           </div>
           <div className="font-mono text-[12px] md:text-[15px] text-[#6b7869] md:text-right leading-[1.8] tracking-wider">
-            5 SPECIALIZED AGENTS
+            {t.agentCount}
             <br />
-            ORCHESTRATED VIA GOOGLE ADK
+            {t.orchestrated}
           </div>
         </div>
 
@@ -299,19 +376,19 @@ export default function HomePage() {
                     translateZ={40}
                     className="font-display text-[18px] font-bold uppercase tracking-tight mb-2.5"
                   >
-                    {a.name}
+                    {t.agents[i].name}
                   </CardItem>
                   <CardItem
                     translateZ={20}
                     className="text-[15px] text-[#52665e] leading-relaxed flex-1"
                   >
-                    {a.description}
+                    {t.agents[i].description}
                   </CardItem>
                   <CardItem
                     translateZ={35}
                     className="mt-4 font-mono text-[14px] text-[#16a34a] tracking-wider flex items-center gap-1.5"
                   >
-                    <span className="animate-blink">●</span> ONLINE
+                    <span className="animate-blink">●</span> {t.online}
                   </CardItem>
                 </CardBody>
               </CardContainer>
@@ -336,14 +413,14 @@ export default function HomePage() {
                       0{i + 1} / 05
                     </span>
                     <span className="font-mono text-[11px] text-[#16a34a] tracking-wider flex items-center gap-1.5">
-                      <span className="animate-blink">●</span> ONLINE
+                      <span className="animate-blink">●</span> {t.online}
                     </span>
                   </div>
                   <div className="font-display text-[16px] font-bold uppercase tracking-tight mb-1.5">
-                    {a.name}
+                    {t.agents[i].name}
                   </div>
                   <div className="text-[13px] text-[#52665e] leading-relaxed">
-                    {a.description}
+                    {t.agents[i].description}
                   </div>
                 </div>
               </div>
@@ -354,13 +431,7 @@ export default function HomePage() {
 
       {/* ═══ TECH STRIP ═══ */}
       <div className="flex flex-wrap md:flex-nowrap items-center border-t border-b border-[#d4dbc8]">
-        {[
-          ["Framework", "Next.js + TypeScript"],
-          ["AI", "Google ADK + Gemini"],
-          ["Data APIs", "NWS · FEMA · Census · NOAA"],
-          ["Storage", "SQLite"],
-          ["Alerts", "Mailgun"],
-        ].map(([label, value], i, arr) => (
+        {t.techStrip.map(([label, value], i, arr) => (
           <div
             key={label}
             className={`relative flex-1 min-w-[50%] md:min-w-0 px-5 md:px-8 py-4 md:py-5 font-mono text-[11px] md:text-[13px] text-[#6b7869] tracking-wider text-center md:hover:bg-white md:hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] transition-all duration-200 border-b md:border-b-0 ${
@@ -392,7 +463,7 @@ export default function HomePage() {
         <div className="relative z-10" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3, 0 0 80px #f5f7f3' }}>
 
           <h2 className="font-display text-[clamp(28px,5vw,64px)] font-extrabold uppercase tracking-[-2px] mb-5">
-            Try It Live.
+            {t.tryItLive}
           </h2>
           <Link
             href="/dashboard"
@@ -401,7 +472,7 @@ export default function HomePage() {
             onMouseEnter={handleCtaButtonHover}
             onMouseLeave={handleCtaButtonLeave}
           >
-            Open the Dashboard →
+            {t.openDashboard}
           </Link>
         </div>
       </section>

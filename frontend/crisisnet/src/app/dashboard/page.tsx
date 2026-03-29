@@ -199,6 +199,14 @@ export default function DashboardPage() {
   const [convoCollapsed, setConvoCollapsed] = useState(false);
   const [summarizerCollapsed, setSummarizerCollapsed] = useState(false);
 
+  /* Auto-collapse sidebars on small screens */
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setLeftOpen(false);
+      setRightOpen(false);
+    }
+  }, []);
+
   /* Map vertical split */
   const [mapFrac, setMapFrac] = useState(MAP_DEFAULT_FRAC);
   const [mapFullscreen, setMapFullscreen] = useState(false);
@@ -378,6 +386,22 @@ export default function DashboardPage() {
   const lw = leftOpen ? leftWidth : 0;
   const rw = rightOpen ? rightWidth : 0;
 
+  /* Responsive zoom — shrink on small (mobile landscape) screens */
+  const [zoom, setZoom] = useState(1.25);
+  const [navVisible, setNavVisible] = useState(true);
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w < 768) { setZoom(0.45); setNavVisible(false); }
+      else if (w < 1024) { setZoom(0.55); setNavVisible(false); }
+      else { setZoom(1.25); setNavVisible(true); }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  const navH = navVisible ? 70 : 0;
+
   return (
     <>
       {/* Portrait-mode blocker — dashboard only */}
@@ -401,10 +425,8 @@ export default function DashboardPage() {
       </div>
     <div
       className="flex flex-col overflow-hidden bg-[#f5f7f3]"
-      style={{ zoom: 1.25, width: "calc(100vw / 1.25)", height: "calc(100vh / 1.25)" }}
+      style={{ zoom, width: `calc(100vw / ${zoom})`, height: `calc((100vh - ${navH}px) / ${zoom})`, marginTop: navH }}
     >
-      {/* Fixed nav takes 70px */}
-      <div className="h-[70px] flex-shrink-0" />
       <ToastContainer toasts={toasts} />
       <SitBanner />
 
