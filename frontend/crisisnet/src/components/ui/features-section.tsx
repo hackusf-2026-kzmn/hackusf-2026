@@ -1,13 +1,10 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Activity, Radio, LucideIcon, Radar, BarChart3, Link2, Radio as RadioIcon, ChevronRight } from "lucide-react";
-import Image from "next/image";
+import { Radio, LucideIcon, Radar, BarChart3, Link2, Radio as RadioIcon, ChevronRight } from "lucide-react";
 import { ReactNode } from "react";
 
 const featureTranslations = {
   en: {
-    card1Title: "Real-time threat scoring",
-    card1Desc: "AI-driven severity analysis across storm category, population density, and historical damage patterns.",
     card2Title: "Multi-source monitoring",
     card2Desc: "Continuous ingestion from NWS, FEMA, and local news — anomalies flagged in seconds.",
     pipelineLabel: "Google ADK Orchestration · ~94s per cycle",
@@ -17,8 +14,6 @@ const featureTranslations = {
     eoc: "Hillsborough EOC",
   },
   es: {
-    card1Title: "Puntuación de amenazas en tiempo real",
-    card1Desc: "Análisis de severidad impulsado por IA según categoría de tormenta, densidad poblacional y patrones históricos de daños.",
     card2Title: "Monitoreo multi-fuente",
     card2Desc: "Ingesta continua de NWS, FEMA y noticias locales — anomalías detectadas en segundos.",
     pipelineLabel: "Orquestación Google ADK · ~94s por ciclo",
@@ -33,28 +28,8 @@ export function Features({ lang = "en" }: { lang?: "en" | "es" }) {
   const ft = featureTranslations[lang];
   return (
     <div className="px-6 md:px-[60px]">
-      <div className="grid gap-4 lg:grid-cols-2 lg:grid-rows-[auto_1fr]">
-        <FeatureCard className="flex flex-col lg:row-span-2 lg:grid lg:grid-rows-subgrid lg:gap-0">
-          <CardHeader className="pb-3">
-            <CardHeading
-              icon={Activity}
-              title={ft.card1Title}
-              description={ft.card1Desc}
-            />
-          </CardHeader>
-
-          <div className="relative border-t border-dashed flex-1 lg:flex-none overflow-hidden">
-            <Image
-              src="/Dashboard1.png"
-              className="w-full h-full object-cover object-center"
-              alt="data dashboard illustration"
-              width={1207}
-              height={929}
-            />
-          </div>
-        </FeatureCard>
-
-        <FeatureCard className="flex flex-col lg:row-span-2 lg:grid lg:grid-rows-subgrid lg:gap-0">
+      <div className="grid gap-4">
+        <FeatureCard className="flex flex-col">
           <CardHeader className="pb-3">
             <CardHeading
               icon={Radio}
@@ -63,18 +38,22 @@ export function Features({ lang = "en" }: { lang?: "en" | "es" }) {
             />
           </CardHeader>
 
-          <div className="relative flex-1 lg:flex-none border-t border-dashed overflow-hidden">
-            <Image
-              src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1200&q=80"
-              className="w-full h-full object-cover object-center"
-              alt="monitoring dashboard illustration"
-              width={1207}
-              height={929}
+          <div className="relative border-t border-dashed overflow-hidden">
+            <video
+              src="/crisis-net_video1080p.mp4"
+              className="w-full object-contain"
+              autoPlay
+              loop
+              muted
+              playsInline
+              disablePictureInPicture
+              controlsList="nodownload nofullscreen noremoteplayback"
+              style={{ pointerEvents: "none" }}
             />
           </div>
         </FeatureCard>
 
-        <FeatureCard className="p-6 lg:col-span-2">
+        <FeatureCard className="p-6">
           <p className="mx-auto mt-4 mb-6 max-w-lg text-balance text-center font-display text-[18px] font-bold uppercase tracking-tight">
             {ft.pipelineLabel}
           </p>
@@ -84,7 +63,7 @@ export function Features({ lang = "en" }: { lang?: "en" | "es" }) {
             <PipelineNode
               icon={Radar}
               label="Scout"
-              sublabel="NWS · FEMA · News"
+              sublabel="NWS Alerts"
               pattern="border"
             />
 
