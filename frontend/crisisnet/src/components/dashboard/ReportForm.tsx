@@ -50,18 +50,18 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
   };
 
   return (
-    <div className="bg-white p-4">
-      <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3.5 flex items-center gap-2">
+    <div className="p-3 h-full flex flex-col">
+      <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-2 flex items-center gap-2">
         <span className="w-1 h-1 bg-[#16a34a]" />
         Check Your Area
       </div>
 
-      <div className="mb-2">
-        <label className="block font-mono text-[10px] text-[#6b7869] tracking-wider mb-1">
+      <div className="mb-1.5">
+        <label className="block font-mono text-[10px] text-[#6b7869] tracking-wider mb-0.5">
           Zip Code *
         </label>
         <input
-          className={`w-full bg-[#f5f7f3] border px-2.5 py-2 text-[#111d0f] font-body text-xs outline-none focus:border-[#16a34a] transition-colors ${
+          className={`w-full bg-white border px-2.5 py-1.5 text-[#111d0f] font-body text-xs outline-none focus:border-[#16a34a] transition-colors ${
             zipError ? "border-[#ff3b3b]" : "border-[#d4dbc8]"
           }`}
           value={zip}
@@ -77,12 +77,12 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
         )}
       </div>
 
-      <div className="mb-2">
-        <label className="block font-mono text-[10px] text-[#6b7869] tracking-wider mb-1">
+      <div className="mb-1.5 flex-1 flex flex-col">
+        <label className="block font-mono text-[10px] text-[#6b7869] tracking-wider mb-0.5">
           Describe the situation *
         </label>
         <textarea
-          className="w-full bg-[#f5f7f3] border border-[#d4dbc8] px-2.5 py-2 text-[#111d0f] font-body text-xs outline-none focus:border-[#16a34a] transition-colors resize-vertical min-h-[50px]"
+          className="w-full flex-1 bg-white border border-[#d4dbc8] px-2.5 py-1.5 text-[#111d0f] font-body text-xs outline-none focus:border-[#16a34a] transition-colors resize-none min-h-[36px]"
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
           placeholder="e.g. Flooding on main street, roads impassable..."
@@ -90,12 +90,12 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
         />
       </div>
 
-      <div className="mb-2">
-        <label className="block font-mono text-[10px] text-[#6b7869] tracking-wider mb-1">
+      <div className="mb-1.5">
+        <label className="block font-mono text-[10px] text-[#6b7869] tracking-wider mb-0.5">
           Your name (optional)
         </label>
         <input
-          className="w-full bg-[#f5f7f3] border border-[#d4dbc8] px-2.5 py-2 text-[#111d0f] font-body text-xs outline-none focus:border-[#16a34a] transition-colors"
+          className="w-full bg-white border border-[#d4dbc8] px-2.5 py-1.5 text-[#111d0f] font-body text-xs outline-none focus:border-[#16a34a] transition-colors"
           value={reporter}
           onChange={(e) => setReporter(e.target.value)}
           placeholder="Anonymous"
@@ -103,7 +103,7 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
       </div>
 
       <button
-        className="w-full py-2.5 bg-[#16a34a] text-white font-mono text-[11px] font-medium tracking-wider uppercase border-none cursor-pointer mt-2 hover:shadow-[0_0_16px_rgba(22,163,74,0.25)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full py-2 bg-[#16a34a] text-white font-mono text-[11px] font-medium tracking-wider uppercase border-none cursor-pointer hover:shadow-[0_0_16px_rgba(22,163,74,0.25)] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
         onClick={handleSubmit}
         disabled={submitting || !desc.trim() || zip.length !== 5}
       >
