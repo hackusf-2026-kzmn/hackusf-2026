@@ -21,6 +21,9 @@ USF_ZIP_CODE = "33071"
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 MAILGUN_SIGNING_KEY = os.getenv("MAILGUN_SIGNING_KEY")
+MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
+MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
+MAILGUN_FROM = os.getenv("MAILGUN_FROM")
 
 app = FastAPI()
 
@@ -210,26 +213,41 @@ class TranslateRequest(BaseModel):
 class UserStuffRequest(BaseModel):
     email: str
     opt_in: bool = True
+    severity: str | None = None  # "Moderate+", "Severe+", "Extreme", "Minor+"
+    zip_code: str | None = None
+
+class AlertSendRequest(BaseModel):
+    dry_run: bool = False
+    mock_severity: str | None = None  # e.g. "Moderate"
+    mock_event: str | None = None
+    mock_headline: str | None = None
+
+class EmailRequest(BaseModel):
+    email: str
+    name: str
 
 
 @app.post("/translate")
 async def translate_endpoint(payload: TranslateRequest) -> dict:
     return translate_text(payload.text, payload.target_lang)
 
-@app.post("/email")
-def send_simple_message(email, name ):
-    api_key = os.getenv("API_KEY")
-    if not api_key:
-        return {"ok": False, "error": "API_KEY not set"}
+
+def send_mailgun_email(to_email: str, subject: str, text: str) -> dict:
+    if not MAILGUN_API_KEY:
+        return {"ok": False, "error": "MAILGUN_API_KEY not set"}
+    if not MAILGUN_DOMAIN:
+        return {"ok": False, "error": "MAILGUN_DOMAIN not set"}
+    if not MAILGUN_FROM:
+        return {"ok": False, "error": "MAILGUN_FROM not set"}
 
     resp = requests.post(
-        "https://api.mailgun.net/v3/sandbox9cbb2289c7094d94a2c44ac87d927e96.mailgun.org/messages",
-        auth=("api", api_key),
+        f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+        auth=("api", MAILGUN_API_KEY),
         data={
-            "from": "Mailgun Sandbox <postmaster@sandbox9cbb2289c7094d94a2c44ac87d927e96.mailgun.org>",
-            "to": f"Nicholas Westerfeld <{email}>",
-            "subject": f"Hello {name}",
-            "text": "Congratulations Nicholas Westerfeld, you just sent an email with Mailgun! You are truly awesome!",
+            "from": MAILGUN_FROM,
+            "to": to_email,
+            "subject": subject,
+            "text": text,
         },
     )
     return {"ok": resp.ok, "status_code": resp.status_code, "text": resp.text}
@@ -285,13 +303,128 @@ def user_stuff_upsert(payload: UserStuffRequest, authorization: str | None = Hea
     token = _get_bearer_token(authorization)
     user = _get_user_from_token(supabase, token)
     supabase.postgrest.auth(token)
+    existing = supabase.table("user_stuff").select("*").eq("user_id", user.id).execute()
+    existing_row = existing.data[0] if existing.data else None
     data = {
         "user_id": user.id,
         "email": payload.email,
         "opt_in": payload.opt_in,
+        "severity": payload.severity,
+        "zip_code": payload.zip_code,
     }
     resp = supabase.table("user_stuff").upsert(data).execute()
+    if payload.opt_in and not (existing_row and existing_row.get("opt_in")):
+        send_mailgun_email(
+            to_email=payload.email,
+            subject="You’re opted in to alerts",
+            text="Thanks for opting in! You’ll receive alerts based on your preferences.",
+        )
     return {"data": resp.data}
+
+def _severity_rank(sev: str) -> int:
+    sev = (sev or "").strip().lower()
+    order = {
+        "extreme": 4,
+        "severe": 3,
+        "moderate": 2,
+        "minor": 1,
+        "unknown": 0,
+    }
+    return order.get(sev, 0)
+
+def _passes_severity(alert_sev: str, pref: str | None) -> bool:
+    pref = (pref or "").strip().lower()
+    if pref == "severe+":
+        return _severity_rank(alert_sev) >= _severity_rank("severe")
+    if pref == "moderate+":
+        return _severity_rank(alert_sev) >= _severity_rank("moderate")
+    if pref == "minor+":
+        return _severity_rank(alert_sev) >= _severity_rank("minor")
+    if pref == "extreme":
+        return _severity_rank(alert_sev) >= _severity_rank("extreme")
+    return True
+
+def _alert_key(alert: dict) -> str:
+    if alert.get("id"):
+        return str(alert["id"])
+    parts = [
+        str(alert.get("event") or ""),
+        str(alert.get("headline") or ""),
+        str(alert.get("effective") or ""),
+        str(alert.get("sent") or ""),
+    ]
+    return "|".join(parts)
+
+@app.post("/alerts/send")
+async def send_alerts(payload: AlertSendRequest = AlertSendRequest()) -> dict:
+    supabase = get_supabase_client()
+    users_resp = supabase.table("user_stuff").select("*").eq("opt_in", True).execute()
+    users = users_resp.data or []
+
+    sent = []
+    skipped = []
+
+    for row in users:
+        email = row.get("email")
+        zip_code = row.get("zip_code")
+        severity_pref = row.get("severity")
+
+        if not email or not zip_code:
+            skipped.append({"user_id": row.get("user_id"), "reason": "missing email or zip_code"})
+            continue
+
+        if payload.mock_severity:
+            alerts = [{
+                "event": payload.mock_event or "Test Alert",
+                "severity": payload.mock_severity,
+                "headline": payload.mock_headline or "This is a test alert for your area",
+                "area": zip_code,
+                "source": "MOCK",
+            }]
+        else:
+            scout_resp = await scout(zip_code=zip_code)
+            alerts = scout_resp.get("alerts", [])
+        filtered = [a for a in alerts if _passes_severity(a.get("severity", ""), severity_pref)]
+
+        if not filtered:
+            skipped.append({"user_id": row.get("user_id"), "reason": "no matching alerts"})
+            continue
+
+        existing_keys = row.get("last_alert_ids") or []
+        if isinstance(existing_keys, str):
+            existing_keys = [existing_keys]
+
+        new_alerts = []
+        new_keys = []
+        for alert in filtered:
+            key = _alert_key(alert)
+            if key and key not in existing_keys:
+                new_alerts.append(alert)
+                new_keys.append(key)
+
+        if not new_alerts:
+            skipped.append({"user_id": row.get("user_id"), "reason": "no new alerts"})
+            continue
+
+        lines = []
+        for a in new_alerts:
+            lines.append(f"{a.get('event')} ({a.get('severity')}) - {a.get('headline')}")
+        body = "Active alerts for your area:\n\n" + "\n".join(lines)
+
+        if payload.dry_run:
+            sent.append({"email": email, "count": len(new_alerts), "dry_run": True})
+            continue
+
+        email_resp = send_mailgun_email(
+            to_email=email,
+            subject="Active alerts in your area",
+            text=body,
+        )
+        updated_keys = (existing_keys + new_keys)[-200:]
+        supabase.table("user_stuff").update({"last_alert_ids": updated_keys}).eq("user_id", row.get("user_id")).execute()
+        sent.append({"email": email, "count": len(filtered), "email_ok": email_resp.get("ok")})
+
+    return {"sent": sent, "skipped": skipped}
 
 @app.post("/mailgun/webhook")
 async def mailgun_webhook(request: Request) -> dict:
@@ -316,9 +449,5 @@ async def mailgun_webhook(request: Request) -> dict:
     return {"ok": True, "event": event}
 
 @app.get("/comms")
-async def comms(text: str, email:str , name:str, subscribed:bool = True, target_lang: str = "en") -> dict:
-    translated = translate_text(text, target_lang)
-    if subscribed:
-        message = send_simple_message(email, name)
-    
-    return translated, message 
+async def comms() -> dict:
+    return await send_alerts()
