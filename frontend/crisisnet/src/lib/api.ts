@@ -66,6 +66,15 @@ export async function getResources(zipCode?: string): Promise<Resource[]> {
   return res.json();
 }
 
+export async function getZipCoords(zipCode: string): Promise<{ lat: number; lng: number }> {
+  const res = await fetch(`${API_BASE}/geo?zip_code=${encodeURIComponent(zipCode)}`);
+  if (!res.ok) {
+    throw new Error("Failed to geocode zip");
+  }
+  const data = await res.json();
+  return { lat: data.lat, lng: data.lng };
+}
+
 // ─── AGENT STATUS ─────────────────────────────────────────────
 export async function getAgentStatus(): Promise<AgentStatus[]> {
   const res = await fetch(`${API_BASE}/agent-status`);
