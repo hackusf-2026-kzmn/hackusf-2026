@@ -26,6 +26,7 @@ interface GridHeroProps {
   rippleCenterRef?: RefObject<{ x: number; y: number } | null>;
   scrollDirection?: "tr" | "tl" | "br" | "bl";
   scrollSpeed?: number;
+  particles?: boolean;
 }
 
 export function GridHero({
@@ -38,6 +39,7 @@ export function GridHero({
   rippleCenterRef,
   scrollDirection = "tr",
   scrollSpeed = 18,
+  particles = true,
 }: GridHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>();
@@ -305,21 +307,23 @@ export function GridHero({
       drawGrid(w, h, cx, cy);
       drawRipples(w, h, cx, cy, now, ox, oy);
       drawFills(w, h, cx, cy);
-      drawLights(w, h, cx, cy);
+      if (particles) drawLights(w, h, cx, cy);
 
       // Update particles: move with grid scroll AND along their grid line
       const margin = gridSize * 2;
-      lightsRef.current = lightsRef.current.filter((light) => {
-        light.x += scrollDX + (light.gridLine === "horizontal" ? light.speed * dt * 0.001 : 0);
-        light.y += scrollDY + (light.gridLine === "vertical" ? light.speed * dt * 0.001 : 0);
-        return (
-          light.x > -margin && light.x < w + margin &&
-          light.y > -margin && light.y < h + margin
-        );
-      });
+      if (particles) {
+        lightsRef.current = lightsRef.current.filter((light) => {
+          light.x += scrollDX + (light.gridLine === "horizontal" ? light.speed * dt * 0.001 : 0);
+          light.y += scrollDY + (light.gridLine === "vertical" ? light.speed * dt * 0.001 : 0);
+          return (
+            light.x > -margin && light.x < w + margin &&
+            light.y > -margin && light.y < h + margin
+          );
+        });
 
-      if (Math.random() < 0.025 && lightsRef.current.length < 8) {
-        lightsRef.current.push(createLight(w, h, ox, oy));
+        if (Math.random() < 0.025 && lightsRef.current.length < 8) {
+          lightsRef.current.push(createLight(w, h, ox, oy));
+        }
       }
 
       // Advance fill positions with the grid and fade
@@ -336,7 +340,7 @@ export function GridHero({
       ro.disconnect();
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [mounted, gridSize, gridColor, particleColor, gridOpacity, createLight, hexToRgb, rippleCenterRef, gridOffset, dx, dy, scrollSpeed]);
+  }, [mounted, gridSize, gridColor, particleColor, gridOpacity, createLight, hexToRgb, rippleCenterRef, gridOffset, dx, dy, scrollSpeed, particles]);
 
   // Mouse listeners — only update mouseCanvasRef; hover cell computed per-frame in animate loop
   useEffect(() => {

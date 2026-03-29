@@ -109,6 +109,7 @@ export default function HomePage() {
           containerRef={heroRef}
           rippleCenterRef={rippleCenterRef}
           scrollDirection="tr"
+          particles={false}
         />
         {/* HUD corners */}
         <div className="absolute top-5 left-5 w-5 h-5 border-t-2 border-l-2 border-[#16a34a] opacity-30" />
