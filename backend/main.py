@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, Header, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 from google import genai
 import requests
 import pgeocode
@@ -23,6 +25,14 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 MAILGUN_SIGNING_KEY = os.getenv("MAILGUN_SIGNING_KEY")
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_supabase_client() -> Client:
     if not SUPABASE_URL or not SUPABASE_KEY:
@@ -210,6 +220,13 @@ class TranslateRequest(BaseModel):
 class UserStuffRequest(BaseModel):
     email: str
     opt_in: bool = True
+    severity: Optional[str] = None
+    zip_code: Optional[str] = None
+
+class SubscribeRequest(BaseModel):
+    email: str
+    severity: str = "all"
+    zip_code: Optional[str] = None
 
 
 @app.post("/translate")
@@ -292,6 +309,27 @@ def user_stuff_upsert(payload: UserStuffRequest, authorization: str | None = Hea
     }
     resp = supabase.table("user_stuff").upsert(data).execute()
     return {"data": resp.data}
+
+@app.post("/subscribe")
+def subscribe(payload: SubscribeRequest) -> dict:
+    """Public endpoint — no auth required. Signs up an email for alerts."""
+    supabase = get_supabase_client()
+    # Create anonymous session for the DB write
+    anon = supabase.auth.sign_in_anonymously()
+    session = getattr(anon, "session", None)
+    user = getattr(anon, "user", None)
+    if not session or not user:
+        raise HTTPException(status_code=500, detail="Anonymous sign-in failed")
+    supabase.postgrest.auth(session.access_token)
+    data = {
+        "user_id": user.id,
+        "email": payload.email,
+        "opt_in": True,
+        "severity": payload.severity,
+        "zip_code": payload.zip_code,
+    }
+    resp = supabase.table("user_stuff").upsert(data).execute()
+    return {"ok": True, "data": resp.data}
 
 @app.post("/mailgun/webhook")
 async def mailgun_webhook(request: Request) -> dict:
