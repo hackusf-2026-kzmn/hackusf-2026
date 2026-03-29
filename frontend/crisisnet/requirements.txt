@@ -1,9 +1,6 @@
-google-adk
 fastapi
-uvicorn[standard]
 requests
 pgeocode
 python-dotenv
 supabase
-apscheduler
 google-genai
