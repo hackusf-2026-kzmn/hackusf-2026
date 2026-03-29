@@ -1,8 +1,5 @@
 {
   "framework": "nextjs",
-  "installCommand": "cd frontend/crisisnet && npm install",
-  "buildCommand": "cd frontend/crisisnet && npm run build",
-  "outputDirectory": "frontend/crisisnet/.next",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api" }
   ]
