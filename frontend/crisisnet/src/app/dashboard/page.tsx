@@ -198,6 +198,8 @@ export default function DashboardPage() {
 
   /* Map vertical split */
   const [mapFrac, setMapFrac] = useState(MAP_DEFAULT_FRAC);
+  const [mapFullscreen, setMapFullscreen] = useState(false);
+  const prevSidebars = useRef<{ left: boolean; right: boolean; frac: number } | null>(null);
   const centerRef = useRef<HTMLDivElement>(null);
   const mapDragging = useRef(false);
 
@@ -270,6 +272,31 @@ export default function DashboardPage() {
     }, 18000);
     return () => clearTimeout(t);
   }, []);
+
+  /* Map control toggles */
+  const toggleMapFullscreen = useCallback(() => {
+    setMapFullscreen((prev) => {
+      if (!prev) {
+        prevSidebars.current = { left: leftOpen, right: rightOpen, frac: mapFrac };
+        setLeftOpen(false);
+        setRightOpen(false);
+        setMapFrac(MAP_MAX_FRAC);
+      } else if (prevSidebars.current) {
+        setLeftOpen(prevSidebars.current.left);
+        setRightOpen(prevSidebars.current.right);
+        setMapFrac(prevSidebars.current.frac);
+        prevSidebars.current = null;
+      }
+      return !prev;
+    });
+  }, [leftOpen, rightOpen, mapFrac]);
+
+  const toggleSidebars = useCallback(() => {
+    const bothOpen = leftOpen && rightOpen;
+    setLeftOpen(!bothOpen);
+    setRightOpen(!bothOpen);
+    if (mapFullscreen) setMapFullscreen(false);
+  }, [leftOpen, rightOpen, mapFullscreen]);
 
   const addToast = useCallback(
     (message: string, type: Toast["type"] = "processing") => {
@@ -418,7 +445,14 @@ export default function DashboardPage() {
         <div ref={centerRef} className="bg-[#f5f7f3] flex flex-col flex-1 min-w-0 min-h-0">
           {/* Map — adjustable height */}
           <div className="min-h-0" style={{ height: `${mapFrac * 100}%` }}>
-            <LiveMap incidents={incidents} resources={mockResources} />
+            <LiveMap
+              incidents={incidents}
+              resources={mockResources}
+              onToggleFullscreen={toggleMapFullscreen}
+              onToggleSidebars={toggleSidebars}
+              isFullscreen={mapFullscreen}
+              sidebarsOpen={leftOpen && rightOpen}
+            />
           </div>
 
           {/* Horizontal drag divider between map and bottom panels */}

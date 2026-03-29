@@ -15,6 +15,10 @@ import { PRIORITY_CONFIG } from "@/lib/types";
 interface LiveMapProps {
   incidents: Incident[];
   resources: Resource[];
+  onToggleFullscreen?: () => void;
+  onToggleSidebars?: () => void;
+  isFullscreen?: boolean;
+  sidebarsOpen?: boolean;
 }
 
 /**
@@ -30,7 +34,7 @@ const MAP_STYLES = {
   dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
 } as const;
 
-export function LiveMap({ incidents, resources }: LiveMapProps) {
+export function LiveMap({ incidents, resources, onToggleFullscreen, onToggleSidebars, isFullscreen, sidebarsOpen }: LiveMapProps) {
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(
     null
   );
@@ -57,6 +61,57 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
         <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
           <span className="w-1 h-1 bg-[#16a34a]" />
           Operations Map — Tampa Bay AO
+          <span className="flex-1" />
+          {onToggleSidebars && (
+            <button
+              onClick={onToggleSidebars}
+              title={sidebarsOpen ? "Hide sidebars" : "Show sidebars"}
+              className="w-6 h-6 flex items-center justify-center border border-[#d4dbc8] bg-white hover:bg-[#eef1ea] transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {sidebarsOpen ? (
+                  <>
+                    <rect x="1" y="2" width="4" height="10" rx="0.5" stroke="#6b7869" strokeWidth="1.2" />
+                    <rect x="9" y="2" width="4" height="10" rx="0.5" stroke="#6b7869" strokeWidth="1.2" />
+                    <path d="M6 5L7 7L6 9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M8 5L7 7L8 9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </>
+                ) : (
+                  <>
+                    <rect x="1" y="2" width="4" height="10" rx="0.5" stroke="#6b7869" strokeWidth="1.2" strokeDasharray="2 1.5" />
+                    <rect x="9" y="2" width="4" height="10" rx="0.5" stroke="#6b7869" strokeWidth="1.2" strokeDasharray="2 1.5" />
+                    <path d="M6 5L5 7L6 9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M8 5L9 7L8 9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </>
+                )}
+              </svg>
+            </button>
+          )}
+          {onToggleFullscreen && (
+            <button
+              onClick={onToggleFullscreen}
+              title={isFullscreen ? "Exit full map" : "Full size map"}
+              className="w-6 h-6 flex items-center justify-center border border-[#d4dbc8] bg-white hover:bg-[#eef1ea] transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {isFullscreen ? (
+                  <>
+                    <polyline points="5,1 5,5 1,5" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="9,13 9,9 13,9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="13,5 9,5 9,1" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="1,9 5,9 5,13" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  </>
+                ) : (
+                  <>
+                    <polyline points="1,5 1,1 5,1" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="13,9 13,13 9,13" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="9,1 13,1 13,5" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="5,13 1,13 1,9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  </>
+                )}
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
