@@ -14,15 +14,7 @@ export function IncidentFeed({ incidents }: IncidentFeedProps) {
   });
 
   return (
-    <div className="p-4 flex-1 overflow-y-auto">
-      <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3.5 flex items-center gap-2">
-        <span className="w-1 h-1 bg-[#16a34a]" />
-        Incident Feed
-        <span className="ml-auto font-mono text-[9px] text-[#6b7869]">
-          {sorted.length} active
-        </span>
-      </div>
-
+    <div className="h-full overflow-y-auto fade-scroll-y px-4 py-2">
       {sorted.map((inc) => {
         const cfg = PRIORITY_CONFIG[inc.priority];
         return (

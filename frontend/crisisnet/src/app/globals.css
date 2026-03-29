@@ -73,3 +73,21 @@
 .animate-marquee-right {
   animation: marquee-right 30s linear infinite;
 }
+
+/* ─── FADE SCROLL MASKS ─── */
+.fade-scroll-y {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 18px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 18px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+}
