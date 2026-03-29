@@ -1,9 +1,8 @@
 "use client";
 
-import { useRef, useCallback } from "react";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
-import { GridHero } from "@/components/ui/grid-hero-animated";
+import { ParticlesBg } from "@/components/ui/particles-bg";
 import {
   CardContainer,
   CardBody,
@@ -77,58 +76,19 @@ const METRICS = [
 ];
 
 export default function AboutPage() {
-  const heroRef = useRef<HTMLElement>(null);
-  const ctaRef = useRef<HTMLElement>(null);
-  const rippleCenterRef = useRef<{ x: number; y: number } | null>(null);
-  const ctaRippleCenterRef = useRef<{ x: number; y: number } | null>(null);
-
-  const handleButtonHover = useCallback((e: React.MouseEvent) => {
-    if (!heroRef.current) return;
-    const sectionRect = heroRef.current.getBoundingClientRect();
-    const btnRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    rippleCenterRef.current = {
-      x: btnRect.left + btnRect.width / 2 - sectionRect.left,
-      y: btnRect.top + btnRect.height / 2 - sectionRect.top,
-    };
-  }, []);
-
-  const handleButtonLeave = useCallback(() => {
-    rippleCenterRef.current = null;
-  }, []);
-
-  const handleCtaHover = useCallback((e: React.MouseEvent) => {
-    if (!ctaRef.current) return;
-    const sectionRect = ctaRef.current.getBoundingClientRect();
-    const btnRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    ctaRippleCenterRef.current = {
-      x: btnRect.left + btnRect.width / 2 - sectionRect.left,
-      y: btnRect.top + btnRect.height / 2 - sectionRect.top,
-    };
-  }, []);
-
-  const handleCtaLeave = useCallback(() => {
-    ctaRippleCenterRef.current = null;
-  }, []);
 
   return (
     <div className="min-h-screen pt-[70px]">
       {/* ═══ HERO ═══ */}
-      <section ref={heroRef} className="relative px-[60px] pt-[100px] pb-[60px] overflow-hidden border-b border-[#d4dbc8]">
-        <GridHero
-          gridColor="#7a9470"
-          particleColor="#16a34a"
-          gridOpacity={0.18}
-          containerRef={heroRef}
-          rippleCenterRef={rippleCenterRef}
-          scrollDirection="tl"
-        />
+      <section className="relative px-[60px] pt-[100px] pb-[60px] overflow-hidden border-b border-[#d4dbc8]">
+        <ParticlesBg />
         {/* HUD corners */}
         <div className="absolute top-5 left-5 w-5 h-5 border-t-2 border-l-2 border-[#16a34a] opacity-30" />
         <div className="absolute top-5 right-5 w-5 h-5 border-t-2 border-r-2 border-[#16a34a] opacity-30" />
         <div className="absolute bottom-5 left-5 w-5 h-5 border-b-2 border-l-2 border-[#16a34a] opacity-30" />
         <div className="absolute bottom-5 right-5 w-5 h-5 border-b-2 border-r-2 border-[#16a34a] opacity-30" />
 
-        <div className="relative z-10 text-center" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3' }}>
+        <div className="relative z-10 text-center pointer-events-none" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3' }}>
           <h1 className="font-display font-extrabold text-[clamp(40px,6vw,80px)] leading-[0.95] tracking-[-2px] uppercase mb-6">
             What we&apos;re about.
           </h1>
@@ -141,10 +101,8 @@ export default function AboutPage() {
 
           <Link
             href="/dashboard"
-            className="inline-block mt-10 font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase shadow-none hover:brightness-110 hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200"
+            className="inline-block mt-10 font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase shadow-none hover:brightness-110 hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200 pointer-events-auto"
             style={{ textShadow: 'none' }}
-            onMouseEnter={handleButtonHover}
-            onMouseLeave={handleButtonLeave}
           >
             Open Dashboard →
           </Link>
@@ -351,25 +309,16 @@ export default function AboutPage() {
       </section>
 
       {/* ═══ CTA ═══ */}
-      <section ref={ctaRef} className="relative px-[60px] py-[120px] text-center overflow-hidden">
-        <GridHero
-          gridColor="#7a9470"
-          particleColor="#16a34a"
-          gridOpacity={0.18}
-          containerRef={ctaRef}
-          rippleCenterRef={ctaRippleCenterRef}
-          scrollDirection="br"
-        />
-        <div className="relative z-10" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3' }}>
+      <section className="relative px-[60px] py-[120px] text-center overflow-hidden">
+        <ParticlesBg />
+        <div className="relative z-10 pointer-events-none" style={{ textShadow: '0 0 10px #f5f7f3, 0 0 20px #f5f7f3, 0 0 40px #f5f7f3, 0 0 60px #f5f7f3' }}>
           <h2 className="font-display text-[clamp(32px,5vw,64px)] font-extrabold uppercase tracking-[-2px] mb-5">
             Ready to See It?
           </h2>
           <Link
             href="/dashboard"
-            className="inline-block font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:brightness-110 hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200"
+            className="inline-block font-mono text-xs bg-[#16a34a] text-white px-8 py-3.5 font-medium tracking-[1.5px] uppercase hover:brightness-110 hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200 pointer-events-auto"
             style={{ textShadow: 'none' }}
-            onMouseEnter={handleCtaHover}
-            onMouseLeave={handleCtaLeave}
           >
             Open Dashboard →
           </Link>
