@@ -22,7 +22,7 @@ load_dotenv(Path(__file__).parent / ".env")
 CENSUS_API_KEY = os.getenv("CENSUS_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 DEFAULT_TRANSLATION_MODEL = "gemini-2.5-flash-lite"
-USF_ZIP_CODE = "33071"
+USF_ZIP_CODE = "33309"
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
@@ -122,7 +122,10 @@ def haversine(lat1, lon1, lat2, lon2):
 async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     nomi = get_nomi_info(zip_code)
 
+    # Tampa + neighbouring counties
+    TAMPA_COUNTIES = ["Hillsborough", "Pinellas", "Pasco", "Polk", "Manatee", "Hernando"]
     county_short = nomi["county_name"].replace(" County", "").strip()
+    watch_counties = TAMPA_COUNTIES if county_short in TAMPA_COUNTIES else [county_short]
 
     headers = {"User-Agent": "CrisisNet (contact: ni717713@ucf.edu)"}
     alerts_resp = requests.get(
@@ -137,7 +140,8 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     for feature in alerts_json.get("features", []):
         props = feature.get("properties", {})
         area = props.get("areaDesc", "")
-        if county_short.lower() in area.lower():  # fix: filter before appending
+        area_lower = area.lower()
+        if any(c.lower() in area_lower for c in watch_counties):
             matching.append({
                 "id": props.get("id"),
                 "event": props.get("event"),
