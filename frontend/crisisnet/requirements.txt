@@ -4,3 +4,5 @@ pgeocode
 python-dotenv
 supabase
 google-genai
+
+google-genai
