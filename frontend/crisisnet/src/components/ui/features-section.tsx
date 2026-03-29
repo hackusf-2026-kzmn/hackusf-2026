@@ -45,7 +45,7 @@ export function Features({ lang = "en" }: { lang?: "en" | "es" }) {
 
           <div className="relative border-t border-dashed flex-1 lg:flex-none overflow-hidden">
             <Image
-              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80"
+              src="/Dashboard1.png"
               className="w-full h-full object-cover object-center"
               alt="data dashboard illustration"
               width={1207}

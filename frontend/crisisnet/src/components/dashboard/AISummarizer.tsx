@@ -13,24 +13,23 @@ export function AISummarizer() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [cooldown, setCooldown] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-run "Summarize Events" on mount
-  useEffect(() => {
-    if (initialized) return;
+  const handleSummarize = async () => {
     setInitialized(true);
     setLoading(true);
-    let active = true;
-    summarize("Summarize all current events and alerts in the Tampa area")
-      .then((data) => {
-        if (active) setEntries([{ question: "Summarize Events", answer: data.answer }]);
-      })
-      .catch(() => {
-        if (active) setEntries([{ question: "Summarize Events", answer: "Unable to reach backend — try again later." }]);
-      })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [initialized]);
+    setCooldown(true);
+    try {
+      const data = await summarize("Summarize all current events and alerts in the Tampa area");
+      setEntries([{ question: "Summarize Events", answer: data.answer }]);
+    } catch {
+      setEntries([{ question: "Summarize Events", answer: "Unable to reach backend — try again later." }]);
+    } finally {
+      setLoading(false);
+      setTimeout(() => setCooldown(false), 5000);
+    }
+  };
 
   // Scroll to bottom on new entry
   useEffect(() => {
@@ -38,10 +37,11 @@ export function AISummarizer() {
   }, [entries, loading]);
 
   const handleAsk = async () => {
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || cooldown) return;
     const q = input.trim();
     setInput("");
     setLoading(true);
+    setCooldown(true);
     try {
       const data = await summarize(q);
       setEntries((prev) => [...prev, { question: q, answer: data.answer }]);
@@ -49,6 +49,7 @@ export function AISummarizer() {
       setEntries((prev) => [...prev, { question: q, answer: "Failed to get response from backend." }]);
     } finally {
       setLoading(false);
+      setTimeout(() => setCooldown(false), 5000);
     }
   };
 
@@ -74,23 +75,33 @@ export function AISummarizer() {
         </div>
       )}
 
-      <div className="flex gap-1.5">
-        <input
-          className="flex-1 bg-[#f5f7f3] border border-[#d4dbc8] px-2.5 py-2 text-[#111d0f] font-mono text-[10px] outline-none focus:border-[#16a34a] transition-colors"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleAsk()}
-          placeholder={entries.length > 0 ? "Ask a follow-up question..." : "Summarizing events..."}
-          disabled={loading}
-        />
+      {!initialized ? (
         <button
-          className="px-3 py-2 bg-[#16a34a] text-white font-mono text-[10px] tracking-wider uppercase hover:shadow-[0_0_12px_rgba(22,163,74,0.25)] transition-all disabled:opacity-40"
-          onClick={handleAsk}
-          disabled={loading || !input.trim()}
+          className="w-full py-2 mb-4 bg-[#16a34a] text-white font-mono text-[10px] tracking-wider uppercase hover:shadow-[0_0_12px_rgba(22,163,74,0.25)] transition-all disabled:opacity-40"
+          onClick={handleSummarize}
+          disabled={loading}
         >
-          ASK
+          📡 Summarize Events
         </button>
-      </div>
+      ) : (
+        <div className="flex gap-1.5 mb-4">
+          <input
+            className="flex-1 bg-[#f5f7f3] border border-[#d4dbc8] px-2.5 py-2 text-[#111d0f] font-mono text-[10px] outline-none focus:border-[#16a34a] transition-colors"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAsk()}
+            placeholder="Ask a follow-up question..."
+            disabled={loading}
+          />
+          <button
+            className="px-3 py-2 bg-[#16a34a] text-white font-mono text-[10px] tracking-wider uppercase hover:shadow-[0_0_12px_rgba(22,163,74,0.25)] transition-all disabled:opacity-40"
+            onClick={handleAsk}
+            disabled={loading || cooldown || !input.trim()}
+          >
+            ASK
+          </button>
+        </div>
+      )}
     </div>
   );
 }
