@@ -28,7 +28,7 @@ function project(lat: number, lng: number) {
 export function MapView({ incidents, resources }: MapViewProps) {
   const [tooltip, setTooltip] = useState<Incident | null>(null);
 
-  const deployed = resources.filter((r) => r.status === "deployed");
+  const deployed = resources;
 
   const handlePinClick = useCallback(
     (inc: Incident) => {
@@ -83,19 +83,11 @@ export function MapView({ incidents, resources }: MapViewProps) {
             Tampa Bay
           </text>
 
-          {/* Resource → Incident lines */}
-          {deployed.map((r) => {
-            const inc = incidents.find((i) => i.id === r.assignedTo);
-            if (!inc) return null;
-            const rp = project(inc.lat + 0.003, inc.lng - 0.005);
-            const ip = project(inc.lat, inc.lng);
+          {/* Resource markers */}
+          {deployed.map((r, idx) => {
+            const rp = project(parseFloat(r.lat), parseFloat(r.lng));
             return (
-              <g key={r.id}>
-                <line
-                  x1={rp.x} y1={rp.y} x2={ip.x} y2={ip.y}
-                  stroke="rgba(22,163,74,0.2)" strokeWidth="1"
-                  strokeDasharray="3 2"
-                />
+              <g key={`res-${idx}`}>
                 <circle
                   cx={rp.x} cy={rp.y} r="4"
                   fill="rgba(22,163,74,0.1)" stroke="#16a34a"
@@ -106,8 +98,8 @@ export function MapView({ incidents, resources }: MapViewProps) {
           })}
 
           {/* Incident pins */}
-          {incidents.map((inc) => {
-            const p = project(inc.lat, inc.lng);
+          {incidents.filter((inc) => inc.lat != null && inc.lng != null).map((inc) => {
+            const p = project(inc.lat!, inc.lng!);
             const cfg = PRIORITY_CONFIG[inc.priority];
             const r = inc.priority === "P1" ? 8 : inc.priority === "P2" ? 6 : 4;
             return (
