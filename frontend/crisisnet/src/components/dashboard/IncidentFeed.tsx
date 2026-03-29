@@ -39,8 +39,8 @@ export function IncidentFeed({ incidents }: IncidentFeedProps) {
                 : "border-[#d4dbc8] hover:bg-[#edf1e8] hover:border-[#b8c4aa]"
             }`}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-[10px] text-[#6b7869]">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-mono text-[10px] text-[#6b7869] truncate min-w-0">
                 {inc.id}
               </span>
               <div className="flex items-center gap-1.5">
@@ -60,11 +60,11 @@ export function IncidentFeed({ incidents }: IncidentFeedProps) {
             </div>
             {!isCollapsed && (
               <>
-                <div className="text-[11px] leading-snug mt-1.5 mb-1.5">
+                <div className="text-[11px] leading-snug mt-1.5 mb-1.5 break-words">
                   {inc.description}
                 </div>
-                <div className="flex gap-2.5 font-mono text-[9px] text-[#6b7869]">
-                  <span>📍 {inc.location}</span>
+                <div className="flex gap-2.5 font-mono text-[9px] text-[#6b7869] overflow-hidden">
+                  <span className="truncate">📍 {inc.location}</span>
                   <span>{inc.timestamp}</span>
                 </div>
               </>

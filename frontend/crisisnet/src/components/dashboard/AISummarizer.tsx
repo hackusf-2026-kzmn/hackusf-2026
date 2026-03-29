@@ -54,7 +54,7 @@ export function AISummarizer() {
 
   return (
     <div className="px-4 py-2 pb-4 flex flex-col h-full">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto fade-scroll-y space-y-2 mb-2">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto fade-scroll-y space-y-2 mb-2 min-h-0">
         {entries.map((e, i) => (
           <div key={i} className="space-y-1">
             <div className="font-mono text-[10px] text-[#16a34a] font-medium">
@@ -65,13 +65,14 @@ export function AISummarizer() {
             </div>
           </div>
         ))}
-        {loading && (
-          <div className="font-mono text-[10px] text-[#6b7869] animate-pulse flex items-center gap-1.5">
-            <span className="inline-block w-1 h-1 bg-[#16a34a] animate-ping" />
-            Summarizing agent data...
-          </div>
-        )}
       </div>
+
+      {loading && (
+        <div className="font-mono text-[10px] text-[#6b7869] animate-pulse flex items-center gap-1.5 px-1 py-1">
+          <span className="inline-block w-1 h-1 bg-[#16a34a] animate-ping" />
+          Summarizing agent data...
+        </div>
+      )}
 
       <div className="flex gap-1.5">
         <input
