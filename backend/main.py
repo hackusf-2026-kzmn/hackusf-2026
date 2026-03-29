@@ -16,6 +16,8 @@ from supabase import create_client, Client
 supabase_url: str = os.environ["SUPABASE_URL"]
 supabase_key: str = os.environ["SUPABASE_KEY"]
 supabase: Client = create_client(supabase_url, supabase_key)
+response = supabase.auth.sign_in_anonymously()
+
 
 load_dotenv(Path(__file__).parent / ".env")
 CENSUS_API_KEY=os.getenv("CENSUS_API_KEY")
