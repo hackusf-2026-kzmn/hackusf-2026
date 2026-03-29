@@ -9,6 +9,8 @@ import json
 import math
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
 
@@ -124,10 +126,24 @@ def translate_text(text: str, target_lang: str = "en") -> dict:
             "Return only the translated text with no extra commentary.\n\n"
             f"Text: {text}"
         )
+        from google.genai import types
+        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash-001")
         resp = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt,
-            temperature=0,
+            model=model_name,
+            contents=[
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part(
+                            text=(
+                                f"Translate the following text to {target_lang}. "
+                                "Return only the translated text:\n\n"
+                                f"{text}"
+                            )
+                        )
+                    ],
+                )
+            ],
         )
         translated = (resp.text or "").strip()
         if not translated:
@@ -143,7 +159,7 @@ def translate_text(text: str, target_lang: str = "en") -> dict:
             "translated_text": text,
             "source_lang": "en",
             "target_lang": target_lang,
-            "error": f"exception_{type(exc).__name__}",
+            "error": f"exception_{type(exc).__name__}: {exc}",
         }
 
 
@@ -153,5 +169,6 @@ async def translate_endpoint(payload: TranslateRequest) -> dict:
 
 
 @app.get("/comms")
-async def comms_stub() -> dict:
-    return {"status": "ok", "message": "Comms flow not integrated yet."}
+async def comms(text: str, target_lang: str = "en") -> dict:
+    translated = translate_text(text, target_lang)
+    return translated
