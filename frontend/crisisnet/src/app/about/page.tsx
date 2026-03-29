@@ -8,6 +8,8 @@ import {
   CardBody,
   CardItem,
 } from "@/components/ui/3d-card-effect";
+import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
+import { Search, Activity, Link2, Radio, Cpu } from "lucide-react";
 
 const TECH_STACK = [
   ["Frontend", "Next.js + TypeScript"],
@@ -75,6 +77,69 @@ const METRICS = [
   { num: "003", value: "6", accent: "+", label: "Government Data Sources" },
 ];
 
+const AGENT_TIMELINE = [
+  {
+    id: 1,
+    title: "Scout",
+    date: "Stage 1",
+    content:
+      "Monitors NWS, FEMA, and local news/social feeds for anomalous weather and active disaster events in real-time.",
+    category: "Detection",
+    icon: Search,
+    relatedIds: [2],
+    status: "completed" as const,
+    energy: 100,
+  },
+  {
+    id: 2,
+    title: "Triage",
+    date: "Stage 2",
+    content:
+      "Scores severity using storm category, population density (Census), and NOAA historical damage data.",
+    category: "Analysis",
+    icon: Activity,
+    relatedIds: [1, 3],
+    status: "completed" as const,
+    energy: 90,
+  },
+  {
+    id: 3,
+    title: "Resource",
+    date: "Stage 3",
+    content:
+      "Identifies and matches FEMA, state, and non-profit assistance programs to affected zip codes.",
+    category: "Matching",
+    icon: Link2,
+    relatedIds: [2, 4],
+    status: "in-progress" as const,
+    energy: 70,
+  },
+  {
+    id: 4,
+    title: "Comms",
+    date: "Stage 4",
+    content:
+      "Sends multilingual alerts via Mailgun to affected communities with actionable guidance.",
+    category: "Alerts",
+    icon: Radio,
+    relatedIds: [3, 5],
+    status: "pending" as const,
+    energy: 40,
+  },
+  {
+    id: 5,
+    title: "Coordinator",
+    date: "Orchestrator",
+    content:
+      "Orchestrates the full agent pipeline via Google ADK ParallelAgent, managing sequencing and fallbacks.",
+    category: "Orchestration",
+    icon: Cpu,
+    relatedIds: [1, 2, 3, 4],
+    status: "pending" as const,
+    energy: 60,
+  },
+];
+
 export default function AboutPage() {
 
   return (
@@ -93,7 +158,7 @@ export default function AboutPage() {
             What we&apos;re about.
           </h1>
 
-          <div className="font-mono text-[16px] text-[#6b7869] tracking-[2px] uppercase leading-[2]" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+          <div className="font-mono text-[16px] text-[#6b7869] tracking-[2px] uppercase leading-[2]" style={{ textShadow: '0 0px 5px rgb(255, 255, 255)' }}>
             AI-powered disaster response.
             <br />
             Built for Tampa.
@@ -132,7 +197,7 @@ export default function AboutPage() {
 
       {/* ═══ PROBLEM / SOLUTION ═══ */}
       <div className="grid grid-cols-2 border-b border-[#d4dbc8]">
-        <div className="relative p-[60px] border-r border-[#d4dbc8] group hover:bg-[#fafcf8] transition-colors">
+        <div className="relative p-[60px] border-r border-[#d4dbc8] group hover:bg-white hover:shadow-[0_0_30px_rgba(255,255,255,0.9)] transition-all duration-200">
           <span className="absolute -left-px -top-px block size-2 border-l-2 border-t-2 border-[#16a34a]" />
           <span className="absolute -right-px -top-px block size-2 border-r-2 border-t-2 border-[#16a34a]" />
           <span className="absolute -left-px -bottom-px block size-2 border-l-2 border-b-2 border-[#16a34a]" />
@@ -152,7 +217,7 @@ export default function AboutPage() {
             exists but isn&apos;t reaching them.
           </div>
         </div>
-        <div className="relative p-[60px] group hover:bg-[#fafcf8] transition-colors">
+        <div className="relative p-[60px] group hover:bg-white hover:shadow-[0_0_30px_rgba(255,255,255,0.9)] transition-all duration-200">
           <span className="absolute -left-px -top-px block size-2 border-l-2 border-t-2 border-[#16a34a]" />
           <span className="absolute -right-px -top-px block size-2 border-r-2 border-t-2 border-[#16a34a]" />
           <span className="absolute -left-px -bottom-px block size-2 border-l-2 border-b-2 border-[#16a34a]" />
@@ -187,49 +252,56 @@ export default function AboutPage() {
             </div>
           </div>
           <div className="font-mono text-[16px] text-[#6b7869] text-right leading-[1.8] tracking-wider">
-            4-STAGE PIPELINE
+            5 SPECIALIZED AGENTS
             <br />
             GOOGLE ADK ORCHESTRATION
           </div>
         </div>
 
-        <div className="grid grid-cols-4 border border-[#d4dbc8] divide-x divide-[#d4dbc8]">
-          {STEPS.map((s, i) => (
-            <CardContainer
-              key={s.num}
-              containerClassName="p-0"
-              className="w-full h-full"
-            >
-              <CardBody className="bg-white p-8 h-[300px] flex flex-col group hover:bg-[#edf1e8] transition-colors w-full relative">
-                <CardItem
-                  translateZ={30}
-                  className="font-mono text-[15px] text-[#6b7869] tracking-[2px] mb-4 group-hover:text-[#16a34a] transition-colors"
-                >
-                  0{i + 1} / 04
-                </CardItem>
-                <CardItem translateZ={50} className="mb-3">
-                  {s.icon}
-                </CardItem>
-                <CardItem
-                  translateZ={40}
-                  className="font-display text-[18px] font-bold uppercase tracking-tight mb-2.5"
-                >
-                  {s.title}
-                </CardItem>
-                <CardItem
-                  translateZ={20}
-                  className="text-sm text-[#52665e] leading-relaxed flex-1"
-                >
-                  {s.desc}
-                </CardItem>
-                {i < 3 && (
-                  <div className="absolute right-[-8px] top-1/2 -translate-y-1/2 font-mono text-sm text-[#16a34a] z-10">
-                    →
-                  </div>
-                )}
-              </CardBody>
-            </CardContainer>
-          ))}
+        <div className="flex">
+          {/* Left: 2×2 cards */}
+          <div className="w-1/2 grid grid-cols-2 grid-rows-2 gap-px bg-[#d4dbc8] border border-[#d4dbc8]">
+            {STEPS.map((s, i) => (
+              <CardContainer
+                key={s.num}
+                containerClassName="p-0 h-full"
+                className="w-full h-full"
+              >
+                <CardBody className="bg-white p-8 flex flex-col group hover:bg-[#edf1e8] transition-colors w-full h-full relative">
+                  <CardItem
+                    translateZ={30}
+                    className="font-mono text-[15px] text-[#6b7869] tracking-[2px] mb-4 group-hover:text-[#16a34a] transition-colors"
+                  >
+                    0{i + 1} / 04
+                  </CardItem>
+                  <CardItem translateZ={50} className="mb-3">
+                    {s.icon}
+                  </CardItem>
+                  <CardItem
+                    translateZ={40}
+                    className="font-display text-[18px] font-bold uppercase tracking-tight mb-2.5"
+                  >
+                    {s.title}
+                  </CardItem>
+                  <CardItem
+                    translateZ={20}
+                    className="text-sm text-[#52665e] leading-relaxed flex-1"
+                  >
+                    {s.desc}
+                  </CardItem>
+                </CardBody>
+              </CardContainer>
+            ))}
+          </div>
+
+          {/* Right: Orbital Timeline */}
+          <div className="w-1/2 min-h-[520px] relative border border-[#d4dbc8] hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] transition-all duration-200">
+            <span className="absolute -left-px -top-px block size-2 border-l-2 border-t-2 border-[#16a34a] z-10" />
+            <span className="absolute -right-px -top-px block size-2 border-r-2 border-t-2 border-[#16a34a] z-10" />
+            <span className="absolute -left-px -bottom-px block size-2 border-l-2 border-b-2 border-[#16a34a] z-10" />
+            <span className="absolute -right-px -bottom-px block size-2 border-r-2 border-b-2 border-[#16a34a] z-10" />
+            <RadialOrbitalTimeline timelineData={AGENT_TIMELINE} />
+          </div>
         </div>
       </section>
 
@@ -279,11 +351,11 @@ export default function AboutPage() {
               Mission
             </div>
             <div className="text-[18px] text-[#52665e] leading-[1.8]">
-              Built in 24 hours at HackUSF 2026 by a team of four students from
-              the University of South Florida, Tampa. Targeting the Google ADK
-              sponsor challenge with a focus on measurable social impact — proving
-              that agentic AI can make disaster response faster, fairer, and more
-              transparent.
+              When disaster strikes, the most vulnerable communities are the last
+              to receive help. Crisis-Net exists to close that gap — ensuring that
+              every affected person is seen, scored for urgency, and connected to
+              the right resources within minutes, not hours. We believe no one
+              should have to navigate a crisis alone.
             </div>
           </div>
           <div className="bg-white p-10">
