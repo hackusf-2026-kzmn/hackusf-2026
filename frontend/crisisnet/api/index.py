@@ -1,1 +1,5 @@
-from .main import app  # noqa: F401 — Vercel detects this ASGI app
+from fastapi import FastAPI
+from .main import app as backend_app
+
+app = FastAPI()
+app.mount("/api", backend_app)
