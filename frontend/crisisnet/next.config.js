@@ -10,7 +10,8 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8080";
+    let backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8080";
+    if (!/^https?:\/\//.test(backendUrl)) backendUrl = `https://${backendUrl}`;
     return [
       {
         source: "/api/:path*",
