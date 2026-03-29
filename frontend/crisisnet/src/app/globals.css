@@ -73,3 +73,39 @@
 .animate-marquee-right {
   animation: marquee-right 30s linear infinite;
 }
+
+/* ─── FADE SCROLL MASKS ─── */
+.fade-scroll-y {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 18px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 18px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+}
+
+/* ─── MOBILE PORTRAIT BLOCKER ─── */
+.portrait-blocker {
+  display: none;
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .portrait-blocker {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #f5f7f3;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+}

@@ -4,26 +4,39 @@ export type IncidentStatus = "active" | "in_progress" | "monitoring" | "resolved
 
 export interface Incident {
   id: string;
-  description: string;
+  event: string;
+  severity: string;
+  urgency: string;
+  certainty: string;
+  headline: string;
   location: string;
-  lat: number;
-  lng: number;
+  alert_sent: string;
+  effective_at: string;
+  expires: string;
+  source: string;
+  /* display fields — derived by the API layer */
+  description: string;
   priority: Priority;
-  status: IncidentStatus;
   timestamp: string;
   isNew?: boolean;
+  lat?: number;
+  lng?: number;
+  status?: IncidentStatus;
 }
 
-export type ResourceType = "rescue" | "medical" | "supply" | "recon" | "federal" | "nonprofit" | "state" | "local";
+export type ResourceType = "shelter";
 export type ResourceStatus = "deployed" | "available" | "en_route";
 
 export interface Resource {
-  id: string;
+  id?: string;
   name: string;
-  type: ResourceType;
-  status: ResourceStatus;
-  assignedTo: string | null;
-  icon: string;
+  type: "shelter";
+  address: string;
+  lat: string;
+  lng: string;
+  distance_km: string;
+  status?: ResourceStatus;
+  assignedTo?: string;
 }
 
 export interface AgentStatus {

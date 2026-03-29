@@ -11,10 +11,15 @@ import {
 } from "@/components/ui/map";
 import type { Incident, Resource } from "@/lib/types";
 import { PRIORITY_CONFIG } from "@/lib/types";
+import { EmailOptInButton } from "@/components/dashboard/EmailOptIn";
 
 interface LiveMapProps {
   incidents: Incident[];
   resources: Resource[];
+  onToggleFullscreen?: () => void;
+  onToggleSidebars?: () => void;
+  isFullscreen?: boolean;
+  sidebarsOpen?: boolean;
 }
 
 /**
@@ -25,44 +30,85 @@ interface LiveMapProps {
  *   import { LiveMap } from "@/components/dashboard/LiveMap";
  *   <LiveMap incidents={incidents} resources={mockResources} />
  */
-export function LiveMap({ incidents, resources }: LiveMapProps) {
+const MAP_STYLES = {
+  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+} as const;
+
+export function LiveMap({ incidents, resources, onToggleFullscreen, onToggleSidebars, isFullscreen, sidebarsOpen }: LiveMapProps) {
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(
     null
   );
 
-  const deployed = resources.filter((r) => r.status === "deployed");
-
-  // Build route lines from deployed resources to their assigned incidents
+  // Build route lines from shelters to nearest incidents (visual connection)
   const routeCoordinates: { id: string; coords: [number, number][] }[] = [];
-  for (const r of deployed) {
-    const inc = incidents.find((i) => i.id === r.assignedTo);
-    if (!inc) continue;
-    routeCoordinates.push({
-      id: r.id,
-      coords: [
-        [inc.lng - 0.005, inc.lat + 0.003], // resource offset
-        [inc.lng, inc.lat], // incident
-      ],
-    });
-  }
 
   return (
-    <div>
-      <div className="px-4 pt-3">
+    <div className="flex flex-col h-full min-h-0">
+      <div className="px-4 pt-3 flex-shrink-0">
         <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
           <span className="w-1 h-1 bg-[#16a34a]" />
           Operations Map — Tampa Bay AO
+          <span className="flex-1" />
+          <EmailOptInButton />
+          {onToggleSidebars && (
+            <button
+              onClick={onToggleSidebars}
+              title={sidebarsOpen ? "Hide sidebars" : "Show sidebars"}
+              className="w-6 h-6 flex items-center justify-center border border-[#d4dbc8] bg-white hover:bg-[#eef1ea] transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {sidebarsOpen ? (
+                  <>
+                    <rect x="1" y="2" width="4" height="10" rx="0.5" stroke="#6b7869" strokeWidth="1.2" />
+                    <rect x="9" y="2" width="4" height="10" rx="0.5" stroke="#6b7869" strokeWidth="1.2" />
+                    <path d="M6 5L7 7L6 9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M8 5L7 7L8 9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </>
+                ) : (
+                  <>
+                    <rect x="1" y="2" width="4" height="10" rx="0.5" stroke="#6b7869" strokeWidth="1.2" strokeDasharray="2 1.5" />
+                    <rect x="9" y="2" width="4" height="10" rx="0.5" stroke="#6b7869" strokeWidth="1.2" strokeDasharray="2 1.5" />
+                    <path d="M6 5L5 7L6 9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M8 5L9 7L8 9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </>
+                )}
+              </svg>
+            </button>
+          )}
+          {onToggleFullscreen && (
+            <button
+              onClick={onToggleFullscreen}
+              title={isFullscreen ? "Exit full map" : "Full size map"}
+              className="w-6 h-6 flex items-center justify-center border border-[#d4dbc8] bg-white hover:bg-[#eef1ea] transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {isFullscreen ? (
+                  <>
+                    <polyline points="5,1 5,5 1,5" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="9,13 9,9 13,9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="13,5 9,5 9,1" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="1,9 5,9 5,13" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  </>
+                ) : (
+                  <>
+                    <polyline points="1,5 1,1 5,1" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="13,9 13,13 9,13" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="9,1 13,1 13,5" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    <polyline points="5,13 1,13 1,9" stroke="#6b7869" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  </>
+                )}
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="mx-4 border border-[#d4dbc8] overflow-hidden" style={{ height: 380 }}>
+      <div className="mx-4 mb-2 border border-[#d4dbc8] overflow-hidden flex-1" style={{ minHeight: 200 }}>
         <Map
           center={[-82.46, 27.94]}
           zoom={11.5}
-          styles={{
-            light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
-            dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-          }}
+          styles={MAP_STYLES}
         >
           <MapControls position="bottom-right" showZoom />
 
@@ -78,27 +124,23 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
             />
           ))}
 
-          {/* Resource markers */}
-          {deployed.map((r) => {
-            const inc = incidents.find((i) => i.id === r.assignedTo);
-            if (!inc) return null;
-            return (
+          {/* Shelter markers */}
+          {resources.filter((r) => r.lat != null && r.lng != null).map((r, i) => (
               <MapMarker
-                key={r.id}
-                longitude={inc.lng - 0.005}
-                latitude={inc.lat + 0.003}
+                key={`shelter-${i}`}
+                longitude={Number(r.lng)}
+                latitude={Number(r.lat)}
               >
                 <MarkerContent className="flex items-center justify-center">
                   <div className="w-4 h-4 border border-[#16a34a]/50 bg-[#16a34a]/10 flex items-center justify-center text-[8px]">
-                    {r.icon}
+                    🏠
                   </div>
                 </MarkerContent>
               </MapMarker>
-            );
-          })}
+          ))}
 
           {/* Incident markers */}
-          {incidents.map((inc) => {
+          {incidents.filter((inc): inc is Incident & { lat: number; lng: number } => inc.lat != null && inc.lng != null && isFinite(inc.lat) && isFinite(inc.lng)).map((inc) => {
             const cfg = PRIORITY_CONFIG[inc.priority];
             const size =
               inc.priority === "P1"
@@ -138,7 +180,7 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
                       />
                     )}
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 font-mono text-[8px] font-bold whitespace-nowrap" style={{ color: cfg.color }}>
-                      {inc.id.replace("INC-", "")}
+                      {inc.severity ?? inc.priority}
                     </div>
                   </div>
                 </MarkerContent>
@@ -159,7 +201,7 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
                         className="font-mono text-[9px] font-medium px-2 py-0.5 tracking-wider inline-block mt-1.5"
                         style={{ background: cfg.bg, color: cfg.color }}
                       >
-                        {inc.priority} · {cfg.label}
+                        {inc.priority} | {cfg.label}
                       </span>
                     </div>
                   </MarkerPopup>

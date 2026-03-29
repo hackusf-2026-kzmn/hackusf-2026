@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { mockAgentStatus } from "@/mock/mockAgentStatus";
+import { getAgentStatus } from "@/lib/api";
+import { AGENT_DEFINITIONS } from "@/lib/agents";
 
 interface AgentState {
   id: string;
@@ -15,14 +16,32 @@ interface AgentState {
 }
 
 export function AgentPanel() {
-  const [agents, setAgents] = useState<AgentState[]>(
-    mockAgentStatus.map((a) => ({
+  const seedAgents = (source: typeof AGENT_DEFINITIONS): AgentState[] =>
+    source.map((a) => ({
       ...a,
       currentAction: a.actions[0],
       actionIndex: 0,
       flash: false,
-    }))
-  );
+    }));
+
+  const [agents, setAgents] = useState<AgentState[]>(seedAgents(AGENT_DEFINITIONS));
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const data = await getAgentStatus();
+        if (!active) return;
+        setAgents(seedAgents(data));
+      } catch (err) {
+        console.error("Agent status load failed:", err);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,7 +63,7 @@ export function AgentPanel() {
   }, []);
 
   return (
-    <div className="p-4 overflow-y-auto max-h-[calc(100vh-100px)]">
+    <div className="p-4 h-full overflow-y-auto fade-scroll-y">
       <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3.5 flex items-center gap-2">
         <span className="w-1 h-1 bg-[#16a34a]" />
         Agent Activity

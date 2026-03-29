@@ -6,66 +6,72 @@ from google.adk.tools.function_tool import FunctionTool
 import os
 import requests
 
-FASTAPI_SERVER_URL = "http://127.0.0.1:8000/"
+FASTAPI_SERVER_URL = os.getenv("FASTAPI_SERVER_URL", "http://127.0.0.1:8080/")
 SCOUT_URL = os.path.join(FASTAPI_SERVER_URL, "scout")
-POP_DENSITY_URL = os.path.join(FASTAPI_SERVER_URL, "population_density")
-RESOURCE_GAP_URL = os.path.join(FASTAPI_SERVER_URL, "resource_gap")
+POP_SIZE_URL = os.path.join(FASTAPI_SERVER_URL, "population_size")
+RESOURCE_MATCH_URL = os.path.join(FASTAPI_SERVER_URL, "resourceMatcher")
+TRANSLATE_TEXT_URL = os.path.join(FASTAPI_SERVER_URL, "translate")
 TAMPA_ZIP_CODE = "33620"
 
 def scout_tool(zip: str = TAMPA_ZIP_CODE) -> list[dict]:
-    """Call the backend scout endpoint (NWS/FEMA aggregator)."""
+    """Call the backend scout endpoint to find events in a given zip code (NWS/FEMA aggregator)."""
     return requests.get(url=SCOUT_URL, params={"zip_code": zip}, timeout=3).json()
 
 
-def get_population_density(zip: str) -> dict:
+def get_population_size(zip: str = TAMPA_ZIP_CODE) -> dict:
     """Fetch population density for a ZIP code."""
-    return requests.get(url=POP_DENSITY_URL, params={"zip_code": zip}, timeout=3).json()
+    return requests.get(url=POP_SIZE_URL, params={"zip_code": zip}, timeout=3).json()
 
 
-def get_resource_gap(zip: str) -> dict:
-    """Fetch a simple resource gap signal for a ZIP code."""
-    return requests.get(url=RESOURCE_GAP_URL, params={"zip_code": zip}, timeout=3).json()
+def resourcematcher(zip: str) -> dict:
+    """Fetch local support resources based off of the zip code."""
+    return requests.get(url=RESOURCE_MATCH_URL, params={"zip_code": zip}, timeout=3).json()
+
+def translate_text(text: str, target_lang: str="es") -> dict: #spanish default
+    """Take an input string of text and return translations"""
+    return requests.get(url=TRANSLATE_TEXT_URL, params={"text":text,"target_lang":target_lang}).json()
 
 
-scout_fn = FunctionTool.from_function(scout_tool)
-pop_density_fn = FunctionTool.from_function(get_population_density)
-resource_gap_fn = FunctionTool.from_function(get_resource_gap)
+scout_fn = FunctionTool(scout_tool)
+pop_density_fn = FunctionTool(get_population_size)
+resource_matcher_fn = FunctionTool(resourcematcher)
+translater_fn = FunctionTool(translate_text)
 
-# Step 1: Scout runs first (sequential, must complete before anything else)
 scout_agent = LlmAgent(
     name="Scout",
     output_key="disaster_events",
     instruction=(
-        "Call scout_tool for a given zip code and return the events list. "
-        "If multiple events exist, include the highest-severity one first."
+        "Call scout_fn for a given zip code (if applicable) and return the list of National Weather Service alerts."
+        "If multiple alerts exist, include the highest-severity one first."
     ),
     tools=[scout_fn],
 )
 
-triage_agent = LlmAgent(
+'''triage_agent = LlmAgent(
     name="Triage",
     output_key="severity_scores",
     instruction=(
         "Read state['disaster_events'][0] for the primary event. "
-        "Use event['severity'] plus get_population_density(zip) and "
+        "Use event['severity'] plus get_population_size(zip) and "
         "get_resource_gap(zip) to compute a local_impact_score (0-100) and "
         "an urgency label (LOW/MED/HIGH). Return JSON-like output with "
         "fields: local_impact_score, urgency, rationale."
     ),
     tools=[pop_density_fn, resource_gap_fn],
-)
+)'''
+
 resource_agent = LlmAgent(
     name="ResourceGatherer",
     output_key="matched_resources",
     instruction=(
-        "Based on state['disaster_events'][0], draft 3 example resources "
-        "(shelter, supplies, hotline). Return JSON-like list with name, type, contact."
+        "Based on state['disaster_events'][0], call recourse_matcher_fn."
     ),
+    tools=[resource_matcher_fn]
 )
 
 parallel_analysis = ParallelAgent(
     name="AnalysisPhase",
-    sub_agents=[triage_agent, resource_agent]
+    sub_agents=[resource_agent]
 )
 
 # Step 3: Comms drafts alerts only after both triage + resource are done
@@ -73,14 +79,19 @@ comms_agent = LlmAgent(
     name="Comms",
     output_key="drafted_alerts",
     instruction=(
-        "Use state['disaster_events'] and state['severity_scores'] to draft a "
-        "public alert message. If severity_score < 70, say monitoring only."
+        "Draft a public alert based off of state['disaster_events'][0] and state[matched_resources]."
     ),
+    tools=[translater_fn]
 )
 
 # Coordinator is just a SequentialAgent — no LLM needed
-coordinator = SequentialAgent(
+coordinator = LlmAgent(
     name="DisasterResponseCoordinator",
+    instruction=("You are an assistant that helps find and coordinate disaster relief. "
+    "First, you scout any events in a given area (left as default if not specified). "
+    "Then, you do parallel_analysis to find and store resources for the user. "
+    "Finally, a comms_agent creates custom communications and sends it out appropriately. "
+    "Only communicate with agents unless it is clear you're talking with a human."),
     sub_agents=[scout_agent, parallel_analysis, comms_agent]
 )
 

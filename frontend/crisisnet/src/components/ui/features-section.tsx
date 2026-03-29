@@ -1,56 +1,61 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Activity, Radio, LucideIcon, Radar, BarChart3, Link2, Radio as RadioIcon, ChevronRight } from "lucide-react";
-import Image from "next/image";
+import { Radio, LucideIcon, Radar, BarChart3, Link2, Radio as RadioIcon, ChevronRight } from "lucide-react";
 import { ReactNode } from "react";
 
-export function Features() {
+const featureTranslations = {
+  en: {
+    card2Title: "Multi-source monitoring",
+    card2Desc: "Continuous ingestion from NWS, FEMA, and local news — anomalies flagged in seconds.",
+    pipelineLabel: "Google ADK Orchestration · ~94s per cycle",
+    parallel: "PARALLEL",
+    programMatch: "Program Match",
+    dispatch: "Dispatch",
+    eoc: "Hillsborough EOC",
+  },
+  es: {
+    card2Title: "Monitoreo multi-fuente",
+    card2Desc: "Ingesta continua de NWS, FEMA y noticias locales — anomalías detectadas en segundos.",
+    pipelineLabel: "Orquestación Google ADK · ~94s por ciclo",
+    parallel: "PARALELO",
+    programMatch: "Emparejar Programas",
+    dispatch: "Despacho",
+    eoc: "Hillsborough EOC",
+  },
+};
+
+export function Features({ lang = "en" }: { lang?: "en" | "es" }) {
+  const ft = featureTranslations[lang];
   return (
-    <div className="px-[60px]">
-      <div className="grid gap-4 lg:grid-cols-2">
-        <FeatureCard className="flex flex-col">
-          <CardHeader className="pb-3">
-            <CardHeading
-              icon={Activity}
-              title="Real-time threat scoring"
-              description="AI-driven severity analysis across storm category, population density, and historical damage patterns."
-            />
-          </CardHeader>
-
-          <div className="relative border-t border-dashed flex-1 overflow-hidden">
-            <Image
-              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80"
-              className="w-full h-full object-cover object-center"
-              alt="data dashboard illustration"
-              width={1207}
-              height={929}
-            />
-          </div>
-        </FeatureCard>
-
+    <div className="px-6 md:px-[60px]">
+      <div className="grid gap-4">
         <FeatureCard className="flex flex-col">
           <CardHeader className="pb-3">
             <CardHeading
               icon={Radio}
-              title="Multi-source monitoring"
-              description="Continuous ingestion from NWS, FEMA, and local news — anomalies flagged in seconds."
+              title={ft.card2Title}
+              description={ft.card2Desc}
             />
           </CardHeader>
 
-          <div className="relative flex-1 border-t border-dashed overflow-hidden">
-            <Image
-              src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1200&q=80"
-              className="w-full h-full object-cover object-center"
-              alt="monitoring dashboard illustration"
-              width={1207}
-              height={929}
+          <div className="relative border-t border-dashed overflow-hidden">
+            <video
+              src="/crisis-net_video1080p.mp4"
+              className="w-full object-contain"
+              autoPlay
+              loop
+              muted
+              playsInline
+              disablePictureInPicture
+              controlsList="nodownload nofullscreen noremoteplayback"
+              style={{ pointerEvents: "none" }}
             />
           </div>
         </FeatureCard>
 
-        <FeatureCard className="p-6 lg:col-span-2">
+        <FeatureCard className="p-6">
           <p className="mx-auto mt-4 mb-6 max-w-lg text-balance text-center font-display text-[18px] font-bold uppercase tracking-tight">
-            Google ADK Orchestration · ~94s per cycle
+            {ft.pipelineLabel}
           </p>
 
           <div className="flex items-center justify-center gap-0 overflow-x-auto pb-4">
@@ -58,7 +63,7 @@ export function Features() {
             <PipelineNode
               icon={Radar}
               label="Scout"
-              sublabel="NWS · FEMA · News"
+              sublabel="NWS Alerts"
               pattern="border"
             />
 
@@ -66,7 +71,7 @@ export function Features() {
 
             {/* Parallel fork */}
             <div className="flex flex-col items-center gap-3">
-              <div className="font-mono text-[13px] text-[#16a34a] tracking-[2px] mb-1">PARALLEL</div>
+              <div className="font-mono text-[13px] text-[#16a34a] tracking-[2px] mb-1">{ft.parallel}</div>
               <PipelineNode
                 icon={BarChart3}
                 label="Triage"
@@ -76,7 +81,7 @@ export function Features() {
               <PipelineNode
                 icon={Link2}
                 label="Resource"
-                sublabel="Program Match"
+                sublabel={ft.programMatch}
                 pattern="green"
               />
             </div>
@@ -103,10 +108,10 @@ export function Features() {
                 </div>
               </div>
               <span className="font-mono text-[13px] text-[#6b7869] tracking-[2px] text-center uppercase">
-                Dispatch
+                {ft.dispatch}
               </span>
               <span className="font-mono text-[12px] text-[#6b7869]/60 tracking-wider text-center">
-                Hillsborough EOC
+                {ft.eoc}
               </span>
             </div>
           </div>

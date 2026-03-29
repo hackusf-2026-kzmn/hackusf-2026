@@ -66,12 +66,11 @@ function Map({ children, styles, ...props }: MapProps) {
   const [isStyleLoaded, setIsStyleLoaded] = useState(false);
   const { resolvedTheme } = useTheme();
 
+  const darkStyle = styles?.dark ?? defaultStyles.dark;
+  const lightStyle = styles?.light ?? defaultStyles.light;
   const mapStyles = useMemo(
-    () => ({
-      dark: styles?.dark ?? defaultStyles.dark,
-      light: styles?.light ?? defaultStyles.light,
-    }),
-    [styles]
+    () => ({ dark: darkStyle, light: lightStyle }),
+    [darkStyle, lightStyle]
   );
 
   useEffect(() => {
@@ -102,20 +101,39 @@ function Map({ children, styles, ...props }: MapProps) {
     return () => {
       mapInstance.off("load", loadHandler);
       mapInstance.off("styledata", styleDataHandler);
-      mapInstance.remove();
+      try { mapInstance.remove(); } catch { /* already removed */ }
       mapRef.current = null;
     };
   }, [isMounted]);
 
+  const activeStyle = resolvedTheme === "dark" ? mapStyles.dark : mapStyles.light;
+  const prevStyleRef = useRef<MapStyleOption | null>(null);
   useEffect(() => {
-    if (mapRef.current) {
-      setIsStyleLoaded(false);
-      mapRef.current.setStyle(
-        resolvedTheme === "dark" ? mapStyles.dark : mapStyles.light,
-        { diff: true }
-      );
-    }
-  }, [resolvedTheme, mapStyles]);
+    if (!mapRef.current || activeStyle === prevStyleRef.current) return;
+    prevStyleRef.current = activeStyle;
+    setIsStyleLoaded(false);
+    mapRef.current.setStyle(activeStyle, { diff: true });
+  }, [activeStyle]);
+
+  // Keep map in sync when container is resized (e.g. draggable dividers)
+  // Debounced so MapLibre doesn't choke on rapid resize events during drag
+  useEffect(() => {
+    const el = containerRef.current;
+    const map = mapRef.current;
+    if (!el || !map) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const ro = new ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        map.resize();
+      }, 100);
+    });
+    ro.observe(el);
+    return () => {
+      clearTimeout(timer);
+      ro.disconnect();
+    };
+  }, [isLoaded]);
 
   const isLoading = !isMounted || !isLoaded || !isStyleLoaded;
 
