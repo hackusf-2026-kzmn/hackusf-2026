@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getZipCoords } from "@/lib/api";
 
 interface ReportFormProps {
   onSubmit: (report: {
@@ -30,7 +31,7 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
   const [reporter, setReporter] = useState("");
   const [zipError, setZipError] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!zip.trim() || zip.length !== 5) {
       setZipError("Enter a valid 5-digit zip code");
       return;
@@ -38,7 +39,15 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
     setZipError("");
     if (!desc.trim()) return;
 
-    const coords = ZIP_COORDS[zip] ?? { lat: 27.9506, lng: -82.4572 };
+    let coords = ZIP_COORDS[zip];
+    if (!coords) {
+      try {
+        const geo = await getZipCoords(zip);
+        coords = { lat: geo.lat, lng: geo.lng, label: "ZIP lookup" };
+      } catch {
+        coords = { lat: 27.9506, lng: -82.4572, label: "Fallback" };
+      }
+    }
     onSubmit({
       description: desc,
       lat: coords.lat,

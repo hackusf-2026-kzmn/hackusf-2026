@@ -332,6 +332,14 @@ async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int
     _touch_agent("resource", f"matched {len(result)} shelters near {zip_code}")
     return result
 
+@app.get("/geo")
+async def geocode_zip(zip_code: str = USF_ZIP_CODE) -> dict:
+    try:
+        lat, lng = get_nomi_info(zip_code)["coords"]
+        return {"zip_code": zip_code, "lat": float(lat), "lng": float(lng)}
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid zip code")
+
 def _normalize_model_name(model_name: str | None) -> str:
     candidate = (model_name or "").strip()
     # Defensive fallback: API keys are sometimes accidentally pasted into GEMINI_MODEL.
