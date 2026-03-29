@@ -305,7 +305,7 @@ export default function HomePage() {
         ].map(([label, value], i, arr) => (
           <div
             key={label}
-            className={`relative flex-1 px-8 py-5 font-mono text-[13px] text-[#6b7869] tracking-wider text-center ${
+            className={`relative flex-1 px-8 py-5 font-mono text-[13px] text-[#6b7869] tracking-wider text-center hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] transition-all duration-200 ${
               i < arr.length - 1 ? "border-r border-[#d4dbc8]" : ""
             }`}
           >
