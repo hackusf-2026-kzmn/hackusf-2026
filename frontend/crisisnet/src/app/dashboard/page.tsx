@@ -7,8 +7,6 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { mockIncidents } from "@/mock/mockIncidents";
-import { mockResources } from "@/mock/mockResources";
 import { getIncidents, getResources, submitReport } from "@/lib/api";
 import type { Incident, Resource } from "@/lib/types";
 
@@ -180,8 +178,8 @@ function VSplit({
 
 /* ═══════════════════════════════════════════════════════════ */
 export default function DashboardPage() {
-  const [incidents, setIncidents] = useState<Incident[]>(mockIncidents);
-  const [resources, setResources] = useState<Resource[]>(mockResources);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const toastIdRef = useRef(0);
@@ -262,7 +260,7 @@ export default function DashboardPage() {
     };
   }, []);
 
-  /* Simulated new event */
+  /* Simulated new event — mock only */
   useEffect(() => {
     if (!USE_MOCK) return;
     const t = setTimeout(() => {

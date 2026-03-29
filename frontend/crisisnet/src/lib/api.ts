@@ -5,7 +5,7 @@ import { mockHistorical } from "@/mock/mockHistorical";
 import { mockComms } from "@/mock/mockComms";
 import type { Incident, Resource, AgentStatus, HistoricalEvent, CommMessage } from "@/lib/types";
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "false";
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000";
 const API_BASE = BACKEND_BASE;
 const ANON_TOKEN_KEY = "crisisnet_anon_token";

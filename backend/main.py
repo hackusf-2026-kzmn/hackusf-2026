@@ -22,7 +22,7 @@ load_dotenv(Path(__file__).parent / ".env")
 CENSUS_API_KEY = os.getenv("CENSUS_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 DEFAULT_TRANSLATION_MODEL = "gemini-2.5-flash-lite"
-USF_ZIP_CODE = "33309"
+USF_ZIP_CODE = "33602"
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
@@ -128,16 +128,36 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     watch_counties = TAMPA_COUNTIES if county_short in TAMPA_COUNTIES else [county_short]
 
     headers = {"User-Agent": "CrisisNet (contact: ni717713@ucf.edu)"}
+
+    # 1) Active alerts
     alerts_resp = requests.get(
         f"https://api.weather.gov/alerts/active?area={nomi['state_code']}",
         headers=headers,
         timeout=10,
     )
-
     alerts_json = alerts_resp.json() if alerts_resp.ok else {}
 
+    # 2) Recent (past 7 days) alerts — gives demo data even when nothing is active
+    from datetime import timedelta
+    start_iso = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    recent_resp = requests.get(
+        f"https://api.weather.gov/alerts?area={nomi['state_code']}&start={start_iso}",
+        headers=headers,
+        timeout=10,
+    )
+    recent_json = recent_resp.json() if recent_resp.ok else {}
+
+    # Merge, de-duplicate by alert id
+    seen_ids: set = set()
+    all_features: list = []
+    for feature in alerts_json.get("features", []) + recent_json.get("features", []):
+        aid = feature.get("properties", {}).get("id") or id(feature)
+        if aid not in seen_ids:
+            seen_ids.add(aid)
+            all_features.append(feature)
+
     matching = []
-    for feature in alerts_json.get("features", []):
+    for feature in all_features:
         props = feature.get("properties", {})
         area = props.get("areaDesc", "")
         area_lower = area.lower()
@@ -622,8 +642,7 @@ async def report_incident(payload: ReportRequest) -> dict:
     zip_code = payload.zip_code or USF_ZIP_CODE
 
     scout_data = await scout(zip_code=zip_code)
-    aler
-    ts = scout_data.get("alerts", [])
+    alerts = scout_data.get("alerts", [])
 
     client = _get_genai_client()
     model_name = _normalize_model_name(os.getenv("GEMINI_MODEL"))
