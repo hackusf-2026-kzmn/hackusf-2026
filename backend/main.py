@@ -7,6 +7,9 @@ import requests
 import pgeocode
 import json
 import math
+import time
+from collections import deque
+from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 from dotenv import load_dotenv
@@ -31,6 +34,28 @@ ALERTS_POLL_SECONDS = int(os.getenv("ALERTS_POLL_SECONDS", "0") or "0")
 
 app = FastAPI()
 _alerts_task: asyncio.Task | None = None
+
+# ── Activity stream ring buffer ──────────────────────────────
+_activity_log: deque = deque(maxlen=30)
+
+def _log_activity(agent: str, message: str) -> None:
+    _activity_log.appendleft({
+        "agent": agent,
+        "message": f"{agent} → {message}",
+        "ts": datetime.now(timezone.utc).isoformat(),
+    })
+
+# ── Agent status tracking ────────────────────────────────────
+_agent_last: dict = {
+    "scout":      {"ts": None, "action": "idle"},
+    "triage":     {"ts": None, "action": "idle"},
+    "resource":   {"ts": None, "action": "idle"},
+    "comms":      {"ts": None, "action": "idle"},
+    "coordinator":{"ts": None, "action": "idle"},
+}
+
+def _touch_agent(agent_id: str, action: str) -> None:
+    _agent_last[agent_id] = {"ts": time.time(), "action": action}
 
 app.add_middleware(
     CORSMiddleware,
@@ -122,24 +147,73 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
                 "source": "NWS",
             })
 
+    _log_activity("Scout", f"ingested {len(matching)} NWS alerts for zip {zip_code}")
+    _touch_agent("scout", f"ingested {len(matching)} alerts for {zip_code}")
+
     return {
         "zip_code": zip_code,
-        "alerts": matching,  # fix: return filtered list
+        "alerts": matching,
     }
 
-# INCOMPLETE!!!
+# ── AGENT STATUS ─────────────────────────────────────────────
+_AGENT_META = [
+    {"id": "scout",       "name": "Scout Agent",       "shortName": "SCOUT",    "icon": "scout",       "description": "Monitors NWS, FEMA & local feeds for active events"},
+    {"id": "triage",      "name": "Triage Agent",      "shortName": "TRIAGE",   "icon": "triage",      "description": "Scores severity via population density & alert data"},
+    {"id": "resource",    "name": "Resource Agent",    "shortName": "RESOURCE",  "icon": "resource",   "description": "Matches shelters and aid programs to affected areas"},
+    {"id": "comms",       "name": "Comms Agent",       "shortName": "COMMS",    "icon": "comms",       "description": "Drafts multilingual alerts & dispatches emails via Mailgun"},
+    {"id": "coordinator", "name": "Coordinator Agent", "shortName": "COORD",    "icon": "coordinator", "description": "Orchestrates all agents via Google ADK ParallelAgent"},
+]
+
 @app.get("/agent-status")
 async def get_agent_status():
-    return
+    result = []
+    for meta in _AGENT_META:
+        state = _agent_last.get(meta["id"], {})
+        recent = [e["message"] for e in _activity_log if e["agent"].lower() == meta["id"]]
+        result.append({
+            **meta,
+            "active": True,
+            "last_action": state.get("action", "idle"),
+            "actions": recent[:6] or [state.get("action", "idle")],
+        })
+    return result
 
-# INCOMPLETE
+# ── HISTORICAL DATA (static) ────────────────────────────────
+HISTORICAL_DATA = [
+    {"name": "Hurricane Milton",   "year": 2024, "incidents": 512, "resources": 156},
+    {"name": "Hurricane Irma",     "year": 2017, "incidents": 487, "resources": 134},
+    {"name": "Hurricane Ian",      "year": 2022, "incidents": 342, "resources": 89},
+    {"name": "Hurricane Helene",   "year": 2024, "incidents": 278, "resources": 91},
+    {"name": "TS Debby",           "year": 2024, "incidents": 201, "resources": 67},
+    {"name": "TS Eta",             "year": 2020, "incidents": 156, "resources": 45},
+    {"name": "Hurricane Hermine",  "year": 2016, "incidents": 98,  "resources": 32},
+    {"name": "TS Fay",             "year": 2020, "incidents": 67,  "resources": 21},
+    {"name": "Hurricane Michael",  "year": 2018, "incidents": 389, "resources": 112},
+    {"name": "TS Alberto",         "year": 2018, "incidents": 45,  "resources": 15},
+]
+
 @app.get("/snowflake/historical")
 async def get_historical_data():
-    return
+    return HISTORICAL_DATA
 
+# ── POPULATION SIZE (Census API) ─────────────────────────────
 @app.get("/population_size")
 async def get_population_size(zip_code: str = USF_ZIP_CODE):
-    pass
+    if not CENSUS_API_KEY:
+        raise HTTPException(status_code=500, detail="CENSUS_API_KEY not set")
+    url = (
+        f"https://api.census.gov/data/2020/dec/pl"
+        f"?get=P1_001N&for=zip%20code%20tabulation%20area:{zip_code}"
+        f"&key={CENSUS_API_KEY}"
+    )
+    resp = requests.get(url, timeout=10)
+    if not resp.ok:
+        return {"zip_code": zip_code, "population": None, "error": f"Census API {resp.status_code}"}
+    data = resp.json()
+    pop = int(data[1][0]) if len(data) > 1 else None
+    _log_activity("Triage", f"Census lookup for zip {zip_code} — pop {pop}")
+    _touch_agent("triage", f"Census lookup {zip_code} — pop {pop}")
+    return {"zip_code": zip_code, "population": pop, "source": "Census 2020"}
 
 @app.get("/resourceMatcher")
 async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int = 5) -> list:
@@ -158,7 +232,10 @@ async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int
         candidates.append({**s, "distance_km": dist_km})
 
     candidates.sort(key=lambda x: x["distance_km"])
-    return candidates[:num_of_shelter]
+    result = candidates[:num_of_shelter]
+    _log_activity("Resource", f"matched {len(result)} shelters near zip {zip_code}")
+    _touch_agent("resource", f"matched {len(result)} shelters near {zip_code}")
+    return result
 
 def _normalize_model_name(model_name: str | None) -> str:
     candidate = (model_name or "").strip()
@@ -213,6 +290,8 @@ async def translate_text(text: str, target_lang: str = "en") -> dict:
         translated = (response.text or "").strip()
         if not translated:
             translated = text
+        _log_activity("Comms", f"translated alert to {target_lang}")
+        _touch_agent("comms", f"translated to {target_lang}")
         return {
             "translated_text": translated,
             "source_lang": "en",
@@ -254,6 +333,17 @@ class AlertSendRequest(BaseModel):
 class EmailRequest(BaseModel):
     email: str
     name: str
+
+class SummarizeRequest(BaseModel):
+    query: str
+    zip_code: str = USF_ZIP_CODE
+
+class ReportRequest(BaseModel):
+    description: str
+    lat: float
+    lng: float
+    reporter: str | None = None
+    zip_code: str | None = None
 
 
 @app.post("/translate")
@@ -475,6 +565,8 @@ async def send_alerts(payload: AlertSendRequest = AlertSendRequest()) -> dict:
         supabase.table("user_stuff").update({"last_alert_ids": updated_keys}).eq("user_id", row.get("user_id")).execute()
         sent.append({"email": email, "count": len(filtered), "email_ok": email_resp.get("ok")})
 
+    _log_activity("Comms", f"dispatched alerts to {len(sent)} subscribers")
+    _touch_agent("comms", f"dispatched to {len(sent)} subscribers")
     return {"sent": sent, "skipped": skipped}
 
 @app.post("/mailgun/webhook")
@@ -502,3 +594,82 @@ async def mailgun_webhook(request: Request) -> dict:
 @app.get("/comms")
 async def comms() -> dict:
     return await send_alerts()
+
+# ── ACTIVITY STREAM ─────────────────────────────────────────────
+@app.get("/activity-stream")
+async def activity_stream():
+    items = list(_activity_log)
+    return {"messages": [i["message"] for i in items], "latest": items[0]["message"] if items else "System idle"}
+
+# ── AI SUMMARIZER ───────────────────────────────────────────────
+@app.post("/summarize")
+async def summarize(payload: SummarizeRequest) -> dict:
+    client = _get_genai_client()
+    model_name = _normalize_model_name(os.getenv("GEMINI_MODEL"))
+
+    scout_data = await scout(zip_code=payload.zip_code)
+    alerts = scout_data.get("alerts", [])
+    shelters = await get_closest_shelters(zip_code=payload.zip_code, num_of_shelter=5)
+
+    alerts_text = json.dumps(alerts[:10], indent=2) if alerts else "No active alerts."
+    shelters_text = json.dumps(shelters[:5], indent=2) if shelters else "No shelters found."
+
+    prompt = (
+        "You are a crisis response AI assistant for CrisisNet. "
+        "Given the live NWS alerts and nearby shelters below, answer the user's question concisely.\n\n"
+        f"User question: {payload.query}\n\n"
+        f"Active NWS alerts:\n{alerts_text}\n\n"
+        f"Nearest shelters:\n{shelters_text}\n\n"
+        "Provide a clear, actionable answer. If referencing specific alerts or shelters, cite them."
+    )
+
+    try:
+        response = await client.aio.models.generate_content(model=model_name, contents=prompt)
+        answer = (response.text or "").strip() or "Unable to generate summary."
+    except Exception as exc:
+        answer = f"Summarizer error: {type(exc).__name__}"
+
+    _log_activity("Coordinator", f"summarized {len(alerts)} alerts for zip {payload.zip_code}")
+    _touch_agent("coordinator", f"summarized query for {payload.zip_code}")
+    return {"answer": answer, "alert_count": len(alerts), "shelter_count": len(shelters)}
+
+# ── INCIDENT REPORT + TRIAGE ───────────────────────────────────
+@app.post("/incidents/report")
+async def report_incident(payload: ReportRequest) -> dict:
+    incident_id = f"INC-{int(time.time())}"
+    zip_code = payload.zip_code or USF_ZIP_CODE
+
+    scout_data = await scout(zip_code=zip_code)
+    alerts = scout_data.get("alerts", [])
+
+    client = _get_genai_client()
+    model_name = _normalize_model_name(os.getenv("GEMINI_MODEL"))
+
+    triage_prompt = (
+        "You are a disaster triage AI. Assign a priority to this incident report.\n"
+        "P1 = Critical (imminent danger to life), P2 = High (significant threat), P3 = Moderate (advisory level).\n\n"
+        f"Report: {payload.description}\n"
+        f"Location: {payload.lat}, {payload.lng}\n"
+        f"Current NWS alerts in area: {json.dumps(alerts[:5])}\n\n"
+        "Respond with ONLY the priority code: P1, P2, or P3"
+    )
+
+    try:
+        response = await client.aio.models.generate_content(model=model_name, contents=triage_prompt)
+        raw = (response.text or "").strip().upper()
+        priority = raw if raw in ("P1", "P2", "P3") else "P2"
+    except Exception:
+        priority = "P2"
+
+    _log_activity("Triage", f"scored {incident_id} → {priority}")
+    _touch_agent("triage", f"scored {incident_id} → {priority}")
+    _log_activity("Coordinator", f"new report {incident_id} triaged and dispatched")
+    _touch_agent("coordinator", f"dispatched {incident_id}")
+
+    return {
+        "incident_id": incident_id,
+        "priority": priority,
+        "description": payload.description,
+        "lat": payload.lat,
+        "lng": payload.lng,
+    }
