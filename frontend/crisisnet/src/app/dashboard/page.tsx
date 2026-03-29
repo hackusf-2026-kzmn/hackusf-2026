@@ -401,7 +401,7 @@ export default function DashboardPage() {
   const navH = navVisible ? 70 : 0;
 
   return (
-    <>
+    <div className="fixed inset-0 overflow-hidden">
       {/* Portrait-mode blocker — dashboard only */}
       <div className="portrait-blocker">
         <div className="flex flex-col items-center gap-4 text-center px-8">
@@ -595,6 +595,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-    </>
+    </div>
   );
 }
