@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 
 export function Features() {
   return (
-    <div className="px-[60px]">
+    <div className="px-6 md:px-[60px]">
       <div className="grid gap-4 lg:grid-cols-2">
         <FeatureCard className="flex flex-col">
           <CardHeader className="pb-3">
