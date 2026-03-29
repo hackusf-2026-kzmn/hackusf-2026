@@ -319,7 +319,10 @@ export default function DashboardPage() {
   const rw = rightOpen ? rightWidth : 0;
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[#f5f7f3]">
+    <div
+      className="flex flex-col overflow-hidden bg-[#f5f7f3]"
+      style={{ zoom: 1.25, width: "calc(100vw / 1.25)", height: "calc(100vh / 1.25)" }}
+    >
       {/* Fixed nav takes 70px */}
       <div className="h-[70px] flex-shrink-0" />
       <ToastContainer toasts={toasts} />
