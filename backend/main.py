@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import os
 import hmac
 import hashlib
+import asyncio
 from supabase import create_client, Client
 
 load_dotenv(Path(__file__).parent / ".env")
@@ -24,8 +25,10 @@ MAILGUN_SIGNING_KEY = os.getenv("MAILGUN_SIGNING_KEY")
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
 MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
 MAILGUN_FROM = os.getenv("MAILGUN_FROM")
+ALERTS_POLL_SECONDS = int(os.getenv("ALERTS_POLL_SECONDS", "0") or "0")
 
 app = FastAPI()
+_alerts_task: asyncio.Task | None = None
 
 def get_supabase_client() -> Client:
     if not SUPABASE_URL or not SUPABASE_KEY:
@@ -363,6 +366,28 @@ def _alert_key(alert: dict) -> str:
         str(alert.get("sent") or ""),
     ]
     return "|".join(parts)
+
+async def _alerts_loop() -> None:
+    while True:
+        try:
+            await send_alerts()
+        except Exception:
+            # Avoid crashing the loop; consider logging in production.
+            pass
+        await asyncio.sleep(max(ALERTS_POLL_SECONDS, 60))
+
+@app.on_event("startup")
+async def _start_alerts_loop() -> None:
+    global _alerts_task
+    if ALERTS_POLL_SECONDS > 0:
+        _alerts_task = asyncio.create_task(_alerts_loop())
+
+@app.on_event("shutdown")
+async def _stop_alerts_loop() -> None:
+    global _alerts_task
+    if _alerts_task:
+        _alerts_task.cancel()
+        _alerts_task = None
 
 @app.post("/alerts/send")
 async def send_alerts(payload: AlertSendRequest = AlertSendRequest()) -> dict:
