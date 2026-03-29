@@ -59,7 +59,7 @@ def _touch_agent(agent_id: str, action: str) -> None:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$|^https://crisis-net\.tech$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
