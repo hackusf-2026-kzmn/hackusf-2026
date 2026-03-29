@@ -25,6 +25,11 @@ interface LiveMapProps {
  *   import { LiveMap } from "@/components/dashboard/LiveMap";
  *   <LiveMap incidents={incidents} resources={mockResources} />
  */
+const MAP_STYLES = {
+  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+} as const;
+
 export function LiveMap({ incidents, resources }: LiveMapProps) {
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(
     null
@@ -59,10 +64,7 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
         <Map
           center={[-82.46, 27.94]}
           zoom={11.5}
-          styles={{
-            light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
-            dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-          }}
+          styles={MAP_STYLES}
         >
           <MapControls position="bottom-right" showZoom />
 
