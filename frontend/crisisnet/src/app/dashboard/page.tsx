@@ -260,29 +260,6 @@ export default function DashboardPage() {
     };
   }, []);
 
-  /* Simulated new event — mock only */
-  useEffect(() => {
-    if (!USE_MOCK) return;
-    const t = setTimeout(() => {
-      setIncidents((prev) => [
-        {
-          id: "EVT-007",
-          description:
-            "Waterspout developing offshore — NWS warning issued for Hillsborough Bay",
-          location: "Hillsborough Bay, FL — zip 33606",
-          lat: 27.9012,
-          lng: -82.4675,
-          priority: "P2",
-          status: "active",
-          timestamp: "10:18",
-          isNew: true,
-        },
-        ...prev,
-      ]);
-    }, 18000);
-    return () => clearTimeout(t);
-  }, [USE_MOCK]);
-
   /* Map control toggles */
   const toggleMapFullscreen = useCallback(() => {
     setMapFullscreen((prev) => {
