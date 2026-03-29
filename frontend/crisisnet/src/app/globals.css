@@ -91,3 +91,21 @@
     transparent 100%
   );
 }
+
+/* ─── MOBILE PORTRAIT BLOCKER ─── */
+.portrait-blocker {
+  display: none;
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .portrait-blocker {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #f5f7f3;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+}

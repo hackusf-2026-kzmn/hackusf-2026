@@ -161,7 +161,7 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
                         className="font-mono text-[9px] font-medium px-2 py-0.5 tracking-wider inline-block mt-1.5"
                         style={{ background: cfg.bg, color: cfg.color }}
                       >
-                        {inc.priority} · {cfg.label}
+                        {inc.priority} | {cfg.label}
                       </span>
                     </div>
                   </MarkerPopup>
