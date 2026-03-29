@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Header, Request
+from pydantic import BaseModel
 from google import genai
 import requests
 import pgeocode
@@ -8,21 +9,46 @@ from functools import lru_cache
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import hmac
+import hashlib
 from supabase import create_client, Client
-
-supabase_url: str = os.environ["SUPABASE_URL"]
-supabase_key: str = os.environ["SUPABASE_KEY"]
-supabase: Client = create_client(supabase_url, supabase_key)
-response = supabase.auth.sign_in_anonymously()
-
 
 load_dotenv(Path(__file__).parent / ".env")
 CENSUS_API_KEY = os.getenv("CENSUS_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 DEFAULT_TRANSLATION_MODEL = "gemini-2.5-flash-lite"
 USF_ZIP_CODE = "33071"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+MAILGUN_SIGNING_KEY = os.getenv("MAILGUN_SIGNING_KEY")
 
 app = FastAPI()
+
+def get_supabase_client() -> Client:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        raise HTTPException(status_code=500, detail="SUPABASE_URL or SUPABASE_KEY not set")
+    return create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def _get_bearer_token(authorization: str | None) -> str:
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing Authorization: Bearer <token>")
+    return authorization.split(" ", 1)[1].strip()
+
+def _get_user_from_token(supabase: Client, token: str):
+    user_resp = supabase.auth.get_user(token)
+    user = getattr(user_resp, "user", None)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    return user
+
+def _verify_mailgun_signature(timestamp: str, token: str, signature: str) -> bool:
+    if not MAILGUN_SIGNING_KEY:
+        raise HTTPException(status_code=500, detail="MAILGUN_SIGNING_KEY not set")
+    if not timestamp or not token or not signature:
+        return False
+    message = f"{timestamp}{token}".encode("utf-8")
+    digest = hmac.new(MAILGUN_SIGNING_KEY.encode("utf-8"), message, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(digest, signature)
 
 def get_nomi_info(zip_code: str) -> dict:
     nomi = pgeocode.Nominatim('us')
@@ -177,6 +203,15 @@ async def translate_text(text: str, target_lang: str = "en") -> dict:
         }
 
 
+class TranslateRequest(BaseModel):
+    text: str
+    target_lang: str = "en"
+
+class UserStuffRequest(BaseModel):
+    email: str
+    opt_in: bool = True
+
+
 @app.post("/translate")
 async def translate_endpoint(payload: TranslateRequest) -> dict:
     return translate_text(payload.text, payload.target_lang)
@@ -198,6 +233,87 @@ def send_simple_message(email, name ):
         },
     )
     return {"ok": resp.ok, "status_code": resp.status_code, "text": resp.text}
+
+@app.post("/auth/anon")
+def auth_anon() -> dict:
+    supabase = get_supabase_client()
+    resp = supabase.auth.sign_in_anonymously()
+    session = getattr(resp, "session", None)
+    user = getattr(resp, "user", None)
+    if not session or not user:
+        raise HTTPException(status_code=500, detail="Anonymous sign-in failed")
+    return {
+        "user_id": user.id,
+        "access_token": session.access_token,
+        "refresh_token": session.refresh_token,
+        "expires_in": session.expires_in,
+        "token_type": session.token_type,
+    }
+
+@app.post("/user-stuff/test")
+def user_stuff_test(authorization: str | None = Header(default=None)) -> dict:
+    supabase = get_supabase_client()
+    token = _get_bearer_token(authorization)
+    user = _get_user_from_token(supabase, token)
+
+    supabase.postgrest.auth(token)
+    payload = {
+        "user_id": user.id,
+        "email": "test@example.com",
+        "opt_in": True,
+    }
+    insert_resp = supabase.table("user_stuff").insert(payload).execute()
+    select_resp = supabase.table("user_stuff").select("*").eq("user_id", user.id).execute()
+
+    return {
+        "insert": insert_resp.data,
+        "select": select_resp.data,
+    }
+
+@app.get("/user-stuff")
+def user_stuff_get(authorization: str | None = Header(default=None)) -> dict:
+    supabase = get_supabase_client()
+    token = _get_bearer_token(authorization)
+    user = _get_user_from_token(supabase, token)
+    supabase.postgrest.auth(token)
+    resp = supabase.table("user_stuff").select("*").eq("user_id", user.id).execute()
+    return {"data": resp.data}
+
+@app.post("/user-stuff")
+def user_stuff_upsert(payload: UserStuffRequest, authorization: str | None = Header(default=None)) -> dict:
+    supabase = get_supabase_client()
+    token = _get_bearer_token(authorization)
+    user = _get_user_from_token(supabase, token)
+    supabase.postgrest.auth(token)
+    data = {
+        "user_id": user.id,
+        "email": payload.email,
+        "opt_in": payload.opt_in,
+    }
+    resp = supabase.table("user_stuff").upsert(data).execute()
+    return {"data": resp.data}
+
+@app.post("/mailgun/webhook")
+async def mailgun_webhook(request: Request) -> dict:
+    form = await request.form()
+    timestamp = form.get("timestamp")
+    token = form.get("token")
+    signature = form.get("signature")
+    if not _verify_mailgun_signature(str(timestamp or ""), str(token or ""), str(signature or "")):
+        raise HTTPException(status_code=401, detail="Invalid Mailgun signature")
+
+    event = str(form.get("event") or "").lower()
+    recipient = form.get("recipient") or form.get("email")
+    if not recipient:
+        raise HTTPException(status_code=400, detail="Missing recipient")
+
+    supabase = get_supabase_client()
+
+    if event in {"unsubscribed", "complained", "bounced"}:
+        resp = supabase.table("user_stuff").update({"opt_in": False}).eq("email", recipient).execute()
+        return {"ok": True, "event": event, "updated": resp.data}
+
+    return {"ok": True, "event": event}
 
 @app.get("/comms")
 async def comms(text: str, email:str , name:str, subscribed:bool = True, target_lang: str = "en") -> dict:
