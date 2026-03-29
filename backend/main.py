@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
 from google import genai
 import requests
 import pgeocode
@@ -23,6 +22,7 @@ DEFAULT_TRANSLATION_MODEL = "gemini-2.5-flash-lite"
 USF_ZIP_CODE = "33071"
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 MAILGUN_SIGNING_KEY = os.getenv("MAILGUN_SIGNING_KEY")
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
 MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
@@ -44,6 +44,11 @@ def get_supabase_client() -> Client:
     if not SUPABASE_URL or not SUPABASE_KEY:
         raise HTTPException(status_code=500, detail="SUPABASE_URL or SUPABASE_KEY not set")
     return create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def get_supabase_service_client() -> Client:
+    if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
+        raise HTTPException(status_code=500, detail="SUPABASE_URL or SUPABASE_SERVICE_KEY not set")
+    return create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 def _get_bearer_token(authorization: str | None) -> str:
     if not authorization or not authorization.lower().startswith("bearer "):
@@ -127,19 +132,17 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
         "alerts": matching,  # fix: return filtered list
     }
 
-# INCOMPLETE!!!
 @app.get("/agent-status")
 async def get_agent_status():
-    return
+    raise HTTPException(status_code=501, detail="Not implemented")
 
-# INCOMPLETE
 @app.get("/snowflake/historical")
 async def get_historical_data():
-    return
+    raise HTTPException(status_code=501, detail="Not implemented")
 
 @app.get("/population_size")
 async def get_population_size(zip_code: str = USF_ZIP_CODE):
-    pass
+    raise HTTPException(status_code=501, detail="Not implemented")
 
 @app.get("/resourceMatcher")
 async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int = 5) -> list:
@@ -235,14 +238,7 @@ class TranslateRequest(BaseModel):
 class UserStuffRequest(BaseModel):
     email: str
     opt_in: bool = True
-    severity: Optional[str] = None
-    zip_code: Optional[str] = None
-
-class SubscribeRequest(BaseModel):
-    email: str
-    severity: str = "all"
-    zip_code: Optional[str] = None
-    severity: str | None = None  # "Moderate+", "Severe+", "Extreme", "Minor+"
+    severity: str | None = None
     zip_code: str | None = None
 
 class AlertSendRequest(BaseModel):
@@ -250,11 +246,6 @@ class AlertSendRequest(BaseModel):
     mock_severity: str | None = None  # e.g. "Moderate"
     mock_event: str | None = None
     mock_headline: str | None = None
-
-class EmailRequest(BaseModel):
-    email: str
-    name: str
-
 
 @app.post("/translate")
 async def translate_endpoint(payload: TranslateRequest) -> dict:
@@ -297,26 +288,6 @@ def auth_anon() -> dict:
         "token_type": session.token_type,
     }
 
-@app.post("/user-stuff/test")
-def user_stuff_test(authorization: str | None = Header(default=None)) -> dict:
-    supabase = get_supabase_client()
-    token = _get_bearer_token(authorization)
-    user = _get_user_from_token(supabase, token)
-
-    supabase.postgrest.auth(token)
-    payload = {
-        "user_id": user.id,
-        "email": "test@example.com",
-        "opt_in": True,
-    }
-    insert_resp = supabase.table("user_stuff").insert(payload).execute()
-    select_resp = supabase.table("user_stuff").select("*").eq("user_id", user.id).execute()
-
-    return {
-        "insert": insert_resp.data,
-        "select": select_resp.data,
-    }
-
 @app.get("/user-stuff")
 def user_stuff_get(authorization: str | None = Header(default=None)) -> dict:
     supabase = get_supabase_client()
@@ -345,8 +316,8 @@ def user_stuff_upsert(payload: UserStuffRequest, authorization: str | None = Hea
     if payload.opt_in and not (existing_row and existing_row.get("opt_in")):
         send_mailgun_email(
             to_email=payload.email,
-            subject="You’re opted in to alerts",
-            text="Thanks for opting in! You’ll receive alerts based on your preferences.",
+            subject="You're opted in to alerts",
+            text="Thanks for opting in! You'll receive alerts based on your preferences.",
         )
     return {"data": resp.data}
 
@@ -408,7 +379,7 @@ async def _stop_alerts_loop() -> None:
 
 @app.post("/alerts/send")
 async def send_alerts(payload: AlertSendRequest = AlertSendRequest()) -> dict:
-    supabase = get_supabase_client()
+    supabase = get_supabase_service_client()
     users_resp = supabase.table("user_stuff").select("*").eq("opt_in", True).execute()
     users = users_resp.data or []
 
@@ -491,7 +462,7 @@ async def mailgun_webhook(request: Request) -> dict:
     if not recipient:
         raise HTTPException(status_code=400, detail="Missing recipient")
 
-    supabase = get_supabase_client()
+    supabase = get_supabase_service_client()
 
     if event in {"unsubscribed", "complained", "bounced"}:
         resp = supabase.table("user_stuff").update({"opt_in": False}).eq("email", recipient).execute()
