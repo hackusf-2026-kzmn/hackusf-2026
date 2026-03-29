@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { Features } from "@/components/ui/features-section";
 import { GridHero } from "@/components/ui/grid-hero-animated";
+import { AnimatedTextCycle } from "@/components/ui/animated-text-cycle";
 import {
   CardContainer,
   CardBody,
@@ -126,12 +127,12 @@ export default function HomePage() {
             <span className="whitespace-nowrap">Crisis-Net</span>
             <br />
             <em className="font-serif italic font-normal text-[#16a34a]">
-              Real-Time Response.
+              <AnimatedTextCycle
+                words={["Real-Time Response.", "Tampa, Florida."]}
+                interval={3000}
+                className="font-serif italic font-normal text-[#16a34a]"
+              />
             </em>
-            <br />
-            Tampa,
-            <br />
-            Florida
           </h1>
 
           <div className="font-mono text-[15px] text-[#16a34a] tracking-[3px] uppercase leading-[2.2] mb-12">
