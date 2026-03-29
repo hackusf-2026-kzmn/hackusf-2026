@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GlobeLogo } from "@/components/ui/globe-logo";
+import { LanguageToggle } from "@/components/ui/LanguageToggle";
 
 const links = [
   { href: "/", label: "Home", hideOnMobile: false },
@@ -12,9 +13,10 @@ const links = [
 
 export function Nav() {
   const pathname = usePathname();
+  const isDashboard = pathname === "/dashboard";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-12 h-[70px] bg-white/90 backdrop-blur-xl border-b border-[#d4dbc8]">
+    <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-12 h-[70px] bg-white/90 backdrop-blur-xl border-b border-[#d4dbc8] ${isDashboard ? "hidden lg:flex" : ""}`}>
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 md:gap-3 group">
         <GlobeLogo size={25} />
@@ -43,7 +45,9 @@ export function Nav() {
         })}
       </div>
 
-      {/* CTA CHANGE LATER*/}
+      {/* Language toggle + CTA */}
+      <div className="flex items-center gap-3 md:gap-4">
+        <LanguageToggle />
       <Link
         href="https://devpost.com/software/stroke-shield?"
         target="_blank"
@@ -52,6 +56,7 @@ export function Nav() {
       >
         DEVPOST →
       </Link>
+      </div>
     </nav>
   );
 }

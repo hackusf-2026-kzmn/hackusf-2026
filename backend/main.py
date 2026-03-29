@@ -102,18 +102,27 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
                 "urgency": props.get("urgency"),
                 "certainty": props.get("certainty"),
                 "headline": props.get("headline"),
-                "area": area,
-                "sent": props.get("sent"),
-                "effective": props.get("effective"),
+                "location": area,
+                "alert_sent": props.get("sent"),
+                "effective_at": props.get("effective"),
                 "expires": props.get("expires"),
                 "source": "NWS",
-                "url": props.get("web") or props.get("@id"),
             })
 
     return {
         "zip_code": zip_code,
         "alerts": matching,  # fix: return filtered list
     }
+
+# INCOMPLETE!!!
+@app.get("/agent-status")
+async def get_agent_status():
+    return
+
+# INCOMPLETE
+@app.get("/snowflake/historical")
+async def get_historical_data():
+    return
 
 @app.get("/population_size")
 async def get_population_size(zip_code: str = USF_ZIP_CODE):

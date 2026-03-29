@@ -1,9 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { getHistorical } from "@/lib/api";
 import { mockHistorical } from "@/mock/mockHistorical";
 
 export function HistoricalChart() {
-  const data = mockHistorical.slice(0, 6); // Show top 6
+  const [data, setData] = useState(mockHistorical.slice(0, 6));
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const next = await getHistorical();
+        if (!active) return;
+        setData(next.slice(0, 6));
+      } catch (err) {
+        console.error("Historical load failed:", err);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, []);
   const maxInc = Math.max(...data.map((h) => h.incidents));
 
   return (

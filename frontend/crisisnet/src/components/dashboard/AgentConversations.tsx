@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { mockAgentStatus } from "@/mock/mockAgentStatus";
 
 interface ConvoMessage {
   from: string;
