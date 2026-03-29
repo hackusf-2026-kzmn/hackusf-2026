@@ -44,7 +44,7 @@ export function AgentPanel() {
   }, []);
 
   return (
-    <div className="p-4 overflow-y-auto max-h-[calc(100vh-100px)]">
+    <div className="p-4 h-full overflow-y-auto fade-scroll-y">
       <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3.5 flex items-center gap-2">
         <span className="w-1 h-1 bg-[#16a34a]" />
         Agent Activity

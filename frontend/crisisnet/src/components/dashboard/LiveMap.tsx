@@ -47,15 +47,15 @@ export function LiveMap({ incidents, resources }: LiveMapProps) {
   }
 
   return (
-    <div>
-      <div className="px-4 pt-3">
+    <div className="flex flex-col h-full min-h-0">
+      <div className="px-4 pt-3 flex-shrink-0">
         <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-3 flex items-center gap-2">
           <span className="w-1 h-1 bg-[#16a34a]" />
           Operations Map — Tampa Bay AO
         </div>
       </div>
 
-      <div className="mx-4 border border-[#d4dbc8] overflow-hidden" style={{ height: 380 }}>
+      <div className="mx-4 mb-2 border border-[#d4dbc8] overflow-hidden flex-1" style={{ minHeight: 200 }}>
         <Map
           center={[-82.46, 27.94]}
           zoom={11.5}
