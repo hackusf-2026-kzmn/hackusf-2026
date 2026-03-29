@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, Header, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 from google import genai
 import requests
 import pgeocode
@@ -29,6 +31,14 @@ ALERTS_POLL_SECONDS = int(os.getenv("ALERTS_POLL_SECONDS", "0") or "0")
 
 app = FastAPI()
 _alerts_task: asyncio.Task | None = None
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_supabase_client() -> Client:
     if not SUPABASE_URL or not SUPABASE_KEY:
@@ -225,6 +235,13 @@ class TranslateRequest(BaseModel):
 class UserStuffRequest(BaseModel):
     email: str
     opt_in: bool = True
+    severity: Optional[str] = None
+    zip_code: Optional[str] = None
+
+class SubscribeRequest(BaseModel):
+    email: str
+    severity: str = "all"
+    zip_code: Optional[str] = None
     severity: str | None = None  # "Moderate+", "Severe+", "Extreme", "Minor+"
     zip_code: str | None = None
 

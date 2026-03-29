@@ -62,3 +62,17 @@ export async function getComms(): Promise<CommMessage[]> {
   const res = await fetch(`${API_BASE}/comms`);
   return res.json();
 }
+
+// ─── SUBSCRIBE (email opt-in) ─────────────────────────────────
+export async function subscribe(payload: {
+  email: string;
+  severity: string;
+  zip_code?: string;
+}): Promise<{ ok: boolean }> {
+  const res = await fetch(`http://localhost:8000/subscribe`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return res.json();
+}

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/map";
 import type { Incident, Resource } from "@/lib/types";
 import { PRIORITY_CONFIG } from "@/lib/types";
+import { EmailOptInButton } from "@/components/dashboard/EmailOptIn";
 
 interface LiveMapProps {
   incidents: Incident[];
@@ -62,6 +63,7 @@ export function LiveMap({ incidents, resources, onToggleFullscreen, onToggleSide
           <span className="w-1 h-1 bg-[#16a34a]" />
           Operations Map — Tampa Bay AO
           <span className="flex-1" />
+          <EmailOptInButton />
           {onToggleSidebars && (
             <button
               onClick={onToggleSidebars}
