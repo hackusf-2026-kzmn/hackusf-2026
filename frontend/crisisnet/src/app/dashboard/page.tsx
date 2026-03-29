@@ -9,7 +9,8 @@ import {
 } from "react";
 import { mockIncidents } from "@/mock/mockIncidents";
 import { mockResources } from "@/mock/mockResources";
-import type { Incident } from "@/lib/types";
+import { getIncidents, getResources, submitReport } from "@/lib/api";
+import type { Incident, Resource } from "@/lib/types";
 
 import { SitBanner } from "@/components/dashboard/SitBanner";
 import { AgentPanel } from "@/components/dashboard/AgentPanel";
@@ -180,9 +181,11 @@ function VSplit({
 /* ═══════════════════════════════════════════════════════════ */
 export default function DashboardPage() {
   const [incidents, setIncidents] = useState<Incident[]>(mockIncidents);
+  const [resources, setResources] = useState<Resource[]>(mockResources);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const toastIdRef = useRef(0);
+  const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
   /* Sidebar width state */
   const [leftOpen, setLeftOpen] = useState(true);
@@ -261,6 +264,7 @@ export default function DashboardPage() {
 
   /* Simulated new event */
   useEffect(() => {
+    if (!USE_MOCK) return;
     const t = setTimeout(() => {
       setIncidents((prev) => [
         {
@@ -279,7 +283,7 @@ export default function DashboardPage() {
       ]);
     }, 18000);
     return () => clearTimeout(t);
-  }, []);
+  }, [USE_MOCK]);
 
   /* Map control toggles */
   const toggleMapFullscreen = useCallback(() => {
@@ -318,8 +322,32 @@ export default function DashboardPage() {
     []
   );
 
+  /* Load incidents/resources from API layer (or mocks) */
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const [nextIncidents, nextResources] = await Promise.all([
+          getIncidents(),
+          getResources(),
+        ]);
+        if (!active) return;
+        setIncidents(nextIncidents);
+        setResources(nextResources);
+      } catch (err) {
+        if (!active) return;
+        console.error("Dashboard API load failed:", err);
+        addToast("API unavailable — showing cached data", "warning");
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, [addToast]);
+
   const handleReport = useCallback(
-    (report: {
+    async (report: {
       description: string;
       lat: number;
       lng: number;
@@ -328,24 +356,29 @@ export default function DashboardPage() {
       setSubmitting(true);
       addToast("Scout → Triage Agent processing...", "processing");
 
-      setTimeout(() => {
-        addToast("Severity scored: P2 — HIGH · Programs matched", "success");
+      try {
+        const result = await submitReport(report);
+        addToast(`Severity scored: ${result.priority} — Programs matched`, "success");
         setIncidents((prev) => [
           {
-            id: `EVT-${String(prev.length + 1).padStart(3, "0")}`,
+            id: result.incident_id,
             description: report.description,
             location: `zip ${report.reporter ?? "unknown"} · ${report.lat.toFixed(4)}, ${report.lng.toFixed(4)}`,
             lat: report.lat,
             lng: report.lng,
-            priority: "P2",
+            priority: result.priority as Incident["priority"],
             status: "active",
             timestamp: "now",
             isNew: true,
           },
           ...prev,
         ]);
+      } catch (err) {
+        console.error("Report submission failed:", err);
+        addToast("Report failed — backend unavailable", "error");
+      } finally {
         setSubmitting(false);
-      }, 3000);
+      }
     },
     [addToast]
   );
@@ -433,7 +466,7 @@ export default function DashboardPage() {
               }
               bottomNode={
                 !resourceCollapsed ? (
-                  <ResourcePanel resources={mockResources} />
+                  <ResourcePanel resources={resources} />
                 ) : null
               }
             />
@@ -469,7 +502,7 @@ export default function DashboardPage() {
           <div className="min-h-0" style={{ height: `${mapFrac * 100}%` }}>
             <LiveMap
               incidents={incidents}
-              resources={mockResources}
+              resources={resources}
               onToggleFullscreen={toggleMapFullscreen}
               onToggleSidebars={toggleSidebars}
               isFullscreen={mapFullscreen}

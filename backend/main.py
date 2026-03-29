@@ -23,6 +23,9 @@ USF_ZIP_CODE = "33071"
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 MAILGUN_SIGNING_KEY = os.getenv("MAILGUN_SIGNING_KEY")
+MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
+MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
+MAILGUN_FROM = os.getenv("MAILGUN_FROM")
 
 app = FastAPI()
 
@@ -109,18 +112,27 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
                 "urgency": props.get("urgency"),
                 "certainty": props.get("certainty"),
                 "headline": props.get("headline"),
-                "area": area,
-                "sent": props.get("sent"),
-                "effective": props.get("effective"),
+                "location": area,
+                "alert_sent": props.get("sent"),
+                "effective_at": props.get("effective"),
                 "expires": props.get("expires"),
                 "source": "NWS",
-                "url": props.get("web") or props.get("@id"),
             })
 
     return {
         "zip_code": zip_code,
         "alerts": matching,  # fix: return filtered list
     }
+
+# INCOMPLETE!!!
+@app.get("/agent-status")
+async def get_agent_status():
+    return
+
+# INCOMPLETE
+@app.get("/snowflake/historical")
+async def get_historical_data():
+    return
 
 @app.get("/population_size")
 async def get_population_size(zip_code: str = USF_ZIP_CODE):
@@ -227,26 +239,41 @@ class SubscribeRequest(BaseModel):
     email: str
     severity: str = "all"
     zip_code: Optional[str] = None
+    severity: str | None = None  # "Moderate+", "Severe+", "Extreme", "Minor+"
+    zip_code: str | None = None
+
+class AlertSendRequest(BaseModel):
+    dry_run: bool = False
+    mock_severity: str | None = None  # e.g. "Moderate"
+    mock_event: str | None = None
+    mock_headline: str | None = None
+
+class EmailRequest(BaseModel):
+    email: str
+    name: str
 
 
 @app.post("/translate")
 async def translate_endpoint(payload: TranslateRequest) -> dict:
     return translate_text(payload.text, payload.target_lang)
 
-@app.post("/email")
-def send_simple_message(email, name ):
-    api_key = os.getenv("API_KEY")
-    if not api_key:
-        return {"ok": False, "error": "API_KEY not set"}
+
+def send_mailgun_email(to_email: str, subject: str, text: str) -> dict:
+    if not MAILGUN_API_KEY:
+        return {"ok": False, "error": "MAILGUN_API_KEY not set"}
+    if not MAILGUN_DOMAIN:
+        return {"ok": False, "error": "MAILGUN_DOMAIN not set"}
+    if not MAILGUN_FROM:
+        return {"ok": False, "error": "MAILGUN_FROM not set"}
 
     resp = requests.post(
-        "https://api.mailgun.net/v3/sandbox9cbb2289c7094d94a2c44ac87d927e96.mailgun.org/messages",
-        auth=("api", api_key),
+        f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+        auth=("api", MAILGUN_API_KEY),
         data={
-            "from": "Mailgun Sandbox <postmaster@sandbox9cbb2289c7094d94a2c44ac87d927e96.mailgun.org>",
-            "to": f"Nicholas Westerfeld <{email}>",
-            "subject": f"Hello {name}",
-            "text": "Congratulations Nicholas Westerfeld, you just sent an email with Mailgun! You are truly awesome!",
+            "from": MAILGUN_FROM,
+            "to": to_email,
+            "subject": subject,
+            "text": text,
         },
     )
     return {"ok": resp.ok, "status_code": resp.status_code, "text": resp.text}
@@ -302,34 +329,23 @@ def user_stuff_upsert(payload: UserStuffRequest, authorization: str | None = Hea
     token = _get_bearer_token(authorization)
     user = _get_user_from_token(supabase, token)
     supabase.postgrest.auth(token)
+    existing = supabase.table("user_stuff").select("*").eq("user_id", user.id).execute()
+    existing_row = existing.data[0] if existing.data else None
     data = {
         "user_id": user.id,
         "email": payload.email,
         "opt_in": payload.opt_in,
-    }
-    resp = supabase.table("user_stuff").upsert(data).execute()
-    return {"data": resp.data}
-
-@app.post("/subscribe")
-def subscribe(payload: SubscribeRequest) -> dict:
-    """Public endpoint — no auth required. Signs up an email for alerts."""
-    supabase = get_supabase_client()
-    # Create anonymous session for the DB write
-    anon = supabase.auth.sign_in_anonymously()
-    session = getattr(anon, "session", None)
-    user = getattr(anon, "user", None)
-    if not session or not user:
-        raise HTTPException(status_code=500, detail="Anonymous sign-in failed")
-    supabase.postgrest.auth(session.access_token)
-    data = {
-        "user_id": user.id,
-        "email": payload.email,
-        "opt_in": True,
         "severity": payload.severity,
         "zip_code": payload.zip_code,
     }
     resp = supabase.table("user_stuff").upsert(data).execute()
-    return {"ok": True, "data": resp.data}
+    if payload.opt_in and not (existing_row and existing_row.get("opt_in")):
+        send_mailgun_email(
+            to_email=payload.email,
+            subject="You’re opted in to alerts",
+            text="Thanks for opting in! You’ll receive alerts based on your preferences.",
+        )
+    return {"data": resp.data}
 
 @app.post("/mailgun/webhook")
 async def mailgun_webhook(request: Request) -> dict:
@@ -354,9 +370,5 @@ async def mailgun_webhook(request: Request) -> dict:
     return {"ok": True, "event": event}
 
 @app.get("/comms")
-async def comms(text: str, email:str , name:str, subscribed:bool = True, target_lang: str = "en") -> dict:
-    translated = translate_text(text, target_lang)
-    if subscribed:
-        message = send_simple_message(email, name)
-    
-    return translated, message 
+async def comms() -> dict:
+    return await send_alerts()
