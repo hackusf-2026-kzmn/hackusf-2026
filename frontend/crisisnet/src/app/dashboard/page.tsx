@@ -198,6 +198,8 @@ export default function DashboardPage() {
 
   /* Map vertical split */
   const [mapFrac, setMapFrac] = useState(MAP_DEFAULT_FRAC);
+  const [mapFullscreen, setMapFullscreen] = useState(false);
+  const prevSidebars = useRef<{ left: boolean; right: boolean; frac: number } | null>(null);
   const centerRef = useRef<HTMLDivElement>(null);
   const mapDragging = useRef(false);
 
@@ -271,6 +273,31 @@ export default function DashboardPage() {
     return () => clearTimeout(t);
   }, []);
 
+  /* Map control toggles */
+  const toggleMapFullscreen = useCallback(() => {
+    setMapFullscreen((prev) => {
+      if (!prev) {
+        prevSidebars.current = { left: leftOpen, right: rightOpen, frac: mapFrac };
+        setLeftOpen(false);
+        setRightOpen(false);
+        setMapFrac(MAP_MAX_FRAC);
+      } else if (prevSidebars.current) {
+        setLeftOpen(prevSidebars.current.left);
+        setRightOpen(prevSidebars.current.right);
+        setMapFrac(prevSidebars.current.frac);
+        prevSidebars.current = null;
+      }
+      return !prev;
+    });
+  }, [leftOpen, rightOpen, mapFrac]);
+
+  const toggleSidebars = useCallback(() => {
+    const bothOpen = leftOpen && rightOpen;
+    setLeftOpen(!bothOpen);
+    setRightOpen(!bothOpen);
+    if (mapFullscreen) setMapFullscreen(false);
+  }, [leftOpen, rightOpen, mapFullscreen]);
+
   const addToast = useCallback(
     (message: string, type: Toast["type"] = "processing") => {
       const id = ++toastIdRef.current;
@@ -319,6 +346,26 @@ export default function DashboardPage() {
   const rw = rightOpen ? rightWidth : 0;
 
   return (
+    <>
+      {/* Portrait-mode blocker — dashboard only */}
+      <div className="portrait-blocker">
+        <div className="flex flex-col items-center gap-4 text-center px-8">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-[#16a34a]">
+            <rect x="8" y="14" width="32" height="20" rx="2" stroke="currentColor" strokeWidth="2" />
+            <path d="M22 24L28 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M4 28L4 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M4 24L8 20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M4 24L8 28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M44 20L44 28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M44 24L40 20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M44 24L40 28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <div className="font-mono text-[13px] text-[#111d0f] tracking-wider uppercase">Rotate your device</div>
+          <div className="font-mono text-[11px] text-[#6b7869] leading-relaxed">
+            Crisis-Net dashboard requires landscape orientation for optimal situational awareness.
+          </div>
+        </div>
+      </div>
     <div
       className="flex flex-col overflow-hidden bg-[#f5f7f3]"
       style={{ zoom: 1.25, width: "calc(100vw / 1.25)", height: "calc(100vh / 1.25)" }}
@@ -398,7 +445,14 @@ export default function DashboardPage() {
         <div ref={centerRef} className="bg-[#f5f7f3] flex flex-col flex-1 min-w-0 min-h-0">
           {/* Map — adjustable height */}
           <div className="min-h-0" style={{ height: `${mapFrac * 100}%` }}>
-            <LiveMap incidents={incidents} resources={mockResources} />
+            <LiveMap
+              incidents={incidents}
+              resources={mockResources}
+              onToggleFullscreen={toggleMapFullscreen}
+              onToggleSidebars={toggleSidebars}
+              isFullscreen={mapFullscreen}
+              sidebarsOpen={leftOpen && rightOpen}
+            />
           </div>
 
           {/* Horizontal drag divider between map and bottom panels */}
@@ -488,5 +542,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
