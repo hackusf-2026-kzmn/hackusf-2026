@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { Features } from "@/components/ui/features-section";
 import { GridHero } from "@/components/ui/grid-hero-animated";
+import { AnimatedTextCycle } from "@/components/ui/animated-text-cycle";
 import {
   CardContainer,
   CardBody,
@@ -108,6 +109,7 @@ export default function HomePage() {
           containerRef={heroRef}
           rippleCenterRef={rippleCenterRef}
           scrollDirection="tr"
+          particles={false}
         />
         {/* HUD corners */}
         <div className="absolute top-5 left-5 w-5 h-5 border-t-2 border-l-2 border-[#16a34a] opacity-30" />
@@ -126,12 +128,12 @@ export default function HomePage() {
             <span className="whitespace-nowrap">Crisis-Net</span>
             <br />
             <em className="font-serif italic font-normal text-[#16a34a]">
-              Real-Time Response.
+              <AnimatedTextCycle
+                words={["Real-Time Response.", "Tampa, Florida."]}
+                interval={3000}
+                className="font-serif italic font-normal text-[#16a34a]"
+              />
             </em>
-            <br />
-            Tampa,
-            <br />
-            Florida
           </h1>
 
           <div className="font-mono text-[15px] text-[#16a34a] tracking-[3px] uppercase leading-[2.2] mb-12">
@@ -217,8 +219,24 @@ export default function HomePage() {
         <Features />
       </section>
 
+      {/* ═══ MARQUEE STRIP ═══ */}
+      <div className="overflow-hidden border-t border-b border-[#d4dbc8] py-5">
+        <div className="flex animate-marquee-right" style={{ width: "max-content" }}>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <span key={`a-${i}`} className="font-display font-extrabold uppercase text-[clamp(22px,2.5vw,36px)] tracking-[-1px] text-[#d4dbc8] whitespace-nowrap px-10">
+              CRISIS-NET
+            </span>
+          ))}
+          {Array.from({ length: 10 }).map((_, i) => (
+            <span key={`b-${i}`} className="font-display font-extrabold uppercase text-[clamp(22px,2.5vw,36px)] tracking-[-1px] text-[#d4dbc8] whitespace-nowrap px-10" aria-hidden>
+              CRISIS-NET
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* ═══ AGENTS GRID ═══ */}
-      <section className="px-[60px] py-20 border-t border-[#d4dbc8]">
+      <section className="px-[60px] py-20">
         <div className="flex justify-between items-end mb-12 pb-5 border-b border-[#d4dbc8]">
           <div>
             <div className="font-mono text-[14px] text-[#6b7869] tracking-[2px] mb-2">
@@ -287,7 +305,7 @@ export default function HomePage() {
         ].map(([label, value], i, arr) => (
           <div
             key={label}
-            className={`relative flex-1 px-8 py-5 font-mono text-[13px] text-[#6b7869] tracking-wider text-center ${
+            className={`relative flex-1 px-8 py-5 font-mono text-[13px] text-[#6b7869] tracking-wider text-center hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] transition-all duration-200 ${
               i < arr.length - 1 ? "border-r border-[#d4dbc8]" : ""
             }`}
           >

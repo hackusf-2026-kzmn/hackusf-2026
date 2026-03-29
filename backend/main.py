@@ -1,4 +1,6 @@
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from google import genai
 import requests
 import pgeocode
 import pandas as pd
@@ -80,10 +82,6 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
 
 @app.get("/resourceMatcher")
 async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int = 5) -> list:
-    """
-    Returns the k closest shelters from shelters_geocoded.json.
-    Skips shelters with null lat/lng.
-    """
 
     lat_i, lng_i = get_nomi_info(zip_code)["coords"]
     data_path = Path(__file__).parent / "shelters_geocoded.json"
@@ -101,5 +99,79 @@ async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int
     candidates.sort(key=lambda x: x["distance_km"])
     return candidates[:num_of_shelter]
 
-if __name__ == "__main__":
-    asyncio.run(get_population_density())
+class TranslateRequest(BaseModel):
+    text: str
+    target_lang: str = "en"
+
+
+def translate_text(text: str, target_lang: str = "en") -> dict:
+    if not target_lang or target_lang.lower() == "en":
+        return {
+            "translated_text": text,
+            "source_lang": "en",
+            "target_lang": "en",
+            "error": None,
+        }
+
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return {
+            "translated_text": text,
+            "source_lang": "en",
+            "target_lang": target_lang,
+            "error": "missing_api_key",
+        }
+
+    try:
+        client = genai.Client(api_key=api_key)
+        prompt = (
+            f"You are a translation engine. Translate the text into {target_lang}. "
+            "Return only the translated text with no extra commentary.\n\n"
+            f"Text: {text}"
+        )
+        from google.genai import types
+        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash-001")
+        resp = client.models.generate_content(
+            model=model_name,
+            contents=[
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part(
+                            text=(
+                                f"Translate the following text to {target_lang}. "
+                                "Return only the translated text:\n\n"
+                                f"{text}"
+                            )
+                        )
+                    ],
+                )
+            ],
+        )
+        translated = (resp.text or "").strip()
+        if not translated:
+            translated = text
+        return {
+            "translated_text": translated,
+            "source_lang": "en",
+            "target_lang": target_lang,
+            "error": None,
+        }
+    except Exception as exc:
+        return {
+            "translated_text": text,
+            "source_lang": "en",
+            "target_lang": target_lang,
+            "error": f"exception_{type(exc).__name__}: {exc}",
+        }
+
+
+@app.post("/translate")
+async def translate_endpoint(payload: TranslateRequest) -> dict:
+    return translate_text(payload.text, payload.target_lang)
+
+
+@app.get("/comms")
+async def comms(text: str, target_lang: str = "en") -> dict:
+    translated = translate_text(text, target_lang)
+    return translated
