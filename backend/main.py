@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+from google import genai
 import requests
 import pgeocode
 import pandas as pd
@@ -6,6 +8,7 @@ import asyncio
 import json
 import math
 from pathlib import Path
+import os
 
 app = FastAPI()
 
@@ -31,7 +34,7 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
 
     headers = {"User-Agent": "CrisisNet (contact: ni717713@ucf.edu)"}
     alerts_resp = requests.get(
-        f"https://api.weather.gov/alerts/active?area={nomi["state_code"]}",
+        f"https://api.weather.gov/alerts/active?area={nomi['state_code']}",
         headers=headers,
         timeout=10,
     )
@@ -74,10 +77,6 @@ def haversine(lat1, lon1, lat2, lon2):
 
 @app.get("/resourceMatcher")
 async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int = 5) -> list:
-    """
-    Returns the k closest shelters from shelters_geocoded.json.
-    Skips shelters with null lat/lng.
-    """
 
     lat_i, lng_i = get_nomi_info(zip_code)["coords"]
     data_path = Path(__file__).parent / "shelters_geocoded.json"
@@ -95,3 +94,64 @@ async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int
     candidates.sort(key=lambda x: x["distance_km"])
     return candidates[:num_of_shelter]
 
+class TranslateRequest(BaseModel):
+    text: str
+    target_lang: str = "en"
+
+
+def translate_text(text: str, target_lang: str = "en") -> dict:
+    if not target_lang or target_lang.lower() == "en":
+        return {
+            "translated_text": text,
+            "source_lang": "en",
+            "target_lang": "en",
+            "error": None,
+        }
+
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return {
+            "translated_text": text,
+            "source_lang": "en",
+            "target_lang": target_lang,
+            "error": "missing_api_key",
+        }
+
+    try:
+        client = genai.Client(api_key=api_key)
+        prompt = (
+            f"You are a translation engine. Translate the text into {target_lang}. "
+            "Return only the translated text with no extra commentary.\n\n"
+            f"Text: {text}"
+        )
+        resp = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt,
+            temperature=0,
+        )
+        translated = (resp.text or "").strip()
+        if not translated:
+            translated = text
+        return {
+            "translated_text": translated,
+            "source_lang": "en",
+            "target_lang": target_lang,
+            "error": None,
+        }
+    except Exception as exc:
+        return {
+            "translated_text": text,
+            "source_lang": "en",
+            "target_lang": target_lang,
+            "error": f"exception_{type(exc).__name__}",
+        }
+
+
+@app.post("/translate")
+async def translate_endpoint(payload: TranslateRequest) -> dict:
+    return translate_text(payload.text, payload.target_lang)
+
+
+@app.get("/comms")
+async def comms_stub() -> dict:
+    return {"status": "ok", "message": "Comms flow not integrated yet."}
