@@ -1,20 +1,24 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI
 from google import genai
 import requests
 import pgeocode
-import pandas as pd
-import asyncio
 import json
 import math
-import time
+from functools import lru_cache
 from pathlib import Path
-from dotenv import load_dotenv, dotenv_values
+from dotenv import load_dotenv
 import os
+from supabase import create_client, Client
 
-load_dotenv()
-CENSUS_API_KEY=os.getenv("CENSUS_API_KEY")
-USF_ZIP_CODE="33071"
+supabase_url: str = os.environ["SUPABASE_URL"]
+supabase_key: str = os.environ["SUPABASE_KEY"]
+supabase: Client = create_client(supabase_url, supabase_key)
+
+load_dotenv(Path(__file__).parent / ".env")
+CENSUS_API_KEY = os.getenv("CENSUS_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+DEFAULT_TRANSLATION_MODEL = "gemini-2.5-flash-lite"
+USF_ZIP_CODE = "33071"
 
 app = FastAPI()
 
@@ -80,6 +84,10 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
         "alerts": matching,  # fix: return filtered list
     }
 
+@app.get("/population_size")
+async def get_population_size(zip_code: str = USF_ZIP_CODE):
+    pass
+
 @app.get("/resourceMatcher")
 async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int = 5) -> list:
 
@@ -99,13 +107,33 @@ async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int
     candidates.sort(key=lambda x: x["distance_km"])
     return candidates[:num_of_shelter]
 
-class TranslateRequest(BaseModel):
-    text: str
-    target_lang: str = "en"
+def _normalize_model_name(model_name: str | None) -> str:
+    candidate = (model_name or "").strip()
+    # Defensive fallback: API keys are sometimes accidentally pasted into GEMINI_MODEL.
+    if not candidate or candidate.startswith("AIza"):
+        candidate = DEFAULT_TRANSLATION_MODEL
+    if not candidate.startswith("models/"):
+        candidate = f"models/{candidate}"
+    return candidate
 
+@lru_cache(maxsize=1)
+def _get_genai_client() -> genai.Client:
+    if not GEMINI_API_KEY:
+        raise ValueError("missing_api_key")
+    return genai.Client(api_key=GEMINI_API_KEY)
 
-def translate_text(text: str, target_lang: str = "en") -> dict:
-    if not target_lang or target_lang.lower() == "en":
+def _translation_prompt(text: str, target_lang: str) -> str:
+    return (
+        f"Translate the following text to {target_lang}. "
+        "Return only the translated text with no extra commentary.\n\n"
+        f"{text}"
+    )
+
+@app.get("/translate")
+@app.get("/translate_text")
+async def translate_text(text: str, target_lang: str = "en") -> dict:
+    target_lang = (target_lang or "en").strip().lower()
+    if target_lang == "en":
         return {
             "translated_text": text,
             "source_lang": "en",
@@ -113,7 +141,7 @@ def translate_text(text: str, target_lang: str = "en") -> dict:
             "error": None,
         }
 
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = GEMINI_API_KEY
     if not api_key:
         return {
             "translated_text": text,
@@ -123,32 +151,13 @@ def translate_text(text: str, target_lang: str = "en") -> dict:
         }
 
     try:
-        client = genai.Client(api_key=api_key)
-        prompt = (
-            f"You are a translation engine. Translate the text into {target_lang}. "
-            "Return only the translated text with no extra commentary.\n\n"
-            f"Text: {text}"
-        )
-        from google.genai import types
-        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash-001")
-        resp = client.models.generate_content(
+        model_name = _normalize_model_name(os.getenv("GEMINI_MODEL"))
+        client = _get_genai_client()
+        response = await client.aio.models.generate_content(
             model=model_name,
-            contents=[
-                types.Content(
-                    role="user",
-                    parts=[
-                        types.Part(
-                            text=(
-                                f"Translate the following text to {target_lang}. "
-                                "Return only the translated text:\n\n"
-                                f"{text}"
-                            )
-                        )
-                    ],
-                )
-            ],
+            contents=_translation_prompt(text=text, target_lang=target_lang),
         )
-        translated = (resp.text or "").strip()
+        translated = (response.text or "").strip()
         if not translated:
             translated = text
         return {
@@ -170,8 +179,28 @@ def translate_text(text: str, target_lang: str = "en") -> dict:
 async def translate_endpoint(payload: TranslateRequest) -> dict:
     return translate_text(payload.text, payload.target_lang)
 
+@app.post("/email")
+def send_simple_message(email, name ):
+    api_key = os.getenv("API_KEY")
+    if not api_key:
+        return {"ok": False, "error": "API_KEY not set"}
+
+    resp = requests.post(
+        "https://api.mailgun.net/v3/sandbox9cbb2289c7094d94a2c44ac87d927e96.mailgun.org/messages",
+        auth=("api", api_key),
+        data={
+            "from": "Mailgun Sandbox <postmaster@sandbox9cbb2289c7094d94a2c44ac87d927e96.mailgun.org>",
+            "to": f"Nicholas Westerfeld <{email}>",
+            "subject": f"Hello {name}",
+            "text": "Congratulations Nicholas Westerfeld, you just sent an email with Mailgun! You are truly awesome!",
+        },
+    )
+    return {"ok": resp.ok, "status_code": resp.status_code, "text": resp.text}
 
 @app.get("/comms")
-async def comms(text: str, target_lang: str = "en") -> dict:
+async def comms(text: str, email:str , name:str, subscribed:bool = True, target_lang: str = "en") -> dict:
     translated = translate_text(text, target_lang)
-    return translated
+    if subscribed:
+        message = send_simple_message(email, name)
+    
+    return translated, message 
