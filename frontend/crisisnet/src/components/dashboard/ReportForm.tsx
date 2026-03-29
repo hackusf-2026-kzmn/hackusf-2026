@@ -50,7 +50,7 @@ export function ReportForm({ onSubmit, submitting }: ReportFormProps) {
   };
 
   return (
-    <div className="p-3 h-full flex flex-col">
+    <div className="p-3 pb-4 h-full flex flex-col">
       <div className="font-mono text-[10px] text-[#6b7869] tracking-[1.5px] uppercase mb-2 flex items-center gap-2">
         <span className="w-1 h-1 bg-[#16a34a]" />
         Check Your Area

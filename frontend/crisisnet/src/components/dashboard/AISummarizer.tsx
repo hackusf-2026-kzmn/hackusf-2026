@@ -1,36 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { summarize } from "@/lib/api";
 
 interface SummaryEntry {
   question: string;
   answer: string;
-}
-
-const MOCK_ANSWERS: Record<string, string> = {
-  shelter:
-    "12 Red Cross shelters are active in Hillsborough County. Hillsborough HS is at 120% capacity; overflow is being routed to Middleton HS (42% capacity). Transport assistance available via 211.",
-  evacuation:
-    "Zone A evacuation advisory is in effect for all residents south of Gandy Blvd. Courtney Campbell Causeway is the recommended alternate east-west route. Gandy Blvd is closed due to storm surge debris.",
-  resource:
-    "4 resource programs are currently deployed: FEMA Individual Assistance, Red Cross Emergency Shelter, Florida Disaster Fund, and Feeding Tampa Bay. 3 additional programs (HUD vouchers, SBA loans, Hillsborough CARES) are on standby.",
-  summarize:
-    "Category 3 hurricane approaching Tampa Bay — projected landfall 18-24 hrs. Storm surge 8-12 ft expected along Pinellas coastline. Flash flood watch active for Hillsborough River watershed. 42,000 residents in primary impact zone. 5 agents actively monitoring across 6 events.\n\n• EVT-001 (P1): Cat 3 hurricane — severity 8.4/10\n• EVT-002 (P1): Storm surge, Pinellas — 8-12 ft\n• EVT-003 (P2): Flash flooding, Hillsborough River\n• EVT-004 (P3): Power grid instability — 12,000 homes\n• EVT-005 (P2): Road closures — Gandy Blvd corridor\n• EVT-006 (P3): Shelter overflow — Hillsborough HS\n\nAll 5 agents online. Pipeline cycle: ~94s. Last resource match: FEMA + Red Cross for zip 33602.",
-  default:
-    "Based on current agent data: 6 active events are being tracked, with EVT-001 (Cat 3 hurricane) as the highest priority at severity 8.4/10. All 5 agents are online and processing. The pipeline is cycling every ~94 seconds.",
-};
-
-function matchAnswer(q: string): string {
-  const lower = q.toLowerCase();
-  if (lower.includes("summarize") || lower.includes("summary") || lower.includes("overview"))
-    return MOCK_ANSWERS.summarize;
-  if (lower.includes("shelter") || lower.includes("capacity"))
-    return MOCK_ANSWERS.shelter;
-  if (lower.includes("evacuat") || lower.includes("route") || lower.includes("road"))
-    return MOCK_ANSWERS.evacuation;
-  if (lower.includes("resource") || lower.includes("fema") || lower.includes("program"))
-    return MOCK_ANSWERS.resource;
-  return MOCK_ANSWERS.default;
 }
 
 export function AISummarizer() {
@@ -45,11 +20,16 @@ export function AISummarizer() {
     if (initialized) return;
     setInitialized(true);
     setLoading(true);
-    const t = setTimeout(() => {
-      setEntries([{ question: "Summarize Events", answer: MOCK_ANSWERS.summarize }]);
-      setLoading(false);
-    }, 2000);
-    return () => clearTimeout(t);
+    let active = true;
+    summarize("Summarize all current events and alerts in the Tampa area")
+      .then((data) => {
+        if (active) setEntries([{ question: "Summarize Events", answer: data.answer }]);
+      })
+      .catch(() => {
+        if (active) setEntries([{ question: "Summarize Events", answer: "Unable to reach backend — try again later." }]);
+      })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [initialized]);
 
   // Scroll to bottom on new entry
@@ -57,20 +37,23 @@ export function AISummarizer() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [entries, loading]);
 
-  const handleAsk = () => {
+  const handleAsk = async () => {
     if (!input.trim() || loading) return;
     const q = input.trim();
     setInput("");
     setLoading(true);
-
-    setTimeout(() => {
-      setEntries((prev) => [...prev, { question: q, answer: matchAnswer(q) }]);
+    try {
+      const data = await summarize(q);
+      setEntries((prev) => [...prev, { question: q, answer: data.answer }]);
+    } catch {
+      setEntries((prev) => [...prev, { question: q, answer: "Failed to get response from backend." }]);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
-    <div className="px-4 py-2 flex flex-col h-full">
+    <div className="px-4 py-2 pb-4 flex flex-col h-full">
       <div ref={scrollRef} className="flex-1 overflow-y-auto fade-scroll-y space-y-2 mb-2">
         {entries.map((e, i) => (
           <div key={i} className="space-y-1">

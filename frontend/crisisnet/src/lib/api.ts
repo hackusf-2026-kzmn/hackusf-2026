@@ -107,6 +107,22 @@ export async function getComms(): Promise<CommMessage[]> {
   return res.json();
 }
 
+// ─── ACTIVITY STREAM ──────────────────────────────────────────
+export async function getActivityStream(): Promise<{ messages: string[]; latest: string }> {
+  const res = await fetch(`${API_BASE}/activity-stream`);
+  return res.json();
+}
+
+// ─── AI SUMMARIZER ────────────────────────────────────────────
+export async function summarize(query: string, zip_code: string = "33602"): Promise<{ answer: string; alert_count: number; shelter_count: number }> {
+  const res = await fetch(`${API_BASE}/summarize`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, zip_code }),
+  });
+  return res.json();
+}
+
 // ─── SUBSCRIBE (email opt-in) ─────────────────────────────────
 export async function subscribe(payload: {
   email: string;
