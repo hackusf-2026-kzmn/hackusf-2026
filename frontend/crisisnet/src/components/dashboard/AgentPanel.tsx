@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getAgentStatus } from "@/lib/api";
-import { mockAgentStatus } from "@/mock/mockAgentStatus";
+import { AGENT_DEFINITIONS } from "@/lib/agents";
 
 interface AgentState {
   id: string;
@@ -16,7 +16,7 @@ interface AgentState {
 }
 
 export function AgentPanel() {
-  const seedAgents = (source: typeof mockAgentStatus): AgentState[] =>
+  const seedAgents = (source: typeof AGENT_DEFINITIONS): AgentState[] =>
     source.map((a) => ({
       ...a,
       currentAction: a.actions[0],
@@ -24,7 +24,7 @@ export function AgentPanel() {
       flash: false,
     }));
 
-  const [agents, setAgents] = useState<AgentState[]>(seedAgents(mockAgentStatus));
+  const [agents, setAgents] = useState<AgentState[]>(seedAgents(AGENT_DEFINITIONS));
 
   useEffect(() => {
     let active = true;

@@ -6,7 +6,7 @@ from google.adk.tools.function_tool import FunctionTool
 import os
 import requests
 
-FASTAPI_SERVER_URL = "http://127.0.0.1:8080/"
+FASTAPI_SERVER_URL = os.getenv("FASTAPI_SERVER_URL", "http://127.0.0.1:8080/")
 SCOUT_URL = os.path.join(FASTAPI_SERVER_URL, "scout")
 POP_SIZE_URL = os.path.join(FASTAPI_SERVER_URL, "population_size")
 RESOURCE_MATCH_URL = os.path.join(FASTAPI_SERVER_URL, "resourceMatcher")

@@ -183,8 +183,6 @@ export default function DashboardPage() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const toastIdRef = useRef(0);
-  const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
-
   /* Sidebar width state */
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
@@ -260,29 +258,6 @@ export default function DashboardPage() {
     };
   }, []);
 
-  /* Simulated new event — mock only */
-  useEffect(() => {
-    if (!USE_MOCK) return;
-    const t = setTimeout(() => {
-      setIncidents((prev) => [
-        {
-          id: "EVT-007",
-          description:
-            "Waterspout developing offshore — NWS warning issued for Hillsborough Bay",
-          location: "Hillsborough Bay, FL — zip 33606",
-          lat: 27.9012,
-          lng: -82.4675,
-          priority: "P2",
-          status: "active",
-          timestamp: "10:18",
-          isNew: true,
-        },
-        ...prev,
-      ]);
-    }, 18000);
-    return () => clearTimeout(t);
-  }, [USE_MOCK]);
-
   /* Map control toggles */
   const toggleMapFullscreen = useCallback(() => {
     setMapFullscreen((prev) => {
@@ -320,7 +295,7 @@ export default function DashboardPage() {
     []
   );
 
-  /* Load incidents/resources from API layer (or mocks) */
+  /* Load incidents/resources from API */
   useEffect(() => {
     let active = true;
     const load = async () => {
@@ -360,8 +335,17 @@ export default function DashboardPage() {
         setIncidents((prev) => [
           {
             id: result.incident_id,
+            event: "User Report",
+            severity: "Unknown",
+            urgency: "Unknown",
+            certainty: "Unknown",
+            headline: report.description,
             description: report.description,
             location: `zip ${report.reporter ?? "unknown"} · ${report.lat.toFixed(4)}, ${report.lng.toFixed(4)}`,
+            alert_sent: "",
+            effective_at: "",
+            expires: "",
+            source: "user",
             lat: report.lat,
             lng: report.lng,
             priority: result.priority as Incident["priority"],

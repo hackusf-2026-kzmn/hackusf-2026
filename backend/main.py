@@ -57,9 +57,13 @@ _agent_last: dict = {
 def _touch_agent(agent_id: str, action: str) -> None:
     _agent_last[agent_id] = {"ts": time.time(), "action": action}
 
+_allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+_allowed_origins = [o.strip() for o in _allowed_origins if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

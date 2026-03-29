@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { getHistorical } from "@/lib/api";
-import { mockHistorical } from "@/mock/mockHistorical";
+import type { HistoricalEvent } from "@/lib/types";
 
 export function HistoricalChart() {
-  const [data, setData] = useState(mockHistorical.slice(0, 6));
+  const [data, setData] = useState<HistoricalEvent[]>([]);
 
   useEffect(() => {
     let active = true;

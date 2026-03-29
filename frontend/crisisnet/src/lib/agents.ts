@@ -1,6 +1,7 @@
 import type { AgentStatus } from "@/lib/types";
 
-export const mockAgentStatus: AgentStatus[] = [
+/** Static agent metadata used by the landing page. */
+export const AGENT_DEFINITIONS: AgentStatus[] = [
   {
     id: "scout",
     name: "Scout Agent",

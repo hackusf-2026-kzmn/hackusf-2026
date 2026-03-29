@@ -28,12 +28,15 @@ export type ResourceType = "shelter";
 export type ResourceStatus = "deployed" | "available" | "en_route";
 
 export interface Resource {
+  id?: string;
   name: string;
   type: "shelter";
   address: string;
-  lat: string
+  lat: string;
   lng: string;
   distance_km: string;
+  status?: ResourceStatus;
+  assignedTo?: string;
 }
 
 export interface AgentStatus {

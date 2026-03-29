@@ -12,7 +12,7 @@ import {
   CardBody,
   CardItem,
 } from "@/components/ui/3d-card-effect";
-import { mockAgentStatus } from "@/mock/mockAgentStatus";
+import { AGENT_DEFINITIONS } from "@/lib/agents";
 import { useLanguage } from "@/context/LanguageContext";
 
 // Lazy-load globe — skip entirely on mobile
@@ -356,7 +356,7 @@ export default function HomePage() {
         {/* Desktop: 5-col 3D card grid */}
         {!isMobile ? (
           <div className="grid grid-cols-5 border border-[#d4dbc8] divide-x divide-[#d4dbc8]">
-            {mockAgentStatus.map((a, i) => (
+            {AGENT_DEFINITIONS.map((a, i) => (
               <CardContainer
                 key={a.id}
                 containerClassName="p-0"
@@ -397,11 +397,11 @@ export default function HomePage() {
         ) : (
           /* Mobile: simple stacked cards, no 3D hover */
           <div className="grid grid-cols-1 gap-0 border border-[#d4dbc8]">
-            {mockAgentStatus.map((a, i) => (
+            {AGENT_DEFINITIONS.map((a, i) => (
               <div
                 key={a.id}
                 className={`bg-white p-5 flex items-start gap-4 ${
-                  i < mockAgentStatus.length - 1 ? "border-b border-[#d4dbc8]" : ""
+                  i < AGENT_DEFINITIONS.length - 1 ? "border-b border-[#d4dbc8]" : ""
                 }`}
               >
                 <div className="flex-shrink-0 mt-1">

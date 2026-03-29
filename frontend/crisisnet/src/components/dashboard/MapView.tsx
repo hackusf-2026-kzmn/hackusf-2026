@@ -86,7 +86,7 @@ export function MapView({ incidents, resources }: MapViewProps) {
           {/* Resource → Incident lines */}
           {deployed.map((r) => {
             const inc = incidents.find((i) => i.id === r.assignedTo);
-            if (!inc) return null;
+            if (!inc || inc.lat == null || inc.lng == null) return null;
             const rp = project(inc.lat + 0.003, inc.lng - 0.005);
             const ip = project(inc.lat, inc.lng);
             return (
@@ -107,6 +107,7 @@ export function MapView({ incidents, resources }: MapViewProps) {
 
           {/* Incident pins */}
           {incidents.map((inc) => {
+            if (inc.lat == null || inc.lng == null) return null;
             const p = project(inc.lat, inc.lng);
             const cfg = PRIORITY_CONFIG[inc.priority];
             const r = inc.priority === "P1" ? 8 : inc.priority === "P2" ? 6 : 4;
