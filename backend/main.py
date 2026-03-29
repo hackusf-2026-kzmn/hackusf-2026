@@ -11,8 +11,13 @@ import time
 from pathlib import Path
 from dotenv import load_dotenv, dotenv_values
 import os
+from supabase import create_client, Client
 
-load_dotenv()
+supabase_url: str = os.environ["SUPABASE_URL"]
+supabase_key: str = os.environ["SUPABASE_KEY"]
+supabase: Client = create_client(supabase_url, supabase_key)
+
+load_dotenv(Path(__file__).parent / ".env")
 CENSUS_API_KEY=os.getenv("CENSUS_API_KEY")
 USF_ZIP_CODE="33071"
 
@@ -170,8 +175,28 @@ def translate_text(text: str, target_lang: str = "en") -> dict:
 async def translate_endpoint(payload: TranslateRequest) -> dict:
     return translate_text(payload.text, payload.target_lang)
 
+@app.post("/email")
+def send_simple_message(email, name ):
+    api_key = os.getenv("API_KEY")
+    if not api_key:
+        return {"ok": False, "error": "API_KEY not set"}
+
+    resp = requests.post(
+        "https://api.mailgun.net/v3/sandbox9cbb2289c7094d94a2c44ac87d927e96.mailgun.org/messages",
+        auth=("api", api_key),
+        data={
+            "from": "Mailgun Sandbox <postmaster@sandbox9cbb2289c7094d94a2c44ac87d927e96.mailgun.org>",
+            "to": f"Nicholas Westerfeld <{email}>",
+            "subject": f"Hello {name}",
+            "text": "Congratulations Nicholas Westerfeld, you just sent an email with Mailgun! You are truly awesome!",
+        },
+    )
+    return {"ok": resp.ok, "status_code": resp.status_code, "text": resp.text}
 
 @app.get("/comms")
-async def comms(text: str, target_lang: str = "en") -> dict:
+async def comms(text: str, email:str , name:str, subscribed:bool = True, target_lang: str = "en") -> dict:
     translated = translate_text(text, target_lang)
-    return translated
+    if subscribed:
+        message = send_simple_message(email, name)
+    
+    return translated, message 
