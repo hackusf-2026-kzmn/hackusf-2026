@@ -140,7 +140,7 @@ export function LiveMap({ incidents, resources, onToggleFullscreen, onToggleSide
           {/* Resource markers */}
           {deployed.map((r) => {
             const inc = incidents.find((i) => i.id === r.assignedTo);
-            if (!inc) return null;
+            if (!inc || inc.lat == null || inc.lng == null || !isFinite(inc.lat) || !isFinite(inc.lng)) return null;
             return (
               <MapMarker
                 key={r.id}
@@ -157,7 +157,7 @@ export function LiveMap({ incidents, resources, onToggleFullscreen, onToggleSide
           })}
 
           {/* Incident markers */}
-          {incidents.map((inc) => {
+          {incidents.filter((inc) => inc.lat != null && inc.lng != null && isFinite(inc.lat) && isFinite(inc.lng)).map((inc) => {
             const cfg = PRIORITY_CONFIG[inc.priority];
             const size =
               inc.priority === "P1"

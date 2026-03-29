@@ -16,7 +16,7 @@ export function IncidentFeed({ incidents }: IncidentFeedProps) {
   return (
     <div className="h-full overflow-y-auto fade-scroll-y px-4 py-2">
       {sorted.map((inc) => {
-        const cfg = PRIORITY_CONFIG[inc.priority];
+        const cfg = PRIORITY_CONFIG[inc.priority] ?? { color: "#888", bg: "rgba(136,136,136,0.12)", label: "UNKNOWN" };
         return (
           <div
             key={inc.id}

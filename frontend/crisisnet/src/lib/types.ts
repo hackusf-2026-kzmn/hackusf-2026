@@ -14,6 +14,14 @@ export interface Incident {
   effective_at: string;
   expires: string;
   source: string;
+  /* display fields — derived by the API layer */
+  description: string;
+  priority: Priority;
+  timestamp: string;
+  isNew?: boolean;
+  lat?: number;
+  lng?: number;
+  status?: IncidentStatus;
 }
 
 export type ResourceType = "shelter";

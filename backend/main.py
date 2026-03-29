@@ -618,7 +618,8 @@ async def report_incident(payload: ReportRequest) -> dict:
     zip_code = payload.zip_code or USF_ZIP_CODE
 
     scout_data = await scout(zip_code=zip_code)
-    alerts = scout_data.get("alerts", [])
+    aler
+    ts = scout_data.get("alerts", [])
 
     client = _get_genai_client()
     model_name = _normalize_model_name(os.getenv("GEMINI_MODEL"))

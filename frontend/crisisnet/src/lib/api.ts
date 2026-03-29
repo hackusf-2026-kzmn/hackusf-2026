@@ -6,13 +6,27 @@ import { mockComms } from "@/mock/mockComms";
 import type { Incident, Resource, AgentStatus, HistoricalEvent, CommMessage } from "@/lib/types";
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "false";
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = "http://localhost:8080";
 
 // ─── INCIDENTS ────────────────────────────────────────────────
+function severityToPriority(s: string): "P1" | "P2" | "P3" {
+  if (s === "Extreme" || s === "Severe") return "P1";
+  if (s === "Moderate") return "P2";
+  return "P3";
+}
+
 export async function getIncidents(): Promise<Incident[]> {
   if (USE_MOCK) return mockIncidents;
   const res = await fetch(`${API_BASE}/scout`);
-  return res.json();
+  const data = await res.json();
+  const alerts = data.alerts ?? [];
+  return alerts.map((a: any) => ({
+    ...a,
+    description: a.headline,
+    priority: severityToPriority(a.severity),
+    timestamp: a.effective_at?.slice(11, 16) ?? "",
+    isNew: false,
+  }));
 }
 
 // ─── RESOURCES ────────────────────────────────────────────────
@@ -69,7 +83,7 @@ export async function subscribe(payload: {
   severity: string;
   zip_code?: string;
 }): Promise<{ ok: boolean }> {
-  const res = await fetch(`http://localhost:8000/subscribe`, {
+  const res = await fetch(`${API_BASE}/subscribe`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

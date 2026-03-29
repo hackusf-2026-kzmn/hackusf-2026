@@ -101,7 +101,7 @@ function Map({ children, styles, ...props }: MapProps) {
     return () => {
       mapInstance.off("load", loadHandler);
       mapInstance.off("styledata", styleDataHandler);
-      mapInstance.remove();
+      try { mapInstance.remove(); } catch { /* already removed */ }
       mapRef.current = null;
     };
   }, [isMounted]);
