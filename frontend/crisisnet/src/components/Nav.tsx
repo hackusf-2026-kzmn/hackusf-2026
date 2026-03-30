@@ -49,7 +49,7 @@ export function Nav() {
       <div className="flex items-center gap-3 md:gap-4">
         <LanguageToggle />
       <Link
-        href="https://devpost.com/software/stroke-shield?"
+        href="https://devpost.com/software/crisis-net"
         target="_blank"
         rel="noopener noreferrer"
         className="font-mono text-[11px] md:text-[13px] bg-[#16a34a] text-white px-4 md:px-6 py-2 md:py-2.5 font-medium tracking-widest uppercase hover:shadow-[0_0_20px_rgba(22,163,74,0.3)] transition-all duration-200"
