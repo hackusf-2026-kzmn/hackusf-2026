@@ -39,15 +39,18 @@ function severityToPriority(s: string): "P1" | "P2" | "P3" {
   return "P3";
 }
 
-export async function getIncidents(): Promise<Incident[]> {
-  const res = await fetch(`${API_BASE}/scout`);
+export async function getIncidents(zipCode?: string, days: number = 7): Promise<Incident[]> {
+  const url = zipCode
+    ? `${API_BASE}/scout?zip_code=${encodeURIComponent(zipCode)}&days=${days}`
+    : `${API_BASE}/scout?days=${days}`;
+  const res = await fetch(url);
   const data = await res.json();
   const alerts = data.alerts ?? [];
   return alerts.map((a: any) => ({
     ...a,
     description: a.headline,
     priority: severityToPriority(a.severity),
-    timestamp: a.effective_at?.slice(11, 16) ?? "",
+    timestamp: a.effective_at?.slice(0, 10) ?? "",
     lat: a.lat ?? undefined,
     lng: a.lng ?? undefined,
     isNew: false,
@@ -55,9 +58,21 @@ export async function getIncidents(): Promise<Incident[]> {
 }
 
 // ─── RESOURCES ────────────────────────────────────────────────
-export async function getResources(): Promise<Resource[]> {
-  const res = await fetch(`${API_BASE}/resourceMatcher`);
+export async function getResources(zipCode?: string): Promise<Resource[]> {
+  const url = zipCode
+    ? `${API_BASE}/resourceMatcher?zip_code=${encodeURIComponent(zipCode)}`
+    : `${API_BASE}/resourceMatcher`;
+  const res = await fetch(url);
   return res.json();
+}
+
+export async function getZipCoords(zipCode: string): Promise<{ lat: number; lng: number }> {
+  const res = await fetch(`${API_BASE}/geo?zip_code=${encodeURIComponent(zipCode)}`);
+  if (!res.ok) {
+    throw new Error("Failed to geocode zip");
+  }
+  const data = await res.json();
+  return { lat: data.lat, lng: data.lng };
 }
 
 // ─── AGENT STATUS ─────────────────────────────────────────────
@@ -71,6 +86,7 @@ export async function submitReport(report: {
   description: string;
   lat: number;
   lng: number;
+  zip: string;
   reporter?: string;
 }): Promise<{ incident_id: string; priority: string }> {
   const res = await fetch(`${API_BASE}/incidents/report`, {

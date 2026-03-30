@@ -180,7 +180,7 @@ export function LiveMap({ incidents, resources, onToggleFullscreen, onToggleSide
                       />
                     )}
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 font-mono text-[8px] font-bold whitespace-nowrap" style={{ color: cfg.color }}>
-                      {inc.id.replace("INC-", "")}
+                      {inc.severity ?? inc.priority}
                     </div>
                   </div>
                 </MarkerContent>

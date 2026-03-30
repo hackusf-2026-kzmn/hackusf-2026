@@ -123,7 +123,8 @@ def haversine(lat1, lon1, lat2, lon2):
         return 2 * r * math.asin(math.sqrt(a))
 
 @app.get("/scout")
-async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
+async def scout(zip_code: str = USF_ZIP_CODE, days: int = 7) -> dict:
+    days = max(1, min(days, 99))
     nomi = get_nomi_info(zip_code)
 
     # Tampa + neighbouring counties
@@ -184,9 +185,9 @@ async def scout(zip_code: str = USF_ZIP_CODE) -> dict:
     )
     alerts_json = alerts_resp.json() if alerts_resp.ok else {}
 
-    # 2) Recent (past 7 days) alerts — gives demo data even when nothing is active
+    # 2) Recent (past N days) alerts — gives demo data even when nothing is active
     from datetime import timedelta
-    start_iso = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    start_iso = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")
     recent_resp = requests.get(
         f"https://api.weather.gov/alerts?area={nomi['state_code']}&start={start_iso}",
         headers=headers,
@@ -330,6 +331,14 @@ async def get_closest_shelters(zip_code: str = USF_ZIP_CODE, num_of_shelter: int
     _log_activity("Resource", f"matched {len(result)} shelters near zip {zip_code}")
     _touch_agent("resource", f"matched {len(result)} shelters near {zip_code}")
     return result
+
+@app.get("/geo")
+async def geocode_zip(zip_code: str = USF_ZIP_CODE) -> dict:
+    try:
+        lat, lng = get_nomi_info(zip_code)["coords"]
+        return {"zip_code": zip_code, "lat": float(lat), "lng": float(lng)}
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid zip code")
 
 def _normalize_model_name(model_name: str | None) -> str:
     candidate = (model_name or "").strip()

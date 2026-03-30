@@ -45,7 +45,7 @@ const TIMELINE_BASE = [
 const METRICS_BASE = [
   { num: "001", value: "~94", accent: "s" },
   { num: "002", value: "5", accent: " Agents" },
-  { num: "003", value: "6", accent: "+" },
+  { num: "003", value: "2", accent: "+" },
 ];
 
 const translations = {
@@ -56,7 +56,7 @@ const translations = {
       sub2: "Built for Tampa.",
       cta: "Open Dashboard →",
     },
-    metricsLabels: ["Full Pipeline Cycle", "Specialized AI Workers", "Government Data Sources"],
+    metricsLabels: ["Full Pipeline Cycle", "Specialized AI Workers", "Live Data Sources"],
     problem: {
       tag: "The Problem",
       title: "Disasters Outpace Human Coordination",
@@ -65,7 +65,7 @@ const translations = {
     solution: {
       tag: "Our Solution",
       title: "Five Agents, One Pipeline, Zero Delay",
-      body: "Crisis-Net is an agentic companion to the people who prevent harm. Five specialized agents — Scout, Triage, Resource, Comms, and Coordinator — work in a pipeline orchestrated via Google ADK's ParallelAgent. A Scout finds threats, Triage scores impact, Resource matches programs to zip codes, and Comms publishes multilingual alerts. All triggered by a zip code input.",
+      body: "Crisis-Net is an agentic companion to the people who prevent harm. Five specialized agents — Scout, Triage, Resource, Comms, and Coordinator — work in a pipeline orchestrated via Google ADK's ParallelAgent. Scout finds threats via NWS, Triage scores impact with Gemini AI, Resource matches nearby shelters, and Comms publishes multilingual email alerts. All centered on the Tampa Bay area.",
     },
     howItWorks: {
       title: "How It Works",
@@ -73,26 +73,26 @@ const translations = {
       orchestration: "GOOGLE ADK ORCHESTRATION",
     },
     steps: [
-      { title: "Scout & Detect", desc: "Scout Agent monitors NWS, FEMA, and local news/social feeds for anomalous weather and active disaster events." },
-      { title: "Score & Triage", desc: "Triage Agent scores severity using storm category, population density (Census), and NOAA historical damage data." },
-      { title: "Match Support", desc: "Resource Agent identifies and matches FEMA, state, and non-profit assistance programs to affected zip codes." },
-      { title: "Alert & Coordinate", desc: "Comms Agent sends multilingual alerts via Mailgun. Coordinator orchestrates the full pipeline via Google ADK ParallelAgent." },
+      { title: "Scout & Detect", desc: "Scout Agent monitors NWS weather alerts across Florida for severe weather, hurricanes, tropical storms, and flood warnings." },
+      { title: "Score & Triage", desc: "Triage Agent scores severity using Gemini AI analysis, alert type, and Census population density data." },
+      { title: "Match Support", desc: "Resource Agent identifies and matches nearby emergency shelters and assistance resources to affected areas by proximity." },
+      { title: "Alert & Coordinate", desc: "Comms Agent sends multilingual email alerts via Mailgun. Coordinator orchestrates the full pipeline via Google ADK." },
     ],
     timeline: [
-      { title: "Scout", date: "Stage 1", content: "Monitors NWS, FEMA, and local news/social feeds for anomalous weather and active disaster events in real-time.", category: "Detection" },
-      { title: "Triage", date: "Stage 2", content: "Scores severity using storm category, population density (Census), and NOAA historical damage data.", category: "Analysis" },
-      { title: "Resource", date: "Stage 3", content: "Identifies and matches FEMA, state, and non-profit assistance programs to affected zip codes.", category: "Matching" },
-      { title: "Comms", date: "Stage 4", content: "Sends multilingual alerts via Mailgun to affected communities with actionable guidance.", category: "Alerts" },
+      { title: "Scout", date: "Stage 1", content: "Monitors NWS weather alerts across Florida for severe weather, hurricanes, tropical storms, and flood warnings in real time.", category: "Detection" },
+      { title: "Triage", date: "Stage 2", content: "Scores severity using Gemini AI analysis, alert type, and Census population density data.", category: "Analysis" },
+      { title: "Resource", date: "Stage 3", content: "Identifies and matches nearby emergency shelters and assistance resources to affected areas by proximity.", category: "Matching" },
+      { title: "Comms", date: "Stage 4", content: "Sends multilingual email alerts via Mailgun to opted-in community members with actionable guidance.", category: "Alerts" },
       { title: "Coordinator", date: "Orchestrator", content: "Orchestrates the full agent pipeline via Google ADK ParallelAgent, managing sequencing and fallbacks.", category: "Orchestration" },
     ],
     techStack: [
       ["Frontend", "Next.js + TypeScript"],
       ["Styling", "Tailwind CSS"],
       ["AI Orchestration", "Google ADK + Gemini"],
-      ["Weather Data", "NWS + NOAA + FEMA APIs"],
+      ["Weather Data", "NWS Alert API"],
       ["Population Data", "US Census API"],
       ["Alerts", "Mailgun"],
-      ["Storage", "SQLite"],
+      ["Storage", "Supabase"],
     ],
     team: {
       title: "The Team",
@@ -115,7 +115,7 @@ const translations = {
       sub2: "Construida para Tampa.",
       cta: "Abrir Panel →",
     },
-    metricsLabels: ["Ciclo Completo de Pipeline", "Agentes IA Especializados", "Fuentes de Datos Gubernamentales"],
+    metricsLabels: ["Ciclo Completo de Pipeline", "Agentes IA Especializados", "Fuentes de Datos en Vivo"],
     problem: {
       tag: "El Problema",
       title: "Los Desastres Superan la Coordinación Humana",
@@ -124,7 +124,7 @@ const translations = {
     solution: {
       tag: "Nuestra Solución",
       title: "Cinco Agentes, Un Pipeline, Cero Demora",
-      body: "Crisis-Net es un compañero agéntico para quienes previenen daños. Cinco agentes especializados — Scout, Triage, Resource, Comms y Coordinator — trabajan en un pipeline orquestado vía ParallelAgent de Google ADK. Scout detecta amenazas, Triage puntúa el impacto, Resource asigna programas a códigos postales, y Comms publica alertas multilingüe. Todo activado con un código postal.",
+      body: "Crisis-Net es un compañero agéntico para quienes previenen daños. Cinco agentes especializados — Scout, Triage, Resource, Comms y Coordinator — trabajan en un pipeline orquestado vía ParallelAgent de Google ADK. Scout detecta amenazas vía NWS, Triage puntúa el impacto con Gemini AI, Resource asigna refugios cercanos, y Comms publica alertas multilingüe por correo. Todo centrado en el área de Tampa Bay.",
     },
     howItWorks: {
       title: "Cómo Funciona",
@@ -132,26 +132,26 @@ const translations = {
       orchestration: "ORQUESTACIÓN GOOGLE ADK",
     },
     steps: [
-      { title: "Rastrear y Detectar", desc: "El Agente Scout monitorea NWS, FEMA y noticias locales en busca de fenómenos climáticos anómalos y desastres activos." },
-      { title: "Puntuar y Clasificar", desc: "El Agente Triage puntúa la severidad usando la categoría de tormenta, densidad poblacional (Census) y datos históricos de daños de NOAA." },
-      { title: "Emparejar Recursos", desc: "El Agente Resource identifica y asigna programas de FEMA, estatales y sin fines de lucro a los códigos postales afectados." },
-      { title: "Alertar y Coordinar", desc: "El Agente Comms envía alertas multilingüe vía Mailgun. El Coordinator orquesta el pipeline completo vía ParallelAgent de Google ADK." },
+      { title: "Rastrear y Detectar", desc: "El Agente Scout monitorea alertas meteorológicas NWS en toda Florida para clima severo, huracanes, tormentas tropicales y avisos de inundación." },
+      { title: "Puntuar y Clasificar", desc: "El Agente Triage puntúa la severidad usando análisis de Gemini AI, tipo de alerta y datos de densidad poblacional del Censo." },
+      { title: "Emparejar Recursos", desc: "El Agente Resource identifica y asigna refugios de emergencia y recursos de asistencia cercanos a las áreas afectadas por proximidad." },
+      { title: "Alertar y Coordinar", desc: "El Agente Comms envía alertas multilingüe por correo vía Mailgun. El Coordinator orquesta el pipeline completo vía Google ADK." },
     ],
     timeline: [
-      { title: "Scout", date: "Etapa 1", content: "Monitorea NWS, FEMA y noticias locales en tiempo real para detectar fenómenos climáticos anómalos y desastres activos.", category: "Detección" },
-      { title: "Triage", date: "Etapa 2", content: "Puntúa la severidad usando la categoría de tormenta, densidad poblacional (Census) y datos históricos de daños de NOAA.", category: "Análisis" },
-      { title: "Resource", date: "Etapa 3", content: "Identifica y asigna programas de FEMA, estatales y sin fines de lucro a los códigos postales afectados.", category: "Emparejamiento" },
-      { title: "Comms", date: "Etapa 4", content: "Envía alertas multilingüe vía Mailgun a comunidades afectadas con orientación práctica.", category: "Alertas" },
+      { title: "Scout", date: "Etapa 1", content: "Monitorea alertas meteorológicas NWS en toda Florida para clima severo, huracanes, tormentas tropicales y avisos de inundación en tiempo real.", category: "Detección" },
+      { title: "Triage", date: "Etapa 2", content: "Puntúa la severidad usando análisis de Gemini AI, tipo de alerta y datos de densidad poblacional del Censo.", category: "Análisis" },
+      { title: "Resource", date: "Etapa 3", content: "Identifica y asigna refugios de emergencia y recursos de asistencia cercanos a las áreas afectadas por proximidad.", category: "Emparejamiento" },
+      { title: "Comms", date: "Etapa 4", content: "Envía alertas multilingüe por correo vía Mailgun a miembros de la comunidad suscritos con orientación práctica.", category: "Alertas" },
       { title: "Coordinator", date: "Orquestador", content: "Orquesta el pipeline completo de agentes vía ParallelAgent de Google ADK, gestionando secuencias y contingencias.", category: "Orquestación" },
     ],
     techStack: [
       ["Frontend", "Next.js + TypeScript"],
       ["Estilos", "Tailwind CSS"],
       ["Orquestación IA", "Google ADK + Gemini"],
-      ["Datos Climáticos", "NWS + NOAA + FEMA APIs"],
+      ["Datos Climáticos", "NWS Alert API"],
       ["Datos de Población", "US Census API"],
       ["Alertas", "Mailgun"],
-      ["Almacenamiento", "SQLite"],
+      ["Almacenamiento", "Supabase"],
     ],
     team: {
       title: "El Equipo",
